@@ -1,0 +1,159 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AccountForm Takes a snapshot 1`] = `
+<DocumentFragment>
+  <div
+    class="container"
+  >
+    <form
+      class=""
+      data-testid="account-form"
+      novalidate=""
+    >
+      <div
+        class="form-group"
+      >
+        <label
+          class="form-label"
+          for="nickname"
+        >
+          Account Nickname
+        </label>
+        <input
+          class="form-control"
+          id="nickname"
+          name="nickname"
+          placeholder="Enter account nickname"
+          type="text"
+          value=""
+        />
+        <div
+          class="invalid-feedback"
+          data-testid="nickname-error"
+        />
+      </div>
+      <div
+        class="form-group"
+      >
+        <label
+          class="form-label"
+          for="financialInstitute"
+        >
+          Financial Institute
+        </label>
+        <input
+          class="form-control"
+          id="financialInstitute"
+          name="financialInstitute"
+          placeholder="Enter financial institute"
+          type="text"
+          value=""
+        />
+        <div
+          class="invalid-feedback"
+          data-testid="fi-error"
+        />
+      </div>
+      <div
+        class="form-group"
+      >
+        <label
+          class="form-label"
+          for="accountType"
+        >
+          Account Type
+        </label>
+        <select
+          class="form-control"
+          id="accountType"
+          name="accountType"
+        >
+          <option
+            value="Checking"
+          >
+            Checking
+          </option>
+          <option
+            value="Savings"
+          >
+            Savings
+          </option>
+          <option
+            value="Credit Card"
+          >
+            Credit Card
+          </option>
+        </select>
+      </div>
+      <div
+        class="form-group"
+      >
+        <div
+          class="form-row"
+        >
+          <div
+            class="col"
+          >
+            <label
+              class="form-label"
+            >
+              Account Balance
+            </label>
+            <input
+              class="form-control"
+              id="balance"
+              name="balance"
+              placeholder="Enter account balance"
+              required=""
+              type="text"
+              value=""
+            />
+            <div
+              class="invalid-feedback"
+              data-testid="balance-error"
+            />
+          </div>
+          <div
+            class="col"
+          >
+            <label
+              class="form-label"
+            >
+              As of Date
+            </label>
+            <div>
+              <div
+                class="react-datepicker-wrapper"
+              >
+                <div
+                  class="react-datepicker__input-container"
+                >
+                  <input
+                    class="form-control"
+                    id="asOfDate"
+                    type="text"
+                    value=""
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <button
+        class="btn btn-primary"
+        style="margin-right: 1.0rem;"
+        type="submit"
+      >
+        Save
+      </button>
+      <button
+        class="btn btn-secondary"
+        type="button"
+      >
+        Cancel
+      </button>
+    </form>
+  </div>
+</DocumentFragment>
+`;

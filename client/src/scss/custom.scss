@@ -1,0 +1,12 @@
+//-----------------------------------------------------------------------------
+// src/scss/custom.scss
+//-----------------------------------------------------------------------------
+@import './globals.scss';
+
+// Define bootstrap overrides - I can move into the bootstrap_overrides.scss
+$body-bg:   $global-test;
+
+@import './styles.scss';
+
+// Import Bootstrap and its default variables
+@import '~bootstrap/scss/bootstrap.scss';
