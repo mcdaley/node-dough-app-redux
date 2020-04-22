@@ -1,11 +1,7 @@
 //-----------------------------------------------------------------------------
 // client/src/ducks/accounts.js
 //-----------------------------------------------------------------------------
-import { combineReducers }        from 'redux'
-import { normalize }              from 'normalizr'
-
 import AccountsAPI                from '../api/accounts-api'
-import { accountsSchema }         from '../api/schema'
 
 //
 // Account Action Types
@@ -53,7 +49,7 @@ export const actions = {
       try {
         let response = await AccountsAPI.create(account)
 
-        console.log(`[debug] AccountsAPI.create(), accounts = `, response)
+        //* console.log(`[debug] AccountsAPI.create(), accounts = `, response)
         dispatch({
           type:     types.CREATE_ACCOUNT,
           payload:  response
@@ -71,9 +67,9 @@ export const actions = {
 }
 
 //
-// ById Account Reducers
+// Account Reducer
 //
-let initialState      = []
+let    initialState   = []
 export const reducer  = (state = initialState, action) => {
   switch(action.type) {
     case types.FETCH_ACCOUNTS:
@@ -87,12 +83,9 @@ export const reducer  = (state = initialState, action) => {
         ...action.payload.error
       }
     case types.CREATE_ACCOUNT:
-      let accounts = [...state.data]
-      accounts.push(action.payload)
-
       return {
         ...state,
-        data: accounts,
+        data: [...state.data, action.payload],
       }
     case types.CREATE_ACCOUNT_ERROR:
       return {
@@ -103,11 +96,4 @@ export const reducer  = (state = initialState, action) => {
       return state
   }
 }
-
-//
-// Export the Account Reducers
-//
-//* export const reducer = combineReducers({
-//*   byId: accountsById,
-//* })
 

@@ -12,7 +12,7 @@ import { composeWithDevTools }  from 'redux-devtools-extension'
 
 import {reducer as accounts }   from './accounts'
 
-const rootReducer = combineReducers({
+export const rootReducer = combineReducers({
   accounts,
 })
 

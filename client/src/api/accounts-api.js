@@ -2,9 +2,6 @@
 // client/src/api/accounts-api.js
 //-----------------------------------------------------------------------------
 import axios              from 'axios'
-import { normalize }      from 'normalizr'
-
-import { accountsSchema } from './schema'
 
 /**
  * API for managing user accounts.

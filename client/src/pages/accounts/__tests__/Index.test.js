@@ -11,7 +11,9 @@ import {
   getByText,
   wait,
 }                         from '@testing-library/react'
+import { Provider }       from 'react-redux'
 
+import configureStore     from '../../../ducks/configureStore'
 import accountsApiMock    from '../../../api/accounts-api'
 jest.mock('../../../api/accounts-api') 
 
@@ -39,18 +41,38 @@ const accountsData = [
   }
 ]
 
+/**
+ * Helper function to create the redux store when I render a component
+ * for testing.
+ * @param   {Component} component - component to render/test
+ * @param   {*}         store     - redux store
+ * @returns Component to render.
+ */
+const renderWithRedux = (component, store = configureStore()) => {
+  return {
+    ...render(<Provider store={store}>{component}</Provider>), 
+    store
+  }
+}
+
+/**
+ * PagesAccountsIndex Tests
+ */
 describe('PagesAccountsIndex', () => {
   afterEach( () => {
     cleanup()
     jest.resetAllMocks()
   })
 
+  /**
+   * TEST Page Render
+   */
   describe('Fetch accounts', () => {
     it('Returns a list of accounts', async () => {
       // Mock the fetch call by passing in an array of accountsData
       accountsApiMock.get.mockResolvedValueOnce(accountsData)
   
-      const { getAllByTestId } = render(
+      const { getAllByTestId } = renderWithRedux(
         <MemoryRouter>
           <PagesAccountsIndex />
         </MemoryRouter>
@@ -67,12 +89,15 @@ describe('PagesAccountsIndex', () => {
     })
   })
 
+  /**
+   * TEST Opening Account Model
+   */
   describe('Add acount modal', () => {
     it('Opens the modal', async () => {
       // Mock the fetch call by passing in an array of accountsData
       accountsApiMock.get.mockResolvedValueOnce(accountsData)
 
-      const { getByText } = render(
+      const { getByText } = renderWithRedux(
         <MemoryRouter>
           <PagesAccountsIndex />
         </MemoryRouter>
@@ -86,6 +111,9 @@ describe('PagesAccountsIndex', () => {
     })
   })
 
+  /**
+   * TEST Create New Account
+   */
   describe('Create account', () => {
     /**
      * Create account test runs through the complete cycle of the accounts
@@ -113,7 +141,7 @@ describe('PagesAccountsIndex', () => {
       accountsApiMock.create.mockResolvedValueOnce(params)
 
       // Render the accounts page.
-      const { getByText, getByPlaceholderText, getAllByTestId } = render(
+      const { getByText, getByPlaceholderText, getAllByTestId } = renderWithRedux(
         <MemoryRouter>
           <PagesAccountsIndex />
         </MemoryRouter>

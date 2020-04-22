@@ -12,7 +12,6 @@ import {
 
 import AccountList        from '../../components/account/List'
 import CreateAccountModal from '../../components/account/Modal'
-import AccountsAPI        from '../../api/accounts-api'
 import { actions }        from '../../ducks/accounts'
 
 /**
@@ -22,35 +21,28 @@ import { actions }        from '../../ducks/accounts'
  */
 function PagesAccountsIndex() {
 
-  const report    = useSelector(state => state.accounts.data)
+  /////////////////////////////////////////////////////////////////////////////
+  // TODO: 04/21/2020
+  // [x] 1.) FIX ALL OF THE FAILED CLIENT TESTS
+  // 2.) NEED TO TEST USE CASES WHEN I DISPATCH ERRORS WHEN I CREATE AN ACCOUNT!
+  // 3.) VERIFY THAT I DO NOT FETCH THE ACCOUNTS WHEN I RELOAD THE PAGE
+  //     AND THE ACCOUNTS ARE AVAILABLE IN THE REDUX STORE.
+  /////////////////////////////////////////////////////////////////////////////
+  const accounts  = useSelector(state => state.accounts.data)
+  const errors    = useSelector(state => state.errors)
+
   const dispatch  = useDispatch()
+  
+  /**
+   * Fetch user's accounts when the page loads.
+   */
   useEffect( () => {
-    const fetchData = async () => {
+    const fetchData = () => {
       dispatch(actions.fetchAccounts())
-      //* console.log(`[debug] Fetched report= `, report)
     }
     fetchData()
   }, [])
 
-  // Fetch user accounts when page loads
-  const [accounts, setAccounts] = useState([])
-  /*****/
-  useEffect( () => {
-    const fetchData = async () => {
-      try {
-        let accounts = await AccountsAPI.get()
-        
-        //* console.log(`[debug] AccountsAPI.get(), accounts = `, accounts)
-        setAccounts(accounts);
-      } 
-      catch (error) {
-        console.log(`[error] Failed to retrieve user accounts, error= `, error)
-        setErrors(error)
-      }
-    }
-    fetchData()
-  }, [])
-  /*****/
 
   // Toggle the visibility of the create account modal.
   const [show, setShow] = useState(false)
@@ -58,7 +50,7 @@ function PagesAccountsIndex() {
   const hideAddAccountModal = () => setShow(false)
 
   // Handle create account errors
-  const [errors, setErrors] = useState({})
+  //* const [errors, setErrors] = useState({})
 
   /**
    * Callback to create the account once the user has entered form fields.
@@ -70,29 +62,18 @@ function PagesAccountsIndex() {
     //* console.log(`[info] Create account w/ input form fields= `, values)
 
     // Create the account and update the state
-    try {
-      let account = await AccountsAPI.create({
-        name:               values.nickname,
-        financialInstitute: values.financialInstitute,
-        type:               values.accountType,
-        balance:            values.balance,
-        asOfDate:           values.asOfDate,
-      })
-
-      //* setAccounts([...accounts, account])
-      dispatch(actions.createAccount(account))
-      console.log(`[debug] Created a new account`)
-    }
-    catch(error) {
-      console.log(`[error] Failed to create account, error= `, error)
-      setErrors(error)
-    }
-    finally {
-      // Cleanup and close the modal.
-      resetForm()
-      setSubmitting(false)
-      hideAddAccountModal()
-    }
+    dispatch(actions.createAccount({
+      name:               values.nickname,
+      financialInstitute: values.financialInstitute,
+      type:               values.accountType,
+      balance:            values.balance,
+      asOfDate:           values.asOfDate,
+    }))
+  
+    // Cleanup and close the modal.
+    resetForm()
+    setSubmitting(false)
+    hideAddAccountModal()
   }
 
   /**
@@ -100,7 +81,7 @@ function PagesAccountsIndex() {
    * or if there was an error creating a new account.
    */
   function displayError() {
-    if(errors.server == null) { return null }
+    if(errors == null) { return null }
 
     return (
       <Alert variant='danger' style={{width:'100%'}}>
@@ -109,12 +90,15 @@ function PagesAccountsIndex() {
     )
   }
 
+  /**
+   * Return the accounts loaded when the page loads, if the accounts
+   * have not been loaded then return an empty array.
+   */
   const buildAccountList = () => {
-    console.log(`[debug] Try to figure out the redux store:`)
-    if(report == null) {
+    if(accounts == null) {
       return []
     }
-    return report
+    return accounts
   }
 
   /**
@@ -131,23 +115,18 @@ function PagesAccountsIndex() {
         />
       </Row>
       <Row>
-        <h1>Dough Money - Accounts Page</h1>
+        <h1>Dough Money Redux - Accounts Page</h1>
       </Row>
       <Row>
         {displayError()}
       </Row>
-      {/* */}
       <Row>
-        <AccountList accounts={accounts} />
+        <AccountList accounts={buildAccountList()} />
       </Row>
-      {/* */}
       <Row>
         <Button variant='primary' onClick={showAddAccountModal}>
           Add Account
         </Button>
-      </Row>
-      <Row style={{margin: '1.0rem'}}>
-        <AccountList accounts={buildAccountList()} />
       </Row>
     </Container>
   )
