@@ -25,7 +25,7 @@ export const actions = {
       try {
         let accounts = await AccountsAPI.get()
         
-        console.log(`[debug] AccountsAPI.get(), accounts = `, accounts)
+        //* console.log(`[debug] AccountsAPI.get(), accounts = `, accounts)
         dispatch({
           type:     types.FETCH_ACCOUNTS,
           payload:  accounts
@@ -47,16 +47,16 @@ export const actions = {
   createAccount(account) {
     return async function(dispatch, getState) {
       try {
-        let response = await AccountsAPI.create(account)
+        let result = await AccountsAPI.create(account)
 
-        //* console.log(`[debug] AccountsAPI.create(), accounts = `, response)
+        //* console.log(`[debug] AccountsAPI.create(), accounts = `, result)
         dispatch({
           type:     types.CREATE_ACCOUNT,
-          payload:  response
+          payload:  result
         })
       }
       catch(error) {
-        console.log(`[error] Failed to create new account, error= `, error)
+        //* console.log(`[error] Failed to create new account, error= `, error)
         dispatch({
           type:     types.CREATE_ACCOUNT_ERROR,
           payload:  error
