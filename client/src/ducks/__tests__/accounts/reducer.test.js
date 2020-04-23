@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------
-// client/src/ducks/__tests__/accounts.reducer.test.js
+// client/src/ducks/__tests__/accounts/reducer.test.js
 //-----------------------------------------------------------------------------
-import { types, reducer } from '../accounts'
+import { types, reducer } from '../../accounts'
 
 /**
  * Account Redux Reducer

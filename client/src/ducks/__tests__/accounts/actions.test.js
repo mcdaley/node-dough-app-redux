@@ -1,10 +1,10 @@
 //-----------------------------------------------------------------------------
-// client/src/ducks/__tests__/accounts.actions.test.js
+// client/src/ducks/__tests__/accounts/actions.test.js
 //-----------------------------------------------------------------------------
-import { actions, types }   from '../accounts'
+import { actions, types }   from '../../accounts'
 
-import accountsApiMock      from '../../api/accounts-api'
-jest.mock('../../api/accounts-api')
+import accountsApiMock      from '../../../api/accounts-api'
+jest.mock('../../../api/accounts-api')
 
 // Mock account data
 const accountsData = [
