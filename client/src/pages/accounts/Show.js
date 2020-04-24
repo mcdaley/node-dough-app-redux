@@ -2,6 +2,7 @@
 // client/src/pages/accounts/Show.js
 //-----------------------------------------------------------------------------
 import React, { useState, useEffect }   from 'react'
+import { useSelector, useDispatch }     from 'react-redux'
 import { 
   Container, 
   Row,
@@ -15,6 +16,8 @@ import AccountSummary                   from '../../components/account/Summary'
 import TransactionGrid                  from '../../components/transaction/Grid'
 import TransactionForm                  from '../../components/transaction/Form'
 import { runningBalance }               from '../../utils/transactions-helper'
+import { actions }                      from '../../ducks/transactions'
+import { actions as accountActions }    from '../../ducks/accounts'
 
 /**
  * 
@@ -26,29 +29,46 @@ const PagesAccountsShow = () => {
   let   { id }                    = useParams()   // Get accountId from the URL
   const [accountId, setAccountId] = useState(id)
 
-  // Get the account and its transactions
-  const [account, setAccount]           = useState({})
-  const [transactions, setTransactions] = useState([])
+  ///////////////////////////////////////////////////////////////////////////////
+  // TODO: 04/22/2020
+  // LONGTERM SOLUTION TO MOVING TO REDUX INVOLVES THE FOLLOWING STEPS:
+  //  1.) REFACTOR Index.js TO USE THE accountsById FORMAT.
+  //  2.) ADD LOGIC TO SEE IF THE ACCOUNT_ID IS IN REDUX, IF IT IS NOT THEN
+  //      RETRIEVE ALL THE ACCOUNTS OR A SINGLE ACCOUNT.
+  //  3.) CHANGE THE LOGIC IN CREATE TRANSACTION TO ADD THE TRANSACTION TO THE
+  //      TRANSACTION OBJECT
+  //  4.) CHANGE THE LOGIC TO EDIT TRANSACTION TO UPDATE THE TXN OBJECT MAP.
+  ///////////////////////////////////////////////////////////////////////////////
+  const dispatch     = useDispatch()
+  const accounts     = useSelector(state => state.accounts)
+  const transactions = useSelector(state => state.transactions.data)
+  const errors       = useSelector(state => state.transactions.error)
+ 
+  /**
+   * Fetch transactions when the page loads.
+   */
   useEffect( () => {
-    const fetchData = async () => {
-      try {
-        let result = await TransactionsAPI.findByAccountId(accountId)
-
-        //* console.log(`[debug] TransactionsAPI.findByAccountId(${accountId})= `, result)
-        setAccount(result.account)
-        setTransactions(result.transactions)
-      }
-      catch(error) {
-        console.log(`[error] Failed to retrieve account transactions, error= `, error)
-        setErrors(error)
-      }
+    const fetchData = () => {
+      dispatch(actions.fetchTransactionsByAccountId(accountId))
     }
-
     fetchData()
   }, [accountId])
 
+
+  /**
+   * Fetch accounts when the page loads
+   */
+  useEffect( () => {
+    const fetchData = () => {
+      dispatch(accountActions.findAccount(accountId))
+    }
+    fetchData()
+  }, [accountId])
+
+
+
   // Handle create account errors
-  const [errors, setErrors] = useState({})
+  //* const [errors, setErrors] = useState({})
 
   /**
    * Navigate back to the previous screen.
@@ -62,36 +82,11 @@ const PagesAccountsShow = () => {
    * 
    * @param {Object} transaction - Transaction that was just created in DB
    */
-  const onCreateTransaction = ({transaction}) => {
-    //* console.debug(`[debug] Created transaction= `, transaction)
+  const onCreateTransaction = (accountId, transaction) => {
+    console.debug(`[debug] Created transaction= `, transaction)
 
-    let transactionList = buildTransactionList(transaction)
-    setTransactions(transactionList)
+    dispatch(actions.createTransaction(accountId, transaction))
   }
-
-  /**
-   * Sort the transactions and calculate the running balance for the account.
-   * @param {*} transaction - Transaction that was just created.
-   */
-  const buildTransactionList = (transaction) => {
-    let txnList = [...transactions, transaction].sort( (a,b) => {
-      return new Date(b.date) - new Date(a.date)
-    })
-
-    txnList = runningBalance(txnList)
-
-    return txnList
-  }
-
-  /////////////////////////////////////////////////////////////////////////////
-  // TODO: 04/15/2020
-  //  - STANDARDIZE ON THE TransactionsAPI RESPONSES. THE create() METHOD
-  //    RETURNS AN OBJECT { transaction: {} } AND THE update() METHOD RETURNS
-  //    THE DATA {}.
-  //  - 04/18/20 => SHOULD MOVE TO RETURNING AN OBJECT {} AS THAT GIVES 
-  //    MORE FLEXIBILITY IN THE FUTURE. NEED TO UPDATE THE
-  //    TransactionsAPI.update() to return {transaction}
-  /////////////////////////////////////////////////////////////////////////////
 
   /**
    * Callback to handle a transaction update. It finds and replaces the updated
@@ -111,11 +106,11 @@ const PagesAccountsShow = () => {
       transactionList.sort( (a, b) => new Date(b.date) - new Date(a.date) )
       transactionList         = runningBalance(transactionList)
     
-      setTransactions(transactionList)
+      //* setTransactions(transactionList)
     }
     catch(error) {
       console.log(`[error] Failed to update the transaction, error= `, error)
-      setErrors(error)
+      //* setErrors(error)
     }
   }
 
@@ -123,8 +118,11 @@ const PagesAccountsShow = () => {
    * Render the account summary.
    */
   const renderAccountSummary = () => {
-    if(Object.keys(account).length === 0 || account == null) return null
+    if(Object.keys(accounts).length === 0 || accounts == null) return null
     
+    //* console.log(`[DEBUG] accountId= `, accountId)
+    //* console.log(`[DEBUG] Redux accounts= `, accounts)
+    const account = accounts[accountId]
     return (
       <AccountSummary
         _id                 = {account._id}
@@ -139,11 +137,11 @@ const PagesAccountsShow = () => {
    * Render the form to create new account transactions.
    */
   const renderTransactionForm = () => {
-    if(Object.keys(account).length === 0 || account == null) return null
+    if(Object.keys(accounts).length === 0 || accounts == null) return null
 
     return (
       <TransactionForm
-        accountId = {account._id}
+        accountId = {accountId}
         onSubmit  = {onCreateTransaction}
       />
     )
@@ -153,15 +151,37 @@ const PagesAccountsShow = () => {
    * Render the transactions grid
    */
   const renderTransactions = () => {
-    if(transactions.length === 0) return null
+    if(Object.keys(transactions).length === 0) return null
 
+    //* console.debug(`[DEBUG] Redux transactions= `, transactions)
+    let transactionsList = buildTransactionList()
     return (
       <TransactionGrid 
-        transactions  = {transactions} 
+        transactions  = {transactionsList} 
         onUpdate      = {onUpdateTransaction}
       />
     )
   }
+
+  /**
+   * Sort the transactions and calculate the running balance for the account.
+   * @returns Array of transactions sorted by date w/ running balance.
+   */
+  const buildTransactionList = () => {
+    let transactionList = []
+    
+    Object.keys(transactions).forEach( (id) => {
+      transactionList.push(transactions[id])
+    })
+
+    transactionList = transactionList.sort( (a,b) => {
+      return new Date(b.date) - new Date(a.date)
+    })
+    transactionList = runningBalance(transactionList)
+
+    return transactionList
+  }
+
 
   /**
    * Render the PagesAccountsShow screen

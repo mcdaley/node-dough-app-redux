@@ -15,9 +15,10 @@ const AccountsAPI = {
     return new Promise( async (resolve, reject) => {
       try {
         const result   = await axios.get('http://localhost:5000/api/v1/accounts');
+        const accounts = normalize(result.data.accounts)
         
         //* console.log(`[debug] fetchData, results = `, result.data)
-        resolve(result.data.accounts);
+        resolve(accounts);
       } 
       catch (err) {
         //* console.log(`[error] Failed to retrieve user accounts, error= `, err)
@@ -113,6 +114,21 @@ const AccountsAPI = {
     })
   }
 }
+
+/**
+ * Map an array of transactions into an object that contains all of the transactions
+ * that is indexed by the transaction id.
+ * @param   {Array}   transactions 
+ * @returns {Object}  Map of transactions indexed by transaction ids.
+ */
+const normalize = (transactions) => {
+  let normalized = {}
+  transactions.forEach( (txn) => {
+    normalized[txn._id] = txn
+  })
+  return normalized
+}
+
 
 // Export accounts api
 export default AccountsAPI

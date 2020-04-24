@@ -28,7 +28,7 @@ function PagesAccountsIndex() {
   // 3.) VERIFY THAT I DO NOT FETCH THE ACCOUNTS WHEN I RELOAD THE PAGE
   //     AND THE ACCOUNTS ARE AVAILABLE IN THE REDUX STORE.
   /////////////////////////////////////////////////////////////////////////////
-  const accounts  = useSelector(state => state.accounts.data)
+  const accounts  = useSelector(state => state.accounts)
   const errors    = useSelector(state => state.errors)
 
   const dispatch  = useDispatch()
@@ -91,14 +91,18 @@ function PagesAccountsIndex() {
   }
 
   /**
-   * Return the accounts loaded when the page loads, if the accounts
-   * have not been loaded then return an empty array.
+   * Return an array of accounts when the page loads by converting the
+   * accounts in the redux-store from an object w/ account Ids as keys
+   * to an array of accounts. If the accounts have not been loaded 
+   * then return an empty array.
    */
   const buildAccountList = () => {
     if(accounts == null) {
       return []
     }
-    return accounts
+
+    const  accountsList = Object.keys(accounts).map( (accountId) => accounts[accountId])
+    return accountsList
   }
 
   /**

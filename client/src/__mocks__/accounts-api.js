@@ -3,6 +3,7 @@
 //-----------------------------------------------------------------------------
 export default {
   get:    jest.fn().mockResolvedValue([]),
+  find:   jest.fn().mockResolvedValue([]),
   create: jest.fn().mockResolvedValue({}),
   update: jest.fn().mockResolvedValue({})
 };

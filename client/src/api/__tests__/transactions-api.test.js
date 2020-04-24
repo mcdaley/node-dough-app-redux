@@ -78,16 +78,18 @@ describe('Transactions API', () => {
       expect(account.userId).toBe(accountsData[0].userId)
 
       // Verify the transactions
-      expect(transactions.length).toBe(3)
-      expect(transactions[0].description).toBe(transactionsData[0].description)
-      expect(transactions[0].amount).toBe(transactionsData[0].amount)
-      expect(transactions[0].debit).toBe(transactionsData[0].amount)
-      expect(transactions[0].credit).toBe('')
+      let id = transactionsData[0]._id
+      expect(Object.keys(transactions).length).toBe(3)
+      expect(transactions[id].description).toBe(transactionsData[0].description)
+      expect(transactions[id].amount).toBe(transactionsData[0].amount)
+      expect(transactions[id].debit).toBe(transactionsData[0].amount)
+      expect(transactions[id].credit).toBe('')
 
-      expect(transactions[2].description).toBe(transactionsData[2].description)
-      expect(transactions[2].amount).toBe(transactionsData[2].amount)
-      expect(transactions[2].credit).toBe(transactionsData[2].amount)
-      expect(transactions[2].debit).toBe('')
+      id = transactionsData[2]._id
+      expect(transactions[id].description).toBe(transactionsData[2].description)
+      expect(transactions[id].amount).toBe(transactionsData[2].amount)
+      expect(transactions[id].credit).toBe(transactionsData[2].amount)
+      expect(transactions[id].debit).toBe('')
     })
 
     it('Returns a server error', async () => {

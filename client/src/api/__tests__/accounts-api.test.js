@@ -40,7 +40,7 @@ describe('Accounts API', () => {
    */
   describe('get', () => {
     /**
-     * Instead of calling axios.get(url), I want to mocj the axios.get() to return 
+     * Instead of calling axios.get(url), I want to mock the axios.get() to return 
      * the accountsData
      */
     it('Returns an array of accounts', async () => {
@@ -49,7 +49,13 @@ describe('Accounts API', () => {
       })
 
       const accounts = await AccountsAPI.get()
-      expect(accounts.length).toBe(2)
+      expect(Object.keys(accounts).length).toBe(2)
+      
+      let id = accountsData[0]._id
+      expect(accounts[id]._id).toBe(accountsData[0]._id)
+      expect(accounts[id].name).toBe(accountsData[0].name)
+      expect(accounts[id].balance).toBe(accountsData[0].balance)
+      expect(accounts[id].userId).toBe(accountsData[0].userId)
     })
 
     it('Returns a server error', async () => {
@@ -69,6 +75,43 @@ describe('Accounts API', () => {
         expect(error.server.code).toBe(500)
         expect(error.server.message).toMatch(/Unable to get your accounts/)
       }
+    })
+  })
+
+  /**
+   * AccountsAPI.find()
+   */
+  describe('find', () => { 
+    it('Returns a 500 message if account is not found', async () => {
+      const serverError = {
+        server: { code: 500, message: 'Not found' }
+      }
+
+      // Add mock implementation to simulate a 404 error
+      axiosMock.get.mockImplementationOnce(() =>
+        Promise.reject(serverError),
+      )
+
+      try {
+        const accountId = '99'
+        const account   = await AccountsAPI.find('99')
+      }
+      catch(error) {
+        expect(error.server.code).toBe(500)
+        expect(error.server.message).toMatch(/unable to get account/i)
+      }
+    })
+
+    it('Returns the account', async () => {
+      axiosMock.get.mockResolvedValueOnce({
+        data: { account: accountsData[0] },
+      })
+
+      const account = await AccountsAPI.find(accountsData[0]._id)
+
+      expect(account._id).toBe(accountsData[0]._id)
+      expect(account.name).toBe(accountsData[0].name)
+      expect(account.userId).toBe(accountsData[0].userId)
     })
   })
 

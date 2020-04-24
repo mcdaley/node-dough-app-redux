@@ -12,30 +12,60 @@ describe('Account Redux Reducer', () => {
   //
   describe('fetchAccounts()', () => {
     it('FETCH_ACCOUNTS: Returns array of accounts', () => {
-      const accounts = [
-        {id: '1', name: 'Checking'},
-        {id: '2', name: 'Savings'},
-      ]
+      const accounts = {
+        '1': { id: '1', name: 'Checking' },
+        '2': { id: '2', name: 'Savings' },
+      }
 
-      const result = reducer(undefined, {
+      const result = reducer({}, {
         type:     types.FETCH_ACCOUNTS,
-        payload:  accounts,
+        payload:  {accounts: accounts},
       })
 
-      expect(result.data.length).toBe(2)
-      expect(result.data[0].id).toBe('1')
-      expect(result.data[0].name).toBe('Checking')
+      expect(Object.keys(result).length).toBe(2)
+      expect(result['1'].id).toBe(accounts['1'].id)
+      expect(result['1'].name).toBe('Checking')
     })
 
     it('FETCH_ACCOUNTS_ERROR: Returns an error', () => {
-      const error  = {error: { code: 500, message: 'Server error' } }
+      const error  = { code: 500, message: 'Server error' }
       const result = reducer(undefined, {
         type:     types.FETCH_ACCOUNTS_ERROR,
-        payload:  error
+        payload:  {error: error}
       })
 
-      expect(result.code).toBe(error.error.code)
-      expect(result.message).toBe(error.error.message)
+      expect(result.error.code).toBe(error.code)
+      expect(result.error.message).toBe(error.message)
+    })
+  })
+
+  describe('findAccount', () => {
+    const initialState = {
+      '1': { _id: '1', name: 'Checking' },
+      '2': { _id: '2', name: 'Savings' },
+    }
+
+    it('FIND_ACCOUNT: Returns an account', () => {
+      const account = { _id: '1', name: 'Checking' }
+      const result  = reducer(initialState, {
+        type:     types.CREATE_ACCOUNT,
+        payload:  { account: account }
+      })
+
+      expect(Object.keys(result).length).toBe(2)
+      expect(result['1']._id).toBe(account._id)
+      expect(result['1'].name).toBe(account.name)
+    })
+
+    it('FIND_ACCOUNT_ERROR: Returns an error', () => {
+      const error   = { code: 500, message: 'Server error' }
+      const result  = reducer(initialState, {
+        type:     types.FIND_ACCOUNT_ERROR,
+        payload:  {error: error}
+      })
+
+      expect(result.error.code).toBe(error.code)
+      expect(result.error.message).toBe(error.message)
     })
   })
 
@@ -43,32 +73,33 @@ describe('Account Redux Reducer', () => {
   // TEST create account
   //
   describe('createAccounts()', () => {
-    const initialState = { data: [
-      {id: '1', name: 'Checking'},
-      {id: '2', name: 'Savings'},
-    ] }
+    const initialState = {
+      '1': { _id: '1', name: 'Checking' },
+      '2': { _id: '2', name: 'Savings' },
+    }
 
     it('CREATE_ACCOUNT: Creates and returns an account', () => {
-      const result = reducer(initialState, {
+      const account = {_id: '3', name: 'Credit Card'}
+      const result  = reducer(initialState, {
         type:     types.CREATE_ACCOUNT,
-        payload:  { id: '3', name: 'Credit Card' }
+        payload:  { account: account }
       })
-
-      expect(result.data.length).toBe(3)
-      expect(result.data[2].id).toBe('3')
-      expect(result.data[2].name).toBe('Credit Card')
+    
+      expect(Object.keys(result).length).toBe(3)
+      expect(result['3']._id).toBe(account._id)
+      expect(result['3'].name).toBe(account.name)
     })
 
     it('CREATE_ACCOUNT_ERROR: Returns an error', () => {
-      const error  = {error: { code: 400, message: 'Bad request' } }
+      const error  = { code: 400, message: 'Bad request' }
       const result = reducer(initialState, {
         type:     types.CREATE_ACCOUNT_ERROR,
-        payload:  error,
+        payload:  {error: error},
       })
 
-      expect(result.data.length).toBe(2)
-      expect(result.code).toBe(error.error.code)
-      expect(result.message).toBe(error.error.message)
+      //* expect(Object.keys(result).length).toBe(2)
+      expect(result.error.code).toBe(error.code)
+      expect(result.error.message).toBe(error.message)
     })
   })
 })

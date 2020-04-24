@@ -1,8 +1,8 @@
 //-----------------------------------------------------------------------------
 // client/src/pages/accounts/__tests__/Show.test.js
 //-----------------------------------------------------------------------------
-import React                from 'react'
-import { MemoryRouter }     from 'react-router-dom'
+import React                    from 'react'
+import { MemoryRouter, Route }  from 'react-router-dom'
 import {
   cleanup,
   fireEvent,
@@ -10,16 +10,22 @@ import {
   wait,
 }                           from '@testing-library/react'
 import numeral              from 'numeral'
+import { Provider }         from 'react-redux'
+
+import configureStore       from '../../../ducks/configureStore'
 
 import mockTransactionsAPI  from '../../../api/transactions-api'
 jest.mock('../../../api/transactions-api') 
 
+import mockAccountsAPI      from '../../../api/accounts-api'
+jest.mock('../../../api/accounts-api')
+
 import PagesAccountsShow    from '../Show'
 
 // Mock account data
-const accountsData = [
-  { 
-    _id:                '1', 
+const accountsData = {
+  '99': { 
+    _id:                '99', 
     name:               'Test Checking Account', 
     financialInstitute: 'Bank', 
     type:               'Checking', 
@@ -27,11 +33,11 @@ const accountsData = [
     initialDate:        '2020-03-31T07:00:00.000Z',
     userId:             'Me'
   }
-]
+}
 
 // Mock transaction data - need to add the calculated fields for debit, credit and balance.
-const transactionsData = [
-  {
+const transactionsData = {
+  '1': {
     _id:          '1',
     date:         '2020-03-01T07:00:00.000Z',
     description:  'Opening Balance', 
@@ -43,7 +49,7 @@ const transactionsData = [
     accountId:    '99',
     userId:       'Me'
   },
-  { 
+  '2': { 
     _id:          '2',
     date:         '2020-03-31T07:00:00.000Z',
     description:  'Expense Transaction One', 
@@ -55,7 +61,7 @@ const transactionsData = [
     accountId:    '99',
     userId:       'Me'
   },
-  { 
+  '3': { 
     _id:          '3',
     date:         '2020-04-05T07:00:00.000Z',
     description:  'Deposit Transaction Test', 
@@ -67,9 +73,9 @@ const transactionsData = [
     accountId:    '99',
     userId:       'Me'
   },
-  { 
+  '4': { 
     _id:          '4',
-    date:         '2020-04-05T07:00:00.000Z',
+    date:         '2020-04-07T07:00:00.000Z',
     description:  'Expense Transaction Two', 
     category:     'Household', 
     amount:       -55.55,
@@ -79,12 +85,28 @@ const transactionsData = [
     accountId:    '99',
     userId:       'Me'
   },
-]
+}
+
+/**
+ * Helper function to create the redux store when I render a component
+ * for testing.
+ * @param   {Component} component - component to render/test
+ * @param   {*}         store     - redux store
+ * @returns Component to render.
+ */
+export const renderWithRedux = (component, store = configureStore()) => {
+  return {
+    ...render(<Provider store={store}>{component}</Provider>), 
+    store
+  }
+}
 
 // Add the URL to the MemoryRouter, as the page needs the accountId as a 
 // param to the TransactionsAPI.findByAccountId()
-const account = accountsData[0]
-const url     = `/accounts/show/${account._id}`
+const account = accountsData['99']
+const baseUrl = `/accounts/show`
+const path    = `${baseUrl}/:id`
+const url     = `${baseUrl}/${account._id}`
 
 describe('PagesAccountsShow', () => {
   afterEach( () => {
@@ -98,20 +120,24 @@ describe('PagesAccountsShow', () => {
   it('Renders the page', async () => {
     // Mock TransactionsAPI.findByAccountId()
     mockTransactionsAPI.findByAccountId.mockResolvedValueOnce({
-      account:      accountsData[0],
       transactions: transactionsData,
     })
 
+    // Mock AccountsAPI.find(accountId)
+    mockAccountsAPI.find.mockResolvedValueOnce(accountsData['99'])
+
     // Add the URL to the MemoryRouter, as the page needs the accountId as a 
     // param to the TransactionsAPI.findByAccountId()
-    const { container, getByText, getByPlaceholderText } = render(
+    const { container, getByText, getByPlaceholderText } = renderWithRedux(
       <MemoryRouter initialEntries={[url]} initialIndex={0}>
-        <PagesAccountsShow />
+        <Route path={path}>
+          <PagesAccountsShow />
+        </Route>
       </MemoryRouter>
     )
 
     await wait( () => expect(getByText(account.name)).toBeInTheDocument() )
-
+    
     expect(mockTransactionsAPI.findByAccountId).toHaveBeenCalledTimes(1)
     expect(getByText(account.financialInstitute)).toBeInTheDocument()
     expect(getByText(numeral(account.balance).format('$0,0.00'))).toBeInTheDocument()
@@ -122,25 +148,27 @@ describe('PagesAccountsShow', () => {
     expect(getByPlaceholderText('Debit')).toBeInTheDocument()
     expect(getByPlaceholderText('Credit')).toBeInTheDocument()
     expect(getByText('Save')).toBeInTheDocument()
-    
-    // Verify TransactionGrid
-    const transactions = container.querySelectorAll('.transaction-grid')
-    expect(transactions.length).toBe(transactionsData.length)
 
-    // Opening Balance
-    let row   = transactions[0]
+    // Verify TransactionGrid 
+    await wait( () => expect(getByText('Opening Balance')).toBeInTheDocument()) 
+     
+    const transactions = container.querySelectorAll('.transaction-grid')
+    expect(transactions.length).toBe(Object.keys(transactionsData).length)
+
+    // Opening Balance (03/01/2020)
+    let row   = transactions[transactions.length - 1]
     let cells = row.getElementsByTagName('td')
-    let txn   = transactionsData[0]
+    let txn   = transactionsData['1']
 
     expect(cells[1].innerHTML).toBe(txn.description)
     expect(cells[2].innerHTML).toBe(txn.category)
     expect(cells[4].innerHTML).toBe(numeral(txn.amount).format('$0,0.00'))
     expect(cells[5].innerHTML).toBe(numeral(txn.balance).format('$0,0.00'))
 
-    // Last Transaction
-    row   = transactions[transactions.length - 1]
+    // Last Transaction (04/07/2020)
+    row   = transactions[0]
     cells = row.getElementsByTagName('td')
-    txn   = transactionsData[transactionsData.length - 1]
+    txn   = transactionsData['4']
 
     expect(cells[1].innerHTML).toBe(txn.description)
     expect(cells[2].innerHTML).toBe(txn.category)
@@ -167,14 +195,18 @@ describe('PagesAccountsShow', () => {
     it('Requires a description', async () => {
       // Mock TransactionsAPI.findByAccountId()
       mockTransactionsAPI.findByAccountId.mockResolvedValueOnce({
-        account:      accountsData[0],
         transactions: transactionsData,
       })
 
+      // Mock AccountsAPI.find(accountId)
+      mockAccountsAPI.find.mockResolvedValueOnce(accountsData['99'])
+
       const handler                  = jest.fn(e => e.preventDefault())
-      const { getByText, getByTestId } = render(
+      const { getByText, getByTestId } = renderWithRedux(
         <MemoryRouter initialEntries={[url]} initialIndex={0}>
-          <PagesAccountsShow  onSubmit={handler} />
+          <Route path={path}>
+            <PagesAccountsShow  onSubmit={handler} />
+          </Route>
         </MemoryRouter>
       )
 
@@ -186,19 +218,23 @@ describe('PagesAccountsShow', () => {
     it('Requires that debit is a number', async () => {
       // Mock TransactionsAPI.findByAccountId()
       mockTransactionsAPI.findByAccountId.mockResolvedValueOnce({
-        account:      accountsData[0],
         transactions: transactionsData,
       })
 
-      const handler             = jest.fn(e => e.preventDefault())
+      // Mock AccountsAPI.find(accountId)
+      mockAccountsAPI.find.mockResolvedValueOnce(accountsData['99'])
+
+      const handler = jest.fn(e => e.preventDefault())
       const { 
         getByText, 
         getByTestId,
-        getByPlaceholderText }  = render(
-        <MemoryRouter initialEntries={[url]} initialIndex={0}>
-          <PagesAccountsShow  onSubmit={handler} />
-        </MemoryRouter>
-      )
+        getByPlaceholderText }  = renderWithRedux(
+          <MemoryRouter initialEntries={[url]} initialIndex={0}>
+            <Route path={path}>
+              <PagesAccountsShow  onSubmit={handler} />
+            </Route>
+          </MemoryRouter>
+        )
 
       await wait( () => {
         fireEvent.change(getByPlaceholderText('Debit'), {
@@ -214,17 +250,21 @@ describe('PagesAccountsShow', () => {
     it('Requires that credit is a number', async () => {
       // Mock TransactionsAPI.findByAccountId()
       mockTransactionsAPI.findByAccountId.mockResolvedValueOnce({
-        account:      accountsData[0],
         transactions: transactionsData,
       })
 
-      const handler             = jest.fn(e => e.preventDefault())
+      // Mock AccountsAPI.find(accountId)
+      mockAccountsAPI.find.mockResolvedValueOnce(accountsData['99'])
+
+      const handler = jest.fn(e => e.preventDefault())
       const { 
         getByText, 
         getByTestId,
-        getByPlaceholderText }  = render(
+        getByPlaceholderText }  = renderWithRedux(
         <MemoryRouter initialEntries={[url]} initialIndex={0}>
-          <PagesAccountsShow  onSubmit={handler} />
+          <Route path={path}>
+            <PagesAccountsShow  onSubmit={handler} />
+          </Route>
         </MemoryRouter>
       )
 
@@ -243,18 +283,22 @@ describe('PagesAccountsShow', () => {
       
       // Mock TransactionsAPI.findByAccountId() - Page Load
       mockTransactionsAPI.findByAccountId.mockResolvedValueOnce({
-        account:      accountsData[0],
         transactions: transactionsData,
       })
+
+      // Mock AccountsAPI.find(accountId)
+      mockAccountsAPI.find.mockResolvedValueOnce(accountsData['99'])
 
       // Mock the TransactionsAPI.create() - Create new account
       mockTransactionsAPI.create.mockResolvedValueOnce({transaction: params})
 
       // Add the URL to the MemoryRouter, as the page needs the accountId as a 
       // param to the TransactionsAPI.findByAccountId()
-      const { container, getByText, getByPlaceholderText } = render(
+      const { container, getByText, getByPlaceholderText } = renderWithRedux(
         <MemoryRouter initialEntries={[url]} initialIndex={0}>
-          <PagesAccountsShow />
+          <Route path={path}>
+            <PagesAccountsShow />
+          </Route>
         </MemoryRouter>
       )
       
@@ -279,7 +323,7 @@ describe('PagesAccountsShow', () => {
       })
 
       const transactions = container.querySelectorAll('.transaction-grid')
-      expect(transactions.length).toBe(transactionsData.length + 1)
+      expect(transactions.length).toBe(Object.keys(transactionsData).length + 1)
       expect(mockTransactionsAPI.create).toHaveBeenCalledTimes(1)
 
       // Verify new transaction

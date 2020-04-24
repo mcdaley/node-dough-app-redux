@@ -72,6 +72,21 @@
       "internalConsoleOptions": "neverOpen",
       "disableOptimisticBPs": true,
       "trace": true
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Jest Single File",
+      "program": "${workspaceFolder}/client/node_modules/.bin/jest",
+      "args": [
+        "${fileBasenameNoExtension}",
+        "--config",
+        "jest.config.js"
+      ],
+      "cwd": "${workspaceRoot}/client",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "disableOptimisticBPs": true
     }
   ]
 }

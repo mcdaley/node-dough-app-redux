@@ -43,7 +43,7 @@ const transactionValidationSchema = Yup.object({
  * @prop {function} onSubmit  - Callback to save the transaction
  */
 const TransactionForm = (props) => {
-  const { accountId }                 = props
+  const { accountId } = props
 
   /**
    * Calculate the amount of the transaction. If the amount is a debit then
@@ -93,17 +93,10 @@ const TransactionForm = (props) => {
             amount:       getAmount(values.debit, values.credit),
           }
 
-          try {
-            let result = await TransactionsAPI.create(accountId, transaction)
-            //* console.log(`[info] Created transaction: ${JSON.stringify(result, undefined, 2)}`)
-      
-            props.onSubmit(result)
-            resetForm()
-            setSubmitting(false)
-          }
-          catch(error) {
-            console.log(`[error] Failed to create transaction, error= `, error)
-          }
+          props.onSubmit(accountId, transaction)
+          
+          resetForm()
+          setSubmitting(false)
         }}
       >
         {

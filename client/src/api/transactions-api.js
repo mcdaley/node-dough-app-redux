@@ -21,6 +21,7 @@ const TransactionsAPI = {
         let result        = await axios.get(url)
         let account       = result.data.account
         let transactions  = result.data.transactions.map( (txn) => setCreditAndDebitFields(txn) )
+        transactions      = normalize(transactions)
 
         //* console.log(`[debug] Account Id=[${accountId}], transactions = `, transactions)
         resolve({account, transactions});
@@ -174,6 +175,20 @@ const TransactionsAPI = {
 
 // Export the Transactions api
 export default TransactionsAPI
+
+/**
+ * Map an array of transactions into an object that contains all of the transactions
+ * that is indexed by the transaction id.
+ * @param   {Array}   transactions 
+ * @returns {Object}  Map of transactions indexed by transaction ids.
+ */
+const normalize = (transactions) => {
+  let normalized = {}
+  transactions.forEach( (txn) => {
+    normalized[txn._id] = txn
+  })
+  return normalized
+}
 
 /**
  * Add a debit and credit field to transactions return by the server. The
