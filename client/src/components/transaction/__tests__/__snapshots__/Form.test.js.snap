@@ -1,0 +1,148 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`TransactionForm Takes a snapshot 1`] = `
+<DocumentFragment>
+  <div>
+    <form
+      class=""
+      novalidate=""
+      style="margin-bottom: 1.0rem;"
+    >
+      <table
+        class="table table-dark table-sm"
+      >
+        <tbody>
+          <tr>
+            <td
+              style="width: 15%;"
+            >
+              <div
+                class="form-group"
+                style="margin-bottom: 0px;"
+              >
+                <div>
+                  <div
+                    class="react-datepicker-wrapper"
+                  >
+                    <div
+                      class="react-datepicker__input-container"
+                    >
+                      <input
+                        class="form-control"
+                        id="date"
+                        type="text"
+                        value=""
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td
+              style="width: 25%;"
+            >
+              <div
+                class="form-group"
+                style="margin-bottom: 0px;"
+              >
+                <input
+                  class="form-control"
+                  id="txn-description"
+                  name="description"
+                  placeholder="Description"
+                  type="text"
+                  value=""
+                />
+                <div
+                  class="invalid-feedback"
+                  data-testid="description-error"
+                />
+              </div>
+            </td>
+            <td
+              style="width: 15%;"
+            >
+              <div
+                class="form-group"
+                style="margin-bottom: 0px;"
+              >
+                <input
+                  class="form-control"
+                  id="txn-category"
+                  name="category"
+                  placeholder="Category"
+                  type="text"
+                  value=""
+                />
+                <div
+                  class="invalid-feedback"
+                  data-testid="category-error"
+                />
+              </div>
+            </td>
+            <td
+              style="width: 15%;"
+            >
+              <div
+                class="form-group"
+                style="margin-bottom: 0px;"
+              >
+                <input
+                  class="form-control"
+                  id="txn-debit"
+                  name="debit"
+                  placeholder="Debit"
+                  type="text"
+                  value=""
+                />
+                <div
+                  class="invalid-feedback"
+                  data-testid="debit-error"
+                />
+              </div>
+            </td>
+            <td
+              style="width: 15%;"
+            >
+              <div
+                class="form-group"
+                style="margin-bottom: 0px;"
+              >
+                <input
+                  class="form-control"
+                  id="txn-credit"
+                  name="credit"
+                  placeholder="Credit"
+                  type="text"
+                  value=""
+                />
+                <div
+                  class="invalid-feedback"
+                  data-testid="credit-error"
+                />
+              </div>
+            </td>
+            <td
+              style="width: 15%;"
+            >
+              <button
+                class="btn btn-primary btn-md"
+                style="margin-left: 0.50rem; margin-right: 0.50rem;"
+                type="submit"
+              >
+                Save
+              </button>
+              <button
+                class="btn btn-secondary btn-md"
+                type="button"
+              >
+                Clear
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </form>
+  </div>
+</DocumentFragment>
+`;

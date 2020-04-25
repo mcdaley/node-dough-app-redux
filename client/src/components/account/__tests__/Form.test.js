@@ -13,14 +13,13 @@ import AccountForm  from '../Form'
 
 describe('AccountForm', () => {
   const handler       = jest.fn(e => e.preventDefault())
-
   afterEach(cleanup)
 
   it('Takes a snapshot', () => {
     const { asFragment } = render(<AccountForm onSubmit={handler} />)
     
     expect(asFragment(<AccountForm onSubmit={handler} />)).toMatchSnapshot()
-   })
+  })
 
   it('Renders the form to create a new account', () => {
     const { getByLabelText, getByPlaceholderText } = render(<AccountForm onSubmit={handler} />)

@@ -14,10 +14,35 @@ import {
 
 import CreateAccountModal   from '../Modal'
 
+/**
+ * AccountModal Tests
+ */
 describe('Account Form Modal', () => {
   afterEach( () => {
     cleanup()
     jest.resetAllMocks()
+  })
+
+  it('Takes a snapshot', () => {
+    const handleClose  = jest.fn()
+    const handleSubmit = jest.fn()
+
+    const { asFragment } = render(
+      <CreateAccountModal
+        title     = 'Add a New Account'
+        show      = {true} 
+        onSubmit  = {handleSubmit}
+        onClose   = {handleClose} 
+      />)
+    
+    expect(asFragment(
+      <CreateAccountModal
+        title     = 'Add a New Account'
+        show      = {true} 
+        onSubmit  = {handleSubmit}
+        onClose   = {handleClose} 
+      />
+      )).toMatchSnapshot()
   })
 
   it('Click cancel button', () => {
