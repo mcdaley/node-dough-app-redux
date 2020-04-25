@@ -65,4 +65,33 @@ describe('Transactions Reducer', () => {
       expect(result.error.message).toBe(error.message)
     })
   })
+  describe('updateTransaction', () => {
+    it('UPDATES_TRANSACTION: Update a transactions', () => {
+      const initialState = {data: transactions, error: {}}
+      const id           = '90'
+      const transaction  = {
+        ...transactions[id],
+        name: 'Updated Name'
+      }
+      const result = reducer( initialState, {
+        type:     types.UPDATE_TRANSACTION,
+        payload:  {transaction: transaction}
+      })
+
+      expect(Object.keys(result.data).length).toBe(2)
+      expect(result.data[id].name).toBe('Updated Name')
+    })
+
+    it('UPDATE_TRANSACTION_ERROR: Returns an error', () => {
+      const error        = { code: 400, message: 'Bad request' }
+      const initialState = { data: transactions, error: {} }
+      const result  = reducer(initialState, {
+        type:     types.UPDATE_TRANSACTION_ERROR,
+        payload:  {error: error}
+      })
+
+      expect(result.error.code).toBe(error.code)
+      expect(result.error.message).toBe(error.message)
+    })
+  })
 })

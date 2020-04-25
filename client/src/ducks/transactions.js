@@ -43,6 +43,11 @@ export const actions = {
       }
     }
   },
+  /**
+   * Create a new transaction for an account.
+   * @param {String} accountId 
+   * @param {Object} transaction 
+   */
   createTransaction(accountId, transaction) {
     return async function(dispatch, getState) {
       try {
@@ -58,6 +63,32 @@ export const actions = {
       }
       catch(error) {
         console.log(`[error] Failed to create transaction, error= `, error)
+        dispatch({
+          type:     types.CREATE_TRANSACTION_ERROR,
+          payload:  {error: error}
+        })
+      }
+    }
+  },
+  /**
+   * Update an account's transactions.
+   * @param {String} accountId     - Unique account id
+   * @param {String} transactionId - Unique transaction id
+   * @param {Object} params        - name/value pairs of transaction fields to update
+   */
+  updateTransaction(accountId, transactionId, params) {
+    return async function(dispatch, getState) {
+      try {
+        let transaction = await TransactionsAPI.update(accountId, transactionId, params)
+  
+        console.log(`[debug] Updated transacton= `, transaction)
+        dispatch({
+          type:     types.UPDATE_TRANSACTION,
+          payload:  {transaction: transaction}
+        })
+      }
+      catch(error) {
+        console.log(`[error] Failed to update the transaction, error= `, error)
         dispatch({
           type:     types.CREATE_TRANSACTION_ERROR,
           payload:  {error: error}
@@ -92,6 +123,19 @@ export const reducer = (state = initialState, action) => {
         }
       }
     case types.CREATE_TRANSACTION_ERROR:
+      return {
+        ...state,
+        error: action.payload.error
+      }
+    case types.UPDATE_TRANSACTION:
+      return {
+        ...state,
+        data: {
+          ...state.data,
+          [action.payload.transaction._id]: action.payload.transaction
+        }
+      }
+    case types.UPDATE_TRANSACTION_ERROR:
       return {
         ...state,
         error: action.payload.error

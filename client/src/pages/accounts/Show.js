@@ -97,21 +97,7 @@ const PagesAccountsShow = () => {
   const onUpdateTransaction = async (accountId, transactionId, params) => {
     console.debug(`[debug] Update transaction id[${transactionId}]= `, params)
 
-    try {
-      let transaction         = await TransactionsAPI.update(accountId, transactionId, params)
-
-      let transactionList     = [...transactions]
-      let index               = transactionList.findIndex( (el) => el._id === transaction._id)
-      transactionList[index]  = transaction
-      transactionList.sort( (a, b) => new Date(b.date) - new Date(a.date) )
-      transactionList         = runningBalance(transactionList)
-    
-      //* setTransactions(transactionList)
-    }
-    catch(error) {
-      console.log(`[error] Failed to update the transaction, error= `, error)
-      //* setErrors(error)
-    }
+    dispatch(actions.updateTransaction(accountId, transactionId, params))
   }
 
   /**
