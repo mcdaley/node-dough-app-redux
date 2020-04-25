@@ -34,7 +34,7 @@ export const actions = {
         })
       } 
       catch (error) {
-        console.log(`[error] Failed to retrieve user accounts, error= `, error)
+        //* console.log(`[error] Failed to retrieve user accounts, error= `, error)
         dispatch({
           type:     types.FETCH_ACCOUNTS_ERROR,
           payload:  {error: error}
@@ -47,14 +47,14 @@ export const actions = {
       try {
         let account = await AccountsAPI.find(accountId)
 
-        console.log(`[debug] AccountsAPI.find(${accountId}), account= `, account)
+        //* console.log(`[debug] AccountsAPI.find(${accountId}), account= `, account)
         dispatch({
           type:     types.FIND_ACCOUNT,
           payload:  {account: account}
         })
       }
       catch(error) {
-        console.log(`[error] Failed to find account id=[${accountId}], error= `, error)
+        //* console.log(`[error] Failed to find account id=[${accountId}], error= `, error)
         dispatch({
           type:     types.FIND_ACCOUNT_ERROR,
           payload:  {error: error}

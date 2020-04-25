@@ -35,7 +35,7 @@ export const actions = {
         })
       }
       catch(error) {
-        console.log(`[error] Failed to retrieve account transactions, error= `, error)
+        //* console.log(`[error] Failed to retrieve account transactions, error= `, error)
         dispatch({
           type:     types.FETCH_TRANSACTIONS_BY_ACCOUNT_ID_ERROR,
           payload:  {error: error}
@@ -62,7 +62,7 @@ export const actions = {
         })
       }
       catch(error) {
-        console.log(`[error] Failed to create transaction, error= `, error)
+        //* console.log(`[error] Failed to create transaction, error= `, error)
         dispatch({
           type:     types.CREATE_TRANSACTION_ERROR,
           payload:  {error: error}
@@ -81,14 +81,14 @@ export const actions = {
       try {
         let transaction = await TransactionsAPI.update(accountId, transactionId, params)
   
-        console.log(`[debug] Updated transacton= `, transaction)
+        //* console.log(`[debug] Updated transacton= `, transaction)
         dispatch({
           type:     types.UPDATE_TRANSACTION,
           payload:  {transaction: transaction}
         })
       }
       catch(error) {
-        console.log(`[error] Failed to update the transaction, error= `, error)
+        //* console.log(`[error] Failed to update the transaction, error= `, error)
         dispatch({
           type:     types.CREATE_TRANSACTION_ERROR,
           payload:  {error: error}

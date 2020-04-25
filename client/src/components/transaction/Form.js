@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------
 // client/src/components/transaction/Form.js
 //-----------------------------------------------------------------------------
-import React, { useState }  from 'react'
+import React                from 'react'
 import { Formik }           from 'formik'
 import * as Yup             from 'yup'
 import {
@@ -10,8 +10,7 @@ import {
   Table,
 }                           from 'react-bootstrap'
 import DatePicker           from 'react-datepicker'
-
-import TransactionsAPI      from '../../api/transactions-api'
+import PropTypes            from 'prop-types'
 
 // Define transaction validation schema
 const transactionValidationSchema = Yup.object({
@@ -82,8 +81,6 @@ const TransactionForm = (props) => {
         }}
         validationSchema = {transactionValidationSchema}
         onSubmit         = { async (values, {setSubmitting, resetForm}) => {
-          //* console.log(`[debug] onSubmit callback, values= `, values)
-          
           setSubmitting(true)
 
           let transaction = {
@@ -225,6 +222,12 @@ const TransactionForm = (props) => {
       </Formik>
     </div>
   )
+}
+
+// PropTypes
+TransactionForm.propTypes = {
+  accountId:  PropTypes.string.isRequired,
+  onSubmit:   PropTypes.func.isRequired,
 }
 
 // Export the TransactionForm

@@ -38,11 +38,12 @@ const accountValidationSchema = Yup.object({
  * Form for adding a new account to a user's portfolio or to edit an
  * existing account.
  * 
- * @prop {string} nickname           - User defined nickname for account.
- * @prop {string} financialInstitute - FI where account is located.
- * @prop {enum}   accountType        - Checking, Savings, or Credit Card
- * @prop {number} balance            - Current account balance.
- * @prop {date}   asOfDate           - Date of balance (last txn).
+ * @prop {string}   nickname           - User defined nickname for account.
+ * @prop {string}   financialInstitute - FI where account is located.
+ * @prop {enum}     accountType        - Checking, Savings, or Credit Card
+ * @prop {number}   balance            - Current account balance.
+ * @prop {date}     asOfDate           - Date of balance (last txn).
+ * @prop {function} onSubmit           - Callback to save the transaction
  */
 function AccountForm(props) {
   return (
@@ -183,7 +184,8 @@ AccountForm.propTypes = {
   financialInstitute: PropTypes.string,
   balance:            PropTypes.number,
   accountType:        PropTypes.oneOf(['Checking', 'Savings', 'Credit Card']),
-  asOfDate:           PropTypes.instanceOf(Date)
+  asOfDate:           PropTypes.instanceOf(Date),
+  onSubmit:           PropTypes.func.isRequired,
 };
 
 // Export the AccountForm

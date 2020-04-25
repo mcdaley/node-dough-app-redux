@@ -6,6 +6,7 @@ import numeral                    from 'numeral'
 
 import BootstrapTable             from 'react-bootstrap-table-next'
 import cellEditFactory, { Type }  from 'react-bootstrap-table2-editor'
+import PropTypes                  from 'prop-types'
 
 ///////////////////////////////////////////////////////////////////////////////
 // TODO: 04/14/2020
@@ -22,7 +23,7 @@ import cellEditFactory, { Type }  from 'react-bootstrap-table2-editor'
 /**
  * Component that returns a grid container a list of transactions.
  * 
- * @param {prop} transactions - Array of transactions
+ * @prop {Array} transactions - Array of transactions
  */
 const TransactionGrid = (props) => {
 
@@ -187,6 +188,11 @@ const TransactionGrid = (props) => {
       striped
     />
   )
+}
+
+// PropTypes
+TransactionGrid.propTypes = {
+  transactions: PropTypes.array.isRequired,
 }
 
 // Export the TransactionGrid

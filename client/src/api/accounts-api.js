@@ -45,11 +45,11 @@ const AccountsAPI = {
       try {
         const result  = await axios.get(url);
         
-        console.log(`[debug] find(${id}), results = `, result.data)
+        //* console.log(`[debug] find(${id}), results = `, result.data)
         resolve(result.data.account);
       }
       catch (err) {
-        console.log(`[error] Failed to retrieve accounts w/ id=[${id}], error= `, err)
+        //* console.log(`[error] Failed to retrieve accounts w/ id=[${id}], error= `, err)
         reject({
           server: {
             code:     500,

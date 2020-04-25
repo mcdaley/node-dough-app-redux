@@ -66,7 +66,7 @@ const PagesAccountsShow = () => {
    * @param {Object} transaction - Transaction that was just created in DB
    */
   const onCreateTransaction = (accountId, transaction) => {
-    console.debug(`[debug] Created transaction= `, transaction)
+    //* console.log(`[debug] Created transaction= `, transaction)
 
     dispatch(actions.createTransaction(accountId, transaction))
   }

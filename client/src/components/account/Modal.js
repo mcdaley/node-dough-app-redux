@@ -5,6 +5,7 @@ import React        from 'react'
 import {
   Modal,
 }                   from 'react-bootstrap'
+import PropTypes    from 'prop-types'
 
 import AccountForm  from './Form'
 
@@ -12,9 +13,10 @@ import AccountForm  from './Form'
  * Display a modal window the contains the form for creating new
  * accounts or for updating existing accounts.
  * 
- * @param {String}   title    - The modal title
- * @param {Function} onSubmit - Callback to save the account
- * @param {Function} onClose  - Callbacl to close the modal.
+ * @prop {String}   title    - The modal title
+ * @prop {Boolean}  show     - Flag to display/hide modal.
+ * @prop {Function} onSubmit - Callback to save the account
+ * @prop {Function} onClose  - Callbacl to close the modal.
  * 
  * @return {Component} Modal window to create/edit an account.
  */
@@ -36,6 +38,14 @@ function AccountModal(props) {
       </Modal.Body>
     </Modal>
   )
+}
+
+// Prop-Types
+AccountModal.propTypes = {
+  title:      PropTypes.string.isRequired,
+  show:       PropTypes.bool.isRequired,
+  onSubmit:   PropTypes.func.isRequired,
+  onClose:    PropTypes.func.isRequired,
 }
 
 // Export the create account modal

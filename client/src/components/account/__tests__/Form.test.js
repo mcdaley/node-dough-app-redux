@@ -12,16 +12,18 @@ import {
 import AccountForm  from '../Form'
 
 describe('AccountForm', () => {
+  const handler       = jest.fn(e => e.preventDefault())
+
   afterEach(cleanup)
 
   it('Takes a snapshot', () => {
-    const { asFragment } = render(<AccountForm />)
+    const { asFragment } = render(<AccountForm onSubmit={handler} />)
     
-    expect(asFragment(<AccountForm />)).toMatchSnapshot()
+    expect(asFragment(<AccountForm onSubmit={handler} />)).toMatchSnapshot()
    })
 
   it('Renders the form to create a new account', () => {
-    const { getByLabelText, getByPlaceholderText } = render(<AccountForm />)
+    const { getByLabelText, getByPlaceholderText } = render(<AccountForm onSubmit={handler} />)
 
     expect(getByLabelText('Account Nickname')).toHaveTextContent('')
     expect(getByLabelText('Financial Institute')).toHaveTextContent('')
@@ -30,7 +32,6 @@ describe('AccountForm', () => {
   })
 
   it('Requires values for account nickname and financial institute', async () => {
-    const handler       = jest.fn(e => e.preventDefault())
     const { getByTestId, getByText } = render(<AccountForm onSubmit={handler} />)
 
     fireEvent.click(getByText('Save'))
@@ -42,7 +43,6 @@ describe('AccountForm', () => {
   })
 
   it('Requires account balance to be a number', async () => {
-    const handler = jest.fn(e => e.preventDefault())
     const { 
       getByText, 
       getByTestId,
