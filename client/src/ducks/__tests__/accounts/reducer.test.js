@@ -12,19 +12,20 @@ describe('Account Redux Reducer', () => {
   //
   describe('fetchAccounts()', () => {
     it('FETCH_ACCOUNTS: Returns array of accounts', () => {
-      const accounts = {
-        '1': { id: '1', name: 'Checking' },
-        '2': { id: '2', name: 'Savings' },
+      const initialState = { data: {} }
+      const accounts     = {
+        '1': { _id: '1', name: 'Checking' },
+        '2': { _id: '2', name: 'Savings' },
       }
 
-      const result = reducer({}, {
+      const result = reducer(initialState, {
         type:     types.FETCH_ACCOUNTS,
         payload:  {accounts: accounts},
       })
 
-      expect(Object.keys(result).length).toBe(2)
-      expect(result['1'].id).toBe(accounts['1'].id)
-      expect(result['1'].name).toBe('Checking')
+      expect(Object.keys(result.data).length).toBe(2)
+      expect(result.data['1'].id).toBe(accounts['1'].id)
+      expect(result.data['1'].name).toBe('Checking')
     })
 
     it('FETCH_ACCOUNTS_ERROR: Returns an error', () => {
@@ -41,8 +42,10 @@ describe('Account Redux Reducer', () => {
 
   describe('findAccount', () => {
     const initialState = {
-      '1': { _id: '1', name: 'Checking' },
-      '2': { _id: '2', name: 'Savings' },
+      data: {
+        '1': { _id: '1', name: 'Checking' },
+        '2': { _id: '2', name: 'Savings' },
+      }
     }
 
     it('FIND_ACCOUNT: Returns an account', () => {
@@ -52,9 +55,9 @@ describe('Account Redux Reducer', () => {
         payload:  { account: account }
       })
 
-      expect(Object.keys(result).length).toBe(2)
-      expect(result['1']._id).toBe(account._id)
-      expect(result['1'].name).toBe(account.name)
+      expect(Object.keys(result.data).length).toBe(2)
+      expect(result.data['1']._id).toBe(account._id)
+      expect(result.data['1'].name).toBe(account.name)
     })
 
     it('FIND_ACCOUNT_ERROR: Returns an error', () => {
@@ -74,20 +77,23 @@ describe('Account Redux Reducer', () => {
   //
   describe('createAccounts()', () => {
     const initialState = {
-      '1': { _id: '1', name: 'Checking' },
-      '2': { _id: '2', name: 'Savings' },
+      data: {
+        '1': { _id: '1', name: 'Checking' },
+        '2': { _id: '2', name: 'Savings' },
+      }
     }
 
     it('CREATE_ACCOUNT: Creates and returns an account', () => {
       const account = {_id: '3', name: 'Credit Card'}
+
       const result  = reducer(initialState, {
         type:     types.CREATE_ACCOUNT,
         payload:  { account: account }
       })
     
-      expect(Object.keys(result).length).toBe(3)
-      expect(result['3']._id).toBe(account._id)
-      expect(result['3'].name).toBe(account.name)
+      expect(Object.keys(result.data).length).toBe(3)
+      expect(result.data['3']._id).toBe(account._id)
+      expect(result.data['3'].name).toBe(account.name)
     })
 
     it('CREATE_ACCOUNT_ERROR: Returns an error', () => {

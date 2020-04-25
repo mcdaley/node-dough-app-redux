@@ -11,7 +11,6 @@ import {
 }                                       from 'react-bootstrap'
 import { useParams, useHistory }        from 'react-router-dom'
 
-import TransactionsAPI                  from '../../api/transactions-api'
 import AccountSummary                   from '../../components/account/Summary'
 import TransactionGrid                  from '../../components/transaction/Grid'
 import TransactionForm                  from '../../components/transaction/Form'
@@ -23,24 +22,13 @@ import { actions as accountActions }    from '../../ducks/accounts'
  * 
  */
 const PagesAccountsShow = () => {
-  let history = useHistory()        // Link to navigate to previous screen
+  let   history                   = useHistory()  // Link to navigate to previous screen
 
-  // Get accountId, so it can be as the useEffect() dependency
   let   { id }                    = useParams()   // Get accountId from the URL
   const [accountId, setAccountId] = useState(id)
 
-  ///////////////////////////////////////////////////////////////////////////////
-  // TODO: 04/22/2020
-  // LONGTERM SOLUTION TO MOVING TO REDUX INVOLVES THE FOLLOWING STEPS:
-  //  1.) REFACTOR Index.js TO USE THE accountsById FORMAT.
-  //  2.) ADD LOGIC TO SEE IF THE ACCOUNT_ID IS IN REDUX, IF IT IS NOT THEN
-  //      RETRIEVE ALL THE ACCOUNTS OR A SINGLE ACCOUNT.
-  //  3.) CHANGE THE LOGIC IN CREATE TRANSACTION TO ADD THE TRANSACTION TO THE
-  //      TRANSACTION OBJECT
-  //  4.) CHANGE THE LOGIC TO EDIT TRANSACTION TO UPDATE THE TXN OBJECT MAP.
-  ///////////////////////////////////////////////////////////////////////////////
   const dispatch     = useDispatch()
-  const accounts     = useSelector(state => state.accounts)
+  const accounts     = useSelector(state => state.accounts.data)
   const transactions = useSelector(state => state.transactions.data)
   const errors       = useSelector(state => state.transactions.error)
  
@@ -64,11 +52,6 @@ const PagesAccountsShow = () => {
     }
     fetchData()
   }, [accountId])
-
-
-
-  // Handle create account errors
-  //* const [errors, setErrors] = useState({})
 
   /**
    * Navigate back to the previous screen.

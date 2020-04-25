@@ -100,13 +100,16 @@ export const actions = {
 // Account Reducer
 //
 let    accountId
-let    initialState   = {}
+let    initialState   = {data: {}, error: {}}
 export const reducer  = (state = initialState, action) => {
   switch(action.type) {
     case types.FETCH_ACCOUNTS:
       return {
         ...state,
-        ...action.payload.accounts,
+        data: {
+          ...state.data,
+          ...action.payload.accounts
+        },
       }
     case types.FETCH_ACCOUNTS_ERROR:
       return {
@@ -117,7 +120,10 @@ export const reducer  = (state = initialState, action) => {
       accountId = action.payload.account._id
       return {
         ...state,
-        [accountId]: action.payload.account
+        data: {
+          ...state.data,
+          [accountId]: action.payload.account
+        }
       }
       case types.FIND_ACCOUNT_ERROR:
         return {
@@ -128,7 +134,9 @@ export const reducer  = (state = initialState, action) => {
       accountId = action.payload.account._id
       return {
         ...state,
-        [accountId]: action.payload.account,
+        data: {
+          ...state.data,
+          [accountId]: action.payload.account,}
       }
     case types.CREATE_ACCOUNT_ERROR:
       return {
