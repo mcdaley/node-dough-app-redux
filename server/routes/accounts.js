@@ -178,32 +178,91 @@ router.post('/v1/accounts', async (req, res) => {
  * PUT /v1/accounts/:id
  */
 router.put('/v1/accounts/:id', async (req, res) => {
-  logger.info('/api/v1/account/%s, request body= %o', req.params.id, req.body)
+  logger.info('PUT /api/v1/account/%s, request body= %o', req.params.id, req.body)
   
-  let id = req.params.id
+  let accountId = req.params.id
+
+  // Verify accountId is a valid ObjectID
+  if(!ObjectID.isValid(accountId)) {
+    logger.error('Invalid account id=[%s]', accountId)
+    return res.status(404).send({
+      code:     404,
+      message:  'Account not found',
+    })
+  }
+
   try {
     let user    = await currentUser()    // Simulate authentication
 
-    let query   = { _id:  id }
+    let query   = { _id:  accountId }
     let update  = req.body
     let options = { new: true, runValidators: true }
     
-    let doc     = await Account.findOneAndUpdate(query, update, options)
-    
-    if(doc == null) {
-      logger.warn('Failed to find account w/ id=[%s]', id)
+    let result  = await Account.findOneAndUpdate(query, update, options) 
+    if(result == null) {
+      logger.warn('Failed to find account w/ id=[%s]', accountId)
       return res.status(404).send({
-        code: 404,
-        msg:  'Account not found'
+        code:     404,
+        message:  'Account not found'
       })
     }
 
-    logger.info('Updated account w/ id=[%s], doc=[%o]', id, doc)
-    res.status(200).send(doc)
+    logger.info('Updated account w/ id=[%s], doc=[%o]', accountId, result)
+    res.status(200).send(result)
   }
   catch(err) {
-    logger.error('Failed to update account w/ id=[%s], err= %o', id, err)
-    res.status(400).send(err)
+    logger.error('Failed to update the account id=[%s], err= %o', accountId, err)
+    let errorResponse = {}
+    let postErrors    = []
+    if(err instanceof mongoose.Error.ValidationError) {
+      /**
+       * Loop through all of the errors and standardize on error format:
+       * { code: 7xx, type: '', path: 'form-field, message: ''}
+       */
+      Object.keys(err.errors).forEach( (formField) => {
+        if(err.errors[formField] instanceof mongoose.Error.ValidatorError) {
+          postErrors.push({
+            code:     701, 
+            category: 'ValidationError', 
+            ...err.errors[formField].properties
+          })
+        }
+        else if(err.errors[formField] instanceof mongoose.Error.CastError) {
+          postErrors.push({
+            code:         701,
+            category:     'ValidationError', 
+            path:         err.errors[formField].path,
+            type:         'cast-error',
+            value:        err.errors[formField].value,
+            shortMessage: err.errors[formField].stringValue,
+            message:      err.errors[formField].message,
+          })
+        }
+        else {
+          logger.error(`[error] Unknown mongoose.Error.ValidationError err= `, err)
+          postErrors.push({code: 799, message: "Unknown mongoose validation error"})
+        }
+      })
+
+      errorResponse = {errors: postErrors}
+    }
+    else if(err instanceof mongoose.Error.CastError) {
+      postErrors.push({
+        code:         701,
+        category:     'CastError', 
+        path:         err.path,
+        type:         'cast-error',
+        value:        err.value,
+        message:      err.message,
+      })
+
+      errorResponse = {errors: postErrors}
+    }
+    else {
+      logger.error(`[error] Failed to create transaction, err= `, err)
+      errorResponse = {errors: err}
+    }
+    res.status(400).send(errorResponse)
   }
 })
 

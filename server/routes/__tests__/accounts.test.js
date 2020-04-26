@@ -292,17 +292,101 @@ describe('Accounts API', () => {
         .put(`/api/v1/accounts/${id}`)
         .send(update)
         .expect(404)
+        .expect( (res) => {
+          //* console.log(`[error]: 404 Error Message, error= `, JSON.stringify(res.body, undefined, 2))
+          expect(res.body.code).to.equal(404)
+          expect(res.body.message).to.equal('Account not found')
+        })
         .end(done)
     })
     
-    it('Returns an error if the account is invalid', (done) => {
-      let id      = 'invalid-account-id'
+    it('Returns a 404 error for an invalid account id', (done) => {
+      let id      = 'INVALID_ACCOUNT_ID'
       let update  = { name: 'Invalid Account ID' }
 
       request(app)
         .put(`/api/v1/accounts/${id}`)
         .send(update)
+        .expect(404)
+        .expect( (res) => {
+          expect(res.body.code).to.equal(404)
+          expect(res.body.message).to.equal('Account not found')
+        })
+        .end(done)
+    })
+
+    it('Returns a 400 error if the name is blank', (done) => {
+      let accountId = accountsData[0]._id
+      let update    = { name: '' }
+
+      request(app)
+        .put(`/api/v1/accounts/${accountId}`)
+        .send(update)
         .expect(400)
+        .expect( (res) => {
+          let error = res.body.errors[0]
+          expect(error.code).to.equal(701)
+          expect(error.path).to.equal('name')
+          expect(error.type).to.equal('required')
+          expect(error.value).to.equal('')
+          expect(error.message).to.match(/name is required/i)
+        })
+        .end(done)
+    })
+
+    it('Returns a 400 error if the financialInstitute is blank', (done) => {
+      let accountId = accountsData[0]._id
+      let update    = { financialInstitute: '' }
+
+      request(app)
+        .put(`/api/v1/accounts/${accountId}`)
+        .send(update)
+        .expect(400)
+        .expect( (res) => {
+          let error = res.body.errors[0]
+          expect(error.code).to.equal(701)
+          expect(error.path).to.equal('financialInstitute')
+          expect(error.type).to.equal('required')
+          expect(error.value).to.equal('')
+          expect(error.message).to.match(/financial institute is required/i)
+        })
+        .end(done)
+    })
+
+    it('Returns a 400 error for an invalid balance', (done) => {
+      let accountId = accountsData[0]._id
+      let update    = { balance: 'INVALID_BALANCE' }
+
+      request(app)
+        .put(`/api/v1/accounts/${accountId}`)
+        .send(update)
+        .expect(400)
+        .expect( (res) => {
+          let error = res.body.errors[0]
+          expect(error.code).to.equal(701)
+          expect(error.path).to.equal('balance')
+          expect(error.value).to.equal(update.balance)
+          expect(error.message).to.match(/cast to number failed for value/i)
+        })
+        .end(done)
+    })
+
+    it('Returns a 400 error for an invalid asOfDate', (done) => {
+      let accountId = accountsData[0]._id
+      let update    = { asOfDate: 'INVALID_DATE' }
+
+      request(app)
+        .put(`/api/v1/accounts/${accountId}`)
+        .send(update)
+        .expect(400)
+        .expect( (res) => {
+          let error = res.body.errors[0]
+          expect(error.code).to.equal(701)
+          expect(error.path).to.equal('asOfDate')
+          expect(error.type).to.equal('cast-error')
+          expect(error.value).to.equal(update.asOfDate)
+          expect(error.message).to.match(/cast to date failed/i)
+        })
         .end(done)
     })
 
@@ -314,6 +398,15 @@ describe('Accounts API', () => {
         .put(`/api/v1/accounts/${id}`)
         .send(update)
         .expect(400)
+        .expect( (res) => {
+          //* console.log(`[error]: Error Message, error= `, JSON.stringify(res.body, undefined, 2))
+          let error = res.body.errors[0]
+          expect(error.code).to.equal(701)
+          expect(error.path).to.equal('type')
+          expect(error.type).to.equal('enum')
+          expect(error.value).to.equal(update.type)
+          expect(error.message).to.match(/not a valid enum value/i)
+        })
         .end(done)
     })
 
