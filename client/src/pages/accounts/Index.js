@@ -66,8 +66,8 @@ function PagesAccountsIndex() {
       name:               values.nickname,
       financialInstitute: values.financialInstitute,
       type:               values.accountType,
-      balance:            values.balance,
-      asOfDate:           values.asOfDate,
+      openingBalance:     values.openingBalance,
+      openingDate:        values.openingDate,
     }))
   
     // Cleanup and close the modal.

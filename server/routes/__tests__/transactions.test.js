@@ -26,6 +26,7 @@ let accountsData = [
     _id:                new ObjectID(), 
     name:               "Test Checking Account", 
     financialInstitute: 'USAA',
+    openingBalance:     500,
     balance:            500,
     userId:             usersData[0]._id,
   },
@@ -34,6 +35,7 @@ let accountsData = [
     name:               "Test Credit Card",
     financialInstitute: 'NFCU',
     type:               'Credit Card',
+    openingBalance:     -1000,
     balance:            -1000,
     userId:             usersData[0]._id,
   }

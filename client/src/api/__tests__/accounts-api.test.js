@@ -15,6 +15,8 @@ const accountsData = [
     type:               'Checking', 
     balance:            100.00,
     asOfDate:           '2020-03-31T07:00:00.000Z',
+    openingBalance:     100.00,
+    openingDate:        '2020-03-31T07:00:00.000Z',
     userId:             'Me'
   },
   { 
@@ -24,6 +26,8 @@ const accountsData = [
     type:               'Credit Card', 
     balance:            500.00,
     asOfDate:           '2020-03-31T07:00:00.000Z',
+    openingBalance:     500.00,
+    openingDate:        '2020-03-31T07:00:00.000Z',
     userId:             'Me',
   }
 ]
@@ -55,6 +59,7 @@ describe('Accounts API', () => {
       expect(accounts[id]._id).toBe(accountsData[0]._id)
       expect(accounts[id].name).toBe(accountsData[0].name)
       expect(accounts[id].balance).toBe(accountsData[0].balance)
+      expect(accounts[id].openingBalance).toBe(accountsData[0].openingBalance)
       expect(accounts[id].userId).toBe(accountsData[0].userId)
     })
 
@@ -129,6 +134,8 @@ describe('Accounts API', () => {
 
       const account = await AccountsAPI.create(url, params)
       expect(account.name).toBe(accountsData[1].name)
+      expect(account.balance).toBe(accountsData[1].balance)
+      expect(account.openingBalance).toBe(accountsData[1].openingBalance)
     })
     
     /**
@@ -140,8 +147,10 @@ describe('Accounts API', () => {
       const params  = {
         name:               'Test Credit Card', 
         financialInstitute: 'Credit Union', 
-        type:               'Credit Card', 
-        balance:            500.00,
+        type:               'Credit Card',
+        openingBalance:     -500.00,
+        openingDate:        '2020-03-31T07:00:00.000Z',
+        balance:            -500.00,
         asOfDate:           '2020-03-31T07:00:00.000Z',
       }
 
@@ -153,6 +162,7 @@ describe('Accounts API', () => {
       const account = await AccountsAPI.create(params)
       expect(account.name).toBe(params.name)
       expect(account.type).toBe(params.type)
+      expect(account.balance).toBe(params.balance)
       expect(account._id).toBe('99')
       expect(account.userId).toBe('55')
     })
@@ -163,8 +173,8 @@ describe('Accounts API', () => {
         name:               'Test Credit Card', 
         financialInstitute: 'Credit Union', 
         type:               'Credit Card', 
-        balance:            500.00,
-        asOfDate:           '2020-03-31T07:00:00.000Z',
+        openingBalance:     -500.00,
+        openingDate:        '2020-03-31T07:00:00.000Z',
       }
 
       const serverError = {

@@ -112,6 +112,7 @@ describe('Transaction', () => {
         _id:                new ObjectID(), 
         name:               "Test Checking Account", 
         financialInstitute: 'USAA',
+        openingBalance:     500,
         balance:            500,
         userId:             usersData[0]._id,
       },

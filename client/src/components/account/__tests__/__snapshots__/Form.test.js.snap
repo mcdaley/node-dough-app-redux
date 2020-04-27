@@ -101,8 +101,8 @@ exports[`AccountForm Takes a snapshot 1`] = `
             </label>
             <input
               class="form-control"
-              id="balance"
-              name="balance"
+              id="openingBalance"
+              name="openingBalance"
               placeholder="Enter account balance"
               required=""
               type="text"

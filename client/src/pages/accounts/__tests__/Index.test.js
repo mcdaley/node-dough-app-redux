@@ -27,7 +27,7 @@ const accountsData = [
     financialInstitute: 'Bank', 
     type:               'Checking', 
     balance:            100.00,
-    initialDate:        '2020-03-31T07:00:00.000Z',
+    asOfDate:           '2020-03-31T07:00:00.000Z',
     userId:             'Me'
   },
   { 
@@ -36,7 +36,7 @@ const accountsData = [
     financialInstitute: 'Credit Union', 
     type:               'Credit Card', 
     balance:            500.00,
-    initialDate:        '2020-03-31T07:00:00.000Z',
+    asOfDate:           '2020-03-31T07:00:00.000Z',
     userId:             'Me',
   }
 ]
@@ -129,8 +129,8 @@ describe('PagesAccountsIndex', () => {
       name:               'Test Credit Card', 
       financialInstitute: 'Credit Union', 
       type:               'Credit Card', 
-      balance:            500.00,
-      initialDate:        '2020-03-31T07:00:00.000Z',
+      balance:            -500.00,
+      asOfDate:           '2020-03-31T07:00:00.000Z',
     }
 
     it('Returns a new account', async () => {

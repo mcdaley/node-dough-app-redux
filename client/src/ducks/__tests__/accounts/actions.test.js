@@ -14,7 +14,9 @@ const accountsData = {
     financialInstitute: 'Bank', 
     type:               'Checking', 
     balance:            100.00,
-    initialDate:        '2020-03-31T07:00:00.000Z',
+    asOfDate:           '2020-03-31T07:00:00.000Z',
+    openingBalance:     100.00,
+    openingDate:        '2020-03-31T07:00:00.000Z',
     userId:             'Me'
   },
   '2': { 
@@ -23,7 +25,9 @@ const accountsData = {
     financialInstitute: 'Credit Union', 
     type:               'Credit Card', 
     balance:            500.00,
-    initialDate:        '2020-03-31T07:00:00.000Z',
+    asOfDate:           '2020-03-31T07:00:00.000Z',
+    openingBalance:     500.00,
+    openingDate:        '2020-03-31T07:00:00.000Z',
     userId:             'Me',
   }
 }
@@ -113,8 +117,8 @@ describe('Account Redux Actions', () => {
         name:               'Test Credit Card', 
         financialInstitute: 'Credit Union', 
         type:               'Credit Card', 
-        balance:            500.00,
-        initialDate:        '2020-03-31T07:00:00.000Z',
+        openingBalance:     500.00,
+        openingDate:        '2020-03-31T07:00:00.000Z',
       }
       accountsApiMock.create.mockResolvedValueOnce(account)
 

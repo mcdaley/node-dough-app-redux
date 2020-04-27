@@ -87,14 +87,6 @@ export const actions = {
     }
   }
 }
-///////////////////////////////////////////////////////////////////////////////
-// BUG: 04/23/2020
-// The errors are not being added to the store under an "errors" field. The
-// code and message are just added to the store as fields.
-//
-// SOLUTION:
-// Need to define the following for initialState = { data: {}, error: {}}
-///////////////////////////////////////////////////////////////////////////////
 
 //
 // Account Reducer
@@ -136,7 +128,8 @@ export const reducer  = (state = initialState, action) => {
         ...state,
         data: {
           ...state.data,
-          [accountId]: action.payload.account,}
+          [accountId]: action.payload.account,
+        }
       }
     case types.CREATE_ACCOUNT_ERROR:
       return {

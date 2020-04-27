@@ -79,11 +79,11 @@ router.post('/v1/accounts', async (req, res) => {
   async function createOpeningBalanceTransaction(account) {
     
     let transaction = new Transaction({
-      date:         account.asOfDate,
+      date:         account.openingDate,
       description:  'Opening Balance',
       category:     'Balance',
-      charge:       account.type === 'Credit Card' ? 'debit' : 'credit',
-      amount:       account.type === 'Credit Card' ? -1 * Math.abs(account.balance) : Math.abs(account.balance),
+      //* charge:       account.type === 'Credit Card' ? 'debit' : 'credit',
+      amount:       account.openingBalance,
       accountId:    account._id,
       userId:       account.userId,
     })
@@ -99,28 +99,32 @@ router.post('/v1/accounts', async (req, res) => {
    * @param {*} balance 
    */
   function getBalance() {
-    if(!req.body.balance) {
+    if(!req.body.openingBalance) {
       return 0
     }
     else if(req.body.type === 'Credit Card') {
-      return -1 * Math.abs(req.body.balance)
+      return -1 * Math.abs(req.body.openingBalance)
     }
     else {
-      return Math.abs(req.body.balance)
+      return Math.abs(req.body.openingBalance)
     }
   }
 
   try {
-    let user    = await currentUser()    // Simulate authentication
+    let user            = await currentUser()    // Simulate authentication
+    let openingBalance  = getBalance()
+    let openingDate     = req.body.openingDate ? new Date(req.body.openingDate) : new Date()
 
     // Create the account.
     let account = new Account({
       name:               req.body.name,
       userId:             user._id,
       financialInstitute: req.body.financialInstitute,
-      asOfDate:           req.body.asOfDate ? new Date(req.body.asOfDate) : new Date(),
       type:               req.body.type    || 'Checking',
-      balance:            getBalance(),
+      openingBalance:     openingBalance,
+      openingDate:        openingDate,
+      balance:            openingBalance,         // Set balance to the openingBalance
+      asOfDate:           openingDate,            // Set asOfDate to the openingDate
     })
 
     const result = await account.save() 

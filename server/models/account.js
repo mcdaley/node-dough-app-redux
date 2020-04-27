@@ -22,6 +22,14 @@ const accountSchema = new mongoose.Schema({
     enum:       ['Checking', 'Savings', 'Credit Card'],
     default:    'Checking',
   },
+  openingBalance: {
+    type:       Number,
+    default:    0,
+  },
+  openingDate: {
+    type:       Date,
+    default:    new Date(),
+  },
   balance: {
     type:       Number,
     default:    0,

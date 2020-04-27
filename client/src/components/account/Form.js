@@ -17,21 +17,26 @@ import "react-datepicker/dist/react-datepicker.css";
 
 // Define account validation schema
 const accountValidationSchema = Yup.object({
-  nickname: Yup.string()
-    .max(128, 'Nickname must be 128 characters or less')
-    .required('Nickname is required'),
-  financialInstitute: Yup.string()
-    .max(128, 'Financial Institute muust be 128 characters or less')
-    .required('Financial Institute is required'),
-  accountType: Yup.string()
-    .oneOf(['Checking', 'Savings', 'Credit Card']),
-  balance:    Yup.number()
-    .typeError('Balance must be a number'),
-  asOfDate:   Yup.date()
-    .typeError('Invalid date')
-    .default(function() {
-      return new Date();
-    })
+  nickname: 
+    Yup.string()
+      .max(128, 'Nickname must be 128 characters or less')
+      .required('Nickname is required'),
+  financialInstitute: 
+    Yup.string()
+      .max(128, 'Financial Institute muust be 128 characters or less')
+      .required('Financial Institute is required'),
+  accountType: 
+    Yup.string()
+      .oneOf(['Checking', 'Savings', 'Credit Card']),
+  openingBalance:    
+    Yup.number()
+      .typeError('Balance must be a number'),
+  openingDate:   
+    Yup.date()
+      .typeError('Invalid date')
+      .default(function() {
+        return new Date();
+      })
 })
 
 /**
@@ -41,8 +46,8 @@ const accountValidationSchema = Yup.object({
  * @prop {string}   nickname           - User defined nickname for account.
  * @prop {string}   financialInstitute - FI where account is located.
  * @prop {enum}     accountType        - Checking, Savings, or Credit Card
- * @prop {number}   balance            - Current account balance.
- * @prop {date}     asOfDate           - Date of balance (last txn).
+ * @prop {number}   openingBalance     - Initial account balance.
+ * @prop {date}     openingDate        - Initial date when account is added to app.
  * @prop {function} onSubmit           - Callback to save the transaction
  */
 function AccountForm(props) {
@@ -53,8 +58,8 @@ function AccountForm(props) {
           nickname:           '',
           financialInstitute: '',
           accountType:        'Checking',
-          balance:            '',
-          asOfDate:           '',
+          openingBalance:     '',
+          openingDate:        '',
         }}
         validationSchema = {accountValidationSchema}
         onSubmit         = {(values, {setSubmitting, resetForm}) => {
@@ -124,23 +129,23 @@ function AccountForm(props) {
                 </Form.Control>
               </Form.Group>
               
-              {/* Account Balance and AsOfDate */}
+              {/* Account Opening Balance and Opening Date */}
               <Form.Group>
                 <Form.Row>
                   <Col>
                     <Form.Label>Account Balance</Form.Label>
                     <Form.Control 
                       required
-                      id          = 'balance'
+                      id          = 'openingBalance'
                       type        = 'text'
                       placeholder = 'Enter account balance'
-                      name        = 'balance'
-                      value       = {values.balance}
+                      name        = 'openingBalance'
+                      value       = {values.openingBalance}
                       onChange    = {handleChange}
-                      isInvalid   = {!!errors.balance}
+                      isInvalid   = {!!errors.openingBalance}
                     />
                     <Form.Control.Feedback type="invalid" data-testid='balance-error'>
-                      {errors.balance ? errors.balance : null}
+                      {errors.openingBalance ? errors.openingBalance : null}
                     </Form.Control.Feedback>
                   </Col>
                   <Col>
@@ -150,8 +155,8 @@ function AccountForm(props) {
                         id          = 'asOfDate'
                         className   = 'form-control'
                         placeholder = 'mm/dd/yyyy'
-                        selected    = {values.asOfDate}
-                        onChange    = {(e) => setFieldValue('asOfDate', e)}
+                        selected    = {values.openingDate}
+                        onChange    = {(e) => setFieldValue('openingDate', e)}
                       />
                     </div>
                   </Col>

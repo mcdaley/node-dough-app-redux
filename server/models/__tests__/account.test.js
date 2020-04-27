@@ -20,6 +20,7 @@ let accountsData = [
     _id:                new ObjectID(), 
     name:               "Fergie Checking Account",
     financialInstitute: "Bank of America",
+    openingBalance:     500,
     balance:            500,
     userId:             usersData[0]._id,
   },
@@ -71,19 +72,19 @@ describe('Account', () => {
       })
     })
 
-    it('Requires a number for the initial balance', () => {
-      let account = new Account({name: 'My Checking', balance: 'Bad'})
+    it('Requires a number for the opening balance', () => {
+      let account = new Account({name: 'My Checking', openingBalance: 'Bad'})
 
       account.validate( (err) => {
-        expect(err.errors.balance).to.exist
-        expect(err.errors.balance).to.match(/Cast to Number failed/)
+        expect(err.errors.openingBalance).to.exist
+        expect(err.errors.openingBalance).to.match(/Cast to Number failed/)
       })
     })
 
     it('Requires an account owner (i.e., userId)', () => {
       let account = new Account({
-        name:     'My Checking', 
-        balance:  '100'
+        name:           'My Checking', 
+        openingBalance: '100'
       })
 
       account.validate( (err) => {
@@ -97,7 +98,7 @@ describe('Account', () => {
         name:               'My Checking',
         financialInstitute: 'NFCU',
         type:               'Checking', 
-        balance:            500.00,
+        openingBalance:     500.00,
         userId:             user._id,
       })
 
@@ -122,6 +123,7 @@ describe('Account', () => {
       it('Returns the account', async () => {
         let account = await Account.findById(accountsData[0]._id)
         expect(account.name).to.equal(accountsData[0].name)
+        expect(account.openingBalance).to.equal(500)
         expect(account.balance).to.equal(500)
         expect(account.userId.toHexString()).to.equal(usersData[0]._id.toHexString())
       })
@@ -172,6 +174,7 @@ describe('Account', () => {
         name:               'My Checkiing', 
         financialInstitute: 'NFCU',
         type:               'Checking', 
+        openingBalance:     500.00,
         balance:            500.00,
         userId:             users[0]._id,
       })
@@ -197,6 +200,7 @@ describe('Account', () => {
               expect(result.name).to.equal('Test Checking')
               expect(result.financialInstitute).to.equal('Wells Fargo')
               expect(result.type).to.equal('Checking')
+              expect(result.openingBalance).to.equal(0)
               expect(result.balance).to.equal(0)
               expect(result.userId.toHexString()).to.equal(users[0]._id.toHexString())
               done()
@@ -211,6 +215,7 @@ describe('Account', () => {
         name:               'Test Savings',
         financialInstitute: '5/3 Bank',
         type:               'Savings',
+        openingBalance:     1000,
         balance:            1000,
         userId:             users[0]._id,
       })
@@ -223,7 +228,7 @@ describe('Account', () => {
               expect(result.name).to.equal('Test Savings')
               expect(result.type).to.equal('Savings')
               expect(result.financialInstitute).to.equal('5/3 Bank')
-              expect(result.balance).to.equal(1000)
+              expect(result.openingBalance).to.equal(1000)
               done()
             })
             .catch( (err) => done(err))
@@ -246,13 +251,13 @@ describe('Account', () => {
 
     it('Finds account by id and updates it', async () => {
       let query   = { _id: accountsData[0]._id }
-      let update  = { name: 'Update Account Test', balance: 25.0 }
+      let update  = { name: 'Update Account Test', openingBalance: 25.0 }
       let options = { new: true }
 
       let result  = await Account.findOneAndUpdate(query, update, options)
 
       expect(result.name).to.equal(update.name)
-      expect(result.balance).to.equal(update.balance)
+      expect(result.openingBalance).to.equal(update.openingBalance)
     })
 
     it('Returns null for account id that is not found', async () => {

@@ -23,6 +23,7 @@ let accountsData = [
     name:               "Test Checking Account",
     financialInstitute: 'USAA',
     type:               'Checking',
+    openingBalance:     500,
     balance:            500,
     userId:             usersData[0]._id,
   },
@@ -31,6 +32,7 @@ let accountsData = [
     name:               "Test Savings Account",
     financialInstitute: 'NFCU',
     type:               'Savings',
+    openingDate:        new Date().toISOString(),
     asOfDate:           new Date().toISOString(),
     userId:             usersData[0]._id,
   },
@@ -39,6 +41,8 @@ let accountsData = [
     name:               "Test Credit Card",
     financialInstitute: 'Wells Fargo',
     type:               'Credit Card',
+    openingBalance:     750,
+    openingDate:        new Date().toISOString(),
     balance:            750,
     asOfDate:           new Date().toISOString(),
     userId:             usersData[0]._id,
@@ -138,7 +142,7 @@ describe('Accounts API', () => {
 
     it('Returns an error for invalid account type', (done) => {
       let account   = {...accountsData[1]}
-      account.type  = 'Invalid-Account-Type'
+      account.type  = 'INVALID-ACCOUNT-TYPE'
 
       request(app)
         .post('/api/v1/accounts')
@@ -153,9 +157,9 @@ describe('Accounts API', () => {
         .end(done)
     })
 
-    it('Returns an error for invalid balance', (done) => {
-      let account     = {...accountsData[1]}
-      account.balance = 'Invalid-Balance'
+    it('Returns an error for invalid openingBalance and balance', (done) => {
+      let account             = {...accountsData[1]}
+      account.openingBalance  = 'INVALID-BALANCE'
 
       request(app)
         .post('/api/v1/accounts')
@@ -163,28 +167,31 @@ describe('Accounts API', () => {
         .expect(400)
         .expect( (res) => {
           //* console.log(`[debug] post error response= `, JSON.stringify(res.body, undefined, 2))
-          expect(res.body.errors.length).to.equal(1)
+          expect(res.body.errors.length).to.equal(2)
           expect(res.body.errors[0].code).to.equal(701)
-          expect(res.body.errors[0].path).to.equal('balance')
+          expect(res.body.errors[0].path).to.equal('openingBalance')
           expect(res.body.errors[0].type).to.equal('cast-error')
+          expect(res.body.errors[1].path).to.equal('balance')
+          expect(res.body.errors[1].type).to.equal('cast-error')
         })
         .end(done)
     })
 
-    it('Returns an error for invalid asOfDate', (done) => {
-      let account       = {...accountsData[1]}
-      account.asOfDate  = 'Invalid-Date'
+    it('Returns an error for invalid  openingDate and asOfDate', (done) => {
+      let account         = {...accountsData[1]}
+      account.openingDate = 'INVALID-DATE'
 
       request(app)
         .post('/api/v1/accounts')
         .send(account)
         .expect(400)
         .expect( (res) => {
-          //* console.log(`[debug] post error response= `, JSON.stringify(res.body, undefined, 2))
-          expect(res.body.errors.length).to.equal(1)
+          expect(res.body.errors.length).to.equal(2)
           expect(res.body.errors[0].code).to.equal(701)
-          expect(res.body.errors[0].path).to.equal('asOfDate')
+          expect(res.body.errors[0].path).to.equal('openingDate')
           expect(res.body.errors[0].type).to.equal('cast-error')
+          expect(res.body.errors[1].path).to.equal('asOfDate')
+          expect(res.body.errors[1].type).to.equal('cast-error')
         })
         .end(done)
     })
@@ -198,7 +205,7 @@ describe('Accounts API', () => {
         .expect(201)
         .expect( (res) => {
           expect(res.body.name).to.equal(account.name)
-          expect(res.body.balance).to.equal(-1 * Math.abs(account.balance))
+          expect(res.body.openingBalance).to.equal(-1 * Math.abs(account.openingBalance))
         })
         .end( (err, res) => {
           if(err) {
@@ -212,16 +219,18 @@ describe('Accounts API', () => {
               expect(result.name).to.equal(account.name)
               expect(result.type).to.equal(account.type)
               expect(result.financialInstitute).to.equal(account.financialInstitute)
-              expect(result.balance).to.equal(-1 * Math.abs(account.balance))
-              expect(result.asOfDate.toISOString()).to.equal(account.asOfDate)
+              expect(result.openingBalance).to.equal(-1 * Math.abs(account.openingBalance))
+              expect(result.openingDate.toISOString()).to.equal(account.openingDate)
             })
             .catch( (err) => done(err) )
 
           Transaction
             .findOne({accountId: res.body._id, userId: account.userId})
             .then( (result) => {
+              expect(result.date.toISOString()).to.equal(account.openingDate)
               expect(result.date.toISOString()).to.equal(account.asOfDate)
               expect(result.description).to.match(/Opening Balance/)
+              expect(result.amount).to.equal(-1 * Math.abs(account.openingBalance))
               expect(result.amount).to.equal(-1 * Math.abs(account.balance))
             })
             .catch( (err) => done(err) )
@@ -239,7 +248,8 @@ describe('Accounts API', () => {
         .expect(201)
         .expect( (res) => {
           expect(res.body.name).to.equal(account.name)
-          expect(res.body.balance).to.equal(Math.abs(account.balance))
+          expect(res.body.openingBalance).to.equal(account.openingBalance)
+          expect(res.body.balance).to.equal(account.balance)
         })
         .end( (err, res) => {
           if(err) {
@@ -259,7 +269,8 @@ describe('Accounts API', () => {
               expect(result.name).to.equal(account.name)
               expect(result.type).to.equal(account.type)
               expect(result.financialInstitute).to.equal(account.financialInstitute)
-              expect(result.balance).to.equal(Math.abs(account.balance))
+              expect(result.openingBalance).to.equal(account.openingBalance)
+              expect(result.balance).to.equal(account.balance)
               expect(result.asOfDate.getTime()).to.be.lessThan(Date.now())
               expect(result.asOfDate.getTime()).to.be.greaterThan(Date.now() - 3600)
             })
@@ -271,7 +282,8 @@ describe('Accounts API', () => {
               expect(result.date.getTime()).to.be.lessThan(Date.now())
               expect(result.date.getTime()).to.be.greaterThan(Date.now() - 3600)
               expect(result.description).to.match(/Opening Balance/)
-              expect(result.amount).to.equal(Math.abs(account.balance))
+              expect(result.amount).to.equal(account.openingBalance)
+              expect(result.amount).to.equal(account.balance)
             })
             .catch( (err) => done(err) )
           
@@ -450,7 +462,7 @@ describe('Accounts API', () => {
             .then( (result) => {
               expect(result.name).to.equal(update.name)
               expect(result.type).to.equal(update.type)
-              expect(result.initialBalance).to.equal(update.initialBalance)
+              expect(result.balance).to.equal(update.balance)
               done()
             })
             .catch( (err) => done(err) )

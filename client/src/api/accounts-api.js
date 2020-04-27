@@ -60,8 +60,10 @@ const AccountsAPI = {
     })
   },
   /**
-   * Create a new account for the user in the DB.
-   * @param {*} account 
+   * Create a new account for the user in the DB, calls the following api:
+   * POST /api/v1/accounts
+   * @param   {Object}  params - Fields to create a new account.
+   * @returns {Promise} Returns a promise w/ the new account.
    */
   create(params) {
     return new Promise( async (resolve, reject) => {
