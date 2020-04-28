@@ -48,21 +48,23 @@ export const actions = {
    * @param {String} accountId 
    * @param {Object} transaction 
    */
-  createTransaction(accountId, transaction) {
+  createTransaction(accountId, transactionParams) {
     return async function(dispatch, getState) {
       try {
-        let result = await TransactionsAPI.create(accountId, transaction)
+        const {transaction, account} = await TransactionsAPI.create(accountId, transactionParams)
 
-        //* console.log(`[info] Created transaction: ${JSON.stringify(result, undefined, 2)}`)
+        //* console.log(`[info] Created transaction: ${JSON.stringify(transaction, undefined, 2)}`)
+        //* console.log(`[info] Updated account: ${JSON.stringify(account, undefined, 2)}`)
         dispatch({
           type:     types.CREATE_TRANSACTION,
           payload:  {
-            transaction: result.transaction
+            transaction:  transaction,
+            account:      account,
           }
         })
       }
       catch(error) {
-        //* console.log(`[error] Failed to create transaction, error= `, error)
+        console.log(`[error] Failed to create transaction, error= `, error)
         dispatch({
           type:     types.CREATE_TRANSACTION_ERROR,
           payload:  {error: error}

@@ -26,6 +26,7 @@ let accountsData = [
     _id:                new ObjectID(), 
     name:               "Test Checking Account", 
     financialInstitute: 'USAA',
+    type:               'Checking',
     openingBalance:     500,
     balance:            500,
     userId:             usersData[0]._id,
@@ -236,7 +237,6 @@ describe('Transactions API', () => {
       transaction = {
         _id:          new ObjectID().toHexString(),
         description:  'Test Transaction',
-        //* charge:       'debit',
         amount:       -40.25,
         date:         new Date('3/20/2020').toISOString(),
         userId:       accountsData[0].userId.toHexString(),
@@ -328,23 +328,26 @@ describe('Transactions API', () => {
         .end(done)
     })
 
-    it('Creates a debit transaction', (done) => {
+    it('Creates a debit transaction and updates the account balance', (done) => {
+      let account    = accountsData[0]
+      let newBalance = account.balance + transaction.amount
       
       request(app)
         .post(`/api/v1/accounts/${accountId}/transactions`)
         .send(transaction)
         .expect(201)
         .expect( (res) => {
-          expect(res.body.description).to.equal(transaction.description)
-          expect(res.body.amount).to.equal(transaction.amount)
-          expect(res.body.accountId).to.equal(accountId)
-          expect(res.body.date).to.equal(transaction.date)
-          expect(res.body.userId).to.equal(transaction.userId)
+          expect(res.body.transaction.description).to.equal(transaction.description)
+          expect(res.body.transaction.amount).to.equal(transaction.amount)
+          expect(res.body.transaction.accountId).to.equal(accountId)
+          expect(res.body.transaction.date).to.equal(transaction.date)
+          expect(res.body.transaction.userId).to.equal(transaction.userId)
+
+          expect(res.body.account._id).to.equal(accountId)
+          expect(res.body.account.balance).to.equal(newBalance)
         })
         .end( (err, res) => {
-          if(err) {
-            return done(err)
-          }
+          if(err) { return done(err) }
 
           Transaction
             .findOne({
@@ -357,25 +360,49 @@ describe('Transactions API', () => {
               expect(result.date.toISOString()).to.equal(transaction.date)
               expect(result.accountId.toHexString()).to.equal(accountId)
               expect(result.userId.toHexString()).to.equal(transaction.userId)
-              done()
             })
             .catch( (err) => done(err) )
+
+          // Verify account and opening balance transaction are written to DB
+          Account
+            .findOne({_id: accountId})
+            .then( (result) => {
+              expect(result.name).to.equal(account.name)
+              expect(result.type).to.equal(account.type)
+              expect(result.openingBalance).to.equal(account.openingBalance)
+              expect(result.balance).to.equal(newBalance)
+            })
+            .catch( (err) => done(err) )
+
+          done()
         })
     })
 
-    it('Creates a credit transaction', (done) => {
-      let creditTxn = {...transaction, amount: 75.00}
+    it('Creates a credit transaction and updates the balance', (done) => {
+      let account     = accountsData[1]
+      let accountId   = account._id.toHexString()
+      let creditTxn   = {
+        _id:            new ObjectID().toHexString(),
+        description:    'Test Credit Transaction',
+        amount:         75,
+        date:           new Date('3/20/2020').toISOString(),
+        userId:         account.userId.toHexString(),
+      }
+      let newBalance  = account.balance + creditTxn.amount
       
       request(app)
         .post(`/api/v1/accounts/${accountId}/transactions`)
         .send(creditTxn)
         .expect(201)
         .expect( (res) => {
-          expect(res.body.description).to.equal(creditTxn.description)
-          expect(res.body.amount).to.equal(creditTxn.amount)
-          expect(res.body.accountId).to.equal(accountId)
-          expect(res.body.date).to.equal(creditTxn.date)
-          expect(res.body.userId).to.equal(creditTxn.userId)
+          expect(res.body.transaction.description).to.equal(creditTxn.description)
+          expect(res.body.transaction.amount).to.equal(creditTxn.amount)
+          expect(res.body.transaction.accountId).to.equal(accountId)
+          expect(res.body.transaction.date).to.equal(creditTxn.date)
+          expect(res.body.transaction.userId).to.equal(creditTxn.userId)
+
+          expect(res.body.account._id).to.equal(accountId)
+          expect(res.body.account.balance).to.equal(newBalance)
         })
         .end( (err, res) => {
           if(err) {
@@ -393,9 +420,22 @@ describe('Transactions API', () => {
               expect(result.date.toISOString()).to.equal(creditTxn.date)
               expect(result.accountId.toHexString()).to.equal(accountId)
               expect(result.userId.toHexString()).to.equal(creditTxn.userId)
-              done()
             })
             .catch( (err) => done(err) )
+
+          // Verify account and opening balance transaction are written to DB
+          Account
+            .findOne({_id: accountId})
+            .then( (result) => {
+              expect(result.name).to.equal(account.name)
+              expect(result.type).to.equal(account.type)
+              expect(result.openingBalance).to.equal(account.openingBalance)
+              expect(result.balance).to.equal(newBalance)
+              
+            })
+            .catch( (err) => done(err) )
+
+          done()
         })
     }) 
   })

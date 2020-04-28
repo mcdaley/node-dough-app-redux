@@ -108,4 +108,29 @@ describe('Account Redux Reducer', () => {
       expect(result.error.message).toBe(error.message)
     })
   })
+
+  //
+  // TEST updating account balance when a transaction is created
+  //
+  describe('Transaction Actions', () => {
+    const initialState = {
+      data: {
+        '1': { _id: '1', name: 'Checking', balance: 1000 },
+        '2': { _id: '2', name: 'Savings',  balance: 5000 },
+      }
+    }
+    const account = { _id: '2', name: 'Savings',  balance: 4000 }
+
+    describe('createTransaction', () => {
+      it('Updates the account balance', () => {
+        const result  = reducer(initialState, {
+          type:     types.CREATE_TRANSACTION,
+          payload:  { account: account }
+        })
+  
+        expect(Object.keys(result.data).length).toBe(2)
+        expect(result.data['2'].balance).toBe(4000)
+      })
+    })
+  })
 })

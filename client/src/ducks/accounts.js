@@ -1,7 +1,8 @@
 //-----------------------------------------------------------------------------
 // client/src/ducks/accounts.js
 //-----------------------------------------------------------------------------
-import AccountsAPI                from '../api/accounts-api'
+import AccountsAPI                    from '../api/accounts-api'
+import { types as transactionTypes }  from './transactions'
 
 //
 // Account Action Types
@@ -13,6 +14,7 @@ export const types = {
   FIND_ACCOUNT_ERROR:       'FIND_ACCOUNT_ERROR',
   CREATE_ACCOUNT:           'CREATE_ACCOUNT',
   CREATE_ACCOUNT_ERROR:     'CREATE_ACCOUNT_ERROR',
+  CREATE_TRANSACTION:       transactionTypes.CREATE_TRANSACTION,
 }
 
 //
@@ -135,6 +137,14 @@ export const reducer  = (state = initialState, action) => {
       return {
         ...state,
         error: action.payload.error
+      }
+    case types.CREATE_TRANSACTION:
+      return {
+        ...state,
+        data: {
+          ...state.data,
+          [action.payload.account._id]: action.payload.account
+        }
       }
     default:
       return state

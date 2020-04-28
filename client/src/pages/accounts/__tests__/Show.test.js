@@ -290,7 +290,10 @@ describe('PagesAccountsShow', () => {
       mockAccountsAPI.find.mockResolvedValueOnce(accountsData['99'])
 
       // Mock TransactionsAPI.create() - Create new account
-      mockTransactionsAPI.create.mockResolvedValueOnce({transaction: params})
+      mockTransactionsAPI.create.mockResolvedValueOnce({
+        transaction:  params,
+        account:      {...accountsData['99'], balance: accountsData['99'].balance + params.amount}
+      })
 
       // Add the URL to the MemoryRouter, as the page needs the accountId as a 
       // param to the TransactionsAPI.findByAccountId()

@@ -99,7 +99,8 @@ describe('Transactions Redux Actions', () => {
       const dispatch = jest.fn()
 
       transactionsApiMock.create.mockResolvedValueOnce({
-        transaction: transactionsData['3']
+        transaction:  transactionsData['3'],
+        account:      accountsData['99'],
       })
 
       await actions.createTransaction()(dispatch)
@@ -107,7 +108,10 @@ describe('Transactions Redux Actions', () => {
       expect(dispatch).toHaveBeenCalledTimes(1)
       expect(dispatch).toHaveBeenLastCalledWith({
         type:     types.CREATE_TRANSACTION,
-        payload:  {transaction: transactionsData['3']}
+        payload:  {
+          transaction:  transactionsData['3'],
+          account:      accountsData['99'],
+        }
       })
     })
   })

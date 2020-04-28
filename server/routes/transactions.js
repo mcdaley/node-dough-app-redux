@@ -216,10 +216,17 @@ router.post('/v1/accounts/:accountId/transactions', async (req, res) => {
     })
     logger.debug('Built transaction= %o', transaction)
 
-    let result = await transaction.save()
+    let result    = await transaction.save()
+    let statement = await Account.findOneAndUpdate(
+      { _id:      accountId },
+      { balance:  (account.balance + transaction.amount) },
+      { new:      true }
+    )
+    
 
-    logger.info('Successfully created transaction= %o', result)
-    res.status(201).send(result)
+    logger.debug('Successfully created transaction= %o', result)
+    logger.debug('Updated account id=[%s], balance=[%s]', statement._id, statement.balance)
+    res.status(201).send({transaction: result, account: statement})
   }
   catch(err) {
     logger.error('Failed to create transaction, err= %o', err)

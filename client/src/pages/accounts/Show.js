@@ -59,11 +59,13 @@ const PagesAccountsShow = () => {
   const handleClick = () => history.goBack()
 
   /**
-   * Callback to handle the creation of a new transaction. It updates
-   * the transactions array w/ the new transaction to re-render the
-   * transaction data grid.
+   * Callback to handle the creation of a new transaction. It creates a 
+   * new transaction and it updates the account balance. Next, it updates
+   * the transactions and accounts redux stores w/ the new data so the
+   * screen is re-rendered w/ the new transaction and the updated balance
    * 
-   * @param {Object} transaction - Transaction that was just created in DB
+   * @param {String} accountId   - Account the transaction belongs-to.
+   * @param {Object} transaction - Parameters for creating the transaction
    */
   const onCreateTransaction = (accountId, transaction) => {
     //* console.log(`[debug] Created transaction= `, transaction)

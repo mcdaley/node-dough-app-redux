@@ -121,21 +121,25 @@ describe('Transactions API', () => {
    */
   describe('create', () => {
     it('Creates a debit transaction', async () => {
-      const accountId = transactionsData[0].accountId
-      const url       = `http://localhost:5000/api/v1/accounts/${accountId}/transactions`
-      const params    = {
+      const accountId   = transactionsData[0].accountId
+      const url         = `http://localhost:5000/api/v1/accounts/${accountId}/transactions`
+      const txnParams   = {
         date:         '2020-03-31T07:00:00.000Z',
         description:  'Transaction One', 
         category:     'Groceries', 
         amount:       -100.00
       }
+      const newBalance  = accountsData[0].balance + txnParams.amount
 
       // Add mock implementation to simulate a server error
-      axiosMock.post.mockImplementationOnce( (url, params) =>
-        Promise.resolve({ data: {...params, _id: '99', accountId: accountId, userId: 'Me'} }),
+      axiosMock.post.mockImplementationOnce( (url, txnParams) =>
+        Promise.resolve({ data: {
+          transaction: {...txnParams, _id: '99', accountId: accountId, userId: 'Me'},
+          account:     {...accountsData[0], balance: newBalance}
+        }})
       )
 
-      let {transaction} = await TransactionsAPI.create(accountId, params)
+      let {transaction, account} = await TransactionsAPI.create(accountId, txnParams)
 
       expect(transaction.date).toBe('2020-03-31T07:00:00.000Z')
       expect(transaction.description).toMatch(/transaction on/i)
@@ -146,34 +150,43 @@ describe('Transactions API', () => {
       expect(transaction._id).toBe('99')
       expect(transaction.accountId).toBe(accountId)
       expect(transaction.userId).toBe('Me')
+
+      expect(account.balance).toBe(newBalance)
     })
 
     it('Creates a credit transaction', async () => {
-      const accountId = transactionsData[0].accountId
-      const url       = `http://localhost:5000/api/v1/accounts/${accountId}/transactions`
-      const params    = {
+      const accountId   = transactionsData[0].accountId
+      const url         = `http://localhost:5000/api/v1/accounts/${accountId}/transactions`
+      const txnParams   = {
         date:         '2020-03-31T07:00:00.000Z',
         description:  'Transaction Two', 
         category:     'Salary', 
         amount:       400.00
       }
+      const newBalance  = accountsData[0].balance + txnParams.amount
 
       // Add mock implementation to simulate a server error
       axiosMock.post.mockImplementationOnce( (url, params) =>
-        Promise.resolve({ data: {...params, _id: '99', accountId: accountId, userId: 'Me'} }),
+        Promise.resolve({ 
+          data: {
+            transaction: {...txnParams, _id: '99', accountId: accountId, userId: 'Me'},
+            account:     {...accountsData[0], balance: newBalance}
+        }})
       )
 
-      let {transaction} = await TransactionsAPI.create(accountId, params)
+      let {transaction, account} = await TransactionsAPI.create(accountId, txnParams)
 
       expect(transaction.date).toBe('2020-03-31T07:00:00.000Z')
       expect(transaction.description).toMatch(/transaction two/i)
-      expect(transaction.category).toBe(params.category)
-      expect(transaction.amount).toBe(params.amount)
+      expect(transaction.category).toBe(txnParams.category)
+      expect(transaction.amount).toBe(txnParams.amount)
       expect(transaction.debit).toBe('')
-      expect(transaction.credit).toBe(params.amount)
+      expect(transaction.credit).toBe(txnParams.amount)
       expect(transaction._id).toBe('99')
       expect(transaction.accountId).toBe(accountId)
       expect(transaction.userId).toBe('Me')
+
+      expect(account.balance).toBe(newBalance)
     })
 
     it('Returns a server error', async () => {

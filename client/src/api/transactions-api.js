@@ -52,10 +52,11 @@ const TransactionsAPI = {
       const url = `http://localhost:5000/api/v1/accounts/${accountId}/transactions`
       try {
         let result      = await axios.post(url, params)
-        let transaction = setCreditAndDebitFields(result.data)
+        let transaction = setCreditAndDebitFields(result.data.transaction)
+        let account     = result.data.account
         //* console.log(`[debug] Created transaction for account=[${accountId}], `, transaction)
 
-        resolve({transaction})
+        resolve({transaction, account})
       }
       catch(error) {
         if (error.response) {
