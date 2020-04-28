@@ -1,14 +1,19 @@
 //-----------------------------------------------------------------------------
 // server/routes/transactions.js
 //-----------------------------------------------------------------------------
-const express         = require('express')
-const mongoose        = require('mongoose')
-const { ObjectID }    = require('mongodb')
+const express             = require('express')
+const mongoose            = require('mongoose')
+const { ObjectID }        = require('mongodb')
 
-const Transaction     = require('../models/transaction')
-const Account         = require('../models/account')
-const logger          = require('../config/winston')
-const { currentUser } = require('../utils/current-user-helper')
+const Transaction         = require('../models/transaction')
+const Account             = require('../models/account')
+const logger              = require('../config/winston')
+const {
+  validateAccountId,
+  validateTransactionId,
+}                         = require('../utils/route-helpers')
+const { currentUser }     = require('../utils/current-user-helper')
+
 
 // Get the Express Router
 const router  = express.Router()
@@ -223,7 +228,6 @@ router.post('/v1/accounts/:accountId/transactions', async (req, res) => {
       { new:      true }
     )
     
-
     logger.debug('Successfully created transaction= %o', result)
     logger.debug('Updated account id=[%s], balance=[%s]', statement._id, statement.balance)
     res.status(201).send({transaction: result, account: statement})
@@ -282,29 +286,23 @@ router.put('/v1/accounts/:accountId/transactions/:id', async (req, res) => {
 
   let accountId     = req.params.accountId
   let transactionId = req.params.id
-
-  // Verify accountId is a valid ObjectID
-  if(!ObjectID.isValid(accountId)) {
-    logger.error('Invalid account id=[%s]', accountId)
-    return res.status(404).send({
-      code:     404,
-      message:  'Transaction not found',
-    })
+  let account       = undefined
+  let transaction   = undefined
+  
+  // Validate the accountId and the transactionId
+  try {
+    account     = await validateAccountId(accountId, {model: true, msg: 'Transaction not found'})
+    transaction = await validateTransactionId(transactionId, {model: true})
+  }
+  catch(error) {
+    return res.status(error.code).send(error)
   }
 
-  // Verify transactionId is a valid ObjectID
-  if(!ObjectID.isValid(transactionId)) {
-    logger.error('Invalid transaction id=[%s]', transactionId)
-    return res.status(404).send({
-      code:     404,
-      message:  'Transaction not found',
-    })
-  }
-
+  // Update the transaction
   try {
     let user    = await currentUser()
     let query   = { _id: transactionId, accountId: accountId }
-    let update  = (function makeUpdateParams(body) {
+    let update  = (function makeUpdateQueryParams(body) {
       let update = {}
       Object.entries(body).forEach( (entry) => {
         // Do not allow the accountId or userId to be updated.
@@ -315,7 +313,7 @@ router.put('/v1/accounts/:accountId/transactions/:id', async (req, res) => {
       return update
     })(req.body)
     let options = { new: true, runValidators: true  }
-    
+
     let result  = await Transaction.findOneAndUpdate(query, update, options)
     if(result == null) {
       return res.status(404).send({
@@ -324,9 +322,19 @@ router.put('/v1/accounts/:accountId/transactions/:id', async (req, res) => {
       })
     }
 
+    // Update the account balance if the transaction amount changed.
+    if(update.hasOwnProperty('amount')) {
+      let balance = account.balance - transaction.amount + update.amount
+      let query   = { _id:     accountId }
+      let filter  = { balance: balance }
+      
+      account     = await Account.findOneAndUpdate(query, filter, options)
+    } 
+    
     logger.info(`Updated transaction for accountId[${accountId}], transaction= %o`, result)
     res.status(200).send({
-      transaction: result
+      transaction:  result,
+      account:      account,
     })
   }
   catch(err) {

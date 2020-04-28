@@ -229,12 +229,15 @@ describe('Transactions API', () => {
 
       // Add mock implementation to simulate a server error
       axiosMock.put.mockImplementationOnce( (url, params) =>
-        Promise.resolve({ data: {
-          transaction: { ...txn, ...params } }
+        Promise.resolve({ 
+          data: {
+            transaction: { ...txn, ...params },
+            account:     { ...accountsData[0], balance: 2000} 
+          }
         }),
       )
 
-      let transaction = await TransactionsAPI.update(accountId, txnId, params)
+      let {transaction, account} = await TransactionsAPI.update(accountId, txnId, params)
 
       expect(transaction.date).toBe(new Date(txn.date).toISOString())
       expect(transaction.description).toBe(params.description)
@@ -243,6 +246,8 @@ describe('Transactions API', () => {
       expect(transaction._id).toBe(txn._id)
       expect(transaction.accountId).toBe(accountId)
       expect(transaction.userId).toBe(txn.userId)
+
+      expect(account.balance).toBe(2000)    // Returns the updated account balance
     })
 
     it('Returns a 404 error for an invalid transaction id', async () => {

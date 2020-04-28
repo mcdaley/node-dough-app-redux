@@ -603,14 +603,15 @@ describe('Transactions API', () => {
         .end(done)
     })
 
-    it('Updates a transaction', (done) => {
+    it('Updates transaction amount and account balance', (done) => {
+      // Expect account balance to change from 500.00 to 445.00
       let accountId     = transactionsData[1].accountId.toHexString()
       let transactionId = transactionsData[1]._id.toHexString()
       let update        = { 
         date:         new Date('3/17/2020').toISOString(),
         description:  'Updated transaction',
         category:     'Category',
-        amount:       -2500.00,
+        amount:       -100.00,
       }
 
       request(app)
@@ -618,17 +619,20 @@ describe('Transactions API', () => {
         .send(update)
         .expect(200)
         .expect( (res) => {
-          let {transaction} = res.body
+          let {transaction, account} = res.body
           expect(transaction.date).to.equal(update.date)
           expect(transaction.description).to.equal(update.description)
           expect(transaction.category).to.equal(update.category)
           expect(transaction.amount).to.equal(update.amount)
           expect(transaction.accountId).to.equal(accountId)
+
+          expect(account.balance).to.equal(445.00)
+          expect(account._id).to.equal(accountId)
         })
         .end( (err, res) => {
           if(err) { return done(err) }
 
-          let {transaction} = res.body
+          let {transaction, account} = res.body
           Transaction
             .findOne({
               _id:        transaction._id, 
@@ -640,9 +644,18 @@ describe('Transactions API', () => {
               expect(result.date.toISOString()).to.equal(update.date)
               expect(result.accountId.toHexString()).to.equal(transaction.accountId)
               expect(result.userId.toHexString()).to.equal(transaction.userId)
-              done()
             })
             .catch( (err) => done(err) )
+
+            Account
+              .findOne({
+                _id:  account._id,
+              })
+              .then( (result) => {
+                expect(result.balance).to.equal(445.00)
+              })
+              .catch((err) => done(err) )
+            done()
         })
     })
     

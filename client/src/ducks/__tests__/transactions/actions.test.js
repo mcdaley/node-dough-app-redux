@@ -120,12 +120,17 @@ describe('Transactions Redux Actions', () => {
   //
   describe('updateTransaction', () => {
     it('Dispatchs UPDATE_TRANSACTION', async () =>{
-      const dispatch = jest.fn()
-      const response = {
+      const dispatch       = jest.fn()
+      const updatedTxn     = {
         ...transactionsData['2'],
         description:  'Updated Expense', 
         category:     'Dining', 
         amount:       -25.0
+      }
+      const updatedAccount = {...accountsData['99'], balance: 375.00}
+      const response       = {
+        transaction:  updatedTxn,
+        account:      updatedAccount,
       }
       transactionsApiMock.update.mockResolvedValueOnce(response)
 
@@ -134,7 +139,10 @@ describe('Transactions Redux Actions', () => {
       expect(dispatch).toHaveBeenCalledTimes(1)
       expect(dispatch).toHaveBeenLastCalledWith({
         type:       types.UPDATE_TRANSACTION,
-        payload:    {transaction: response}
+        payload:    {
+          transaction:  updatedTxn, 
+          account:      updatedAccount
+        }
       })
     })
   })

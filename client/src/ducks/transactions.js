@@ -81,12 +81,15 @@ export const actions = {
   updateTransaction(accountId, transactionId, params) {
     return async function(dispatch, getState) {
       try {
-        let transaction = await TransactionsAPI.update(accountId, transactionId, params)
+        let {transaction, account} = await TransactionsAPI.update(accountId, transactionId, params)
   
         //* console.log(`[debug] Updated transacton= `, transaction)
         dispatch({
           type:     types.UPDATE_TRANSACTION,
-          payload:  {transaction: transaction}
+          payload:  {
+            transaction:  transaction,
+            account:      account,
+          }
         })
       }
       catch(error) {

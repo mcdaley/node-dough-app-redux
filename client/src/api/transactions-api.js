@@ -116,9 +116,10 @@ const TransactionsAPI = {
       try {
         let result      = await axios.put(url, params)
         let transaction = setCreditAndDebitFields(result.data.transaction)
+        let account     = result.data.account
 
         //* console.log(`[debug] Updated transaction for account=[${accountId}], `, transaction)
-        resolve(transaction)
+        resolve({transaction, account})
       }
       catch(error) {
         if (error.response) {

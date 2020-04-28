@@ -69,7 +69,6 @@ const PagesAccountsShow = () => {
    */
   const onCreateTransaction = (accountId, transaction) => {
     //* console.log(`[debug] Created transaction= `, transaction)
-
     dispatch(actions.createTransaction(accountId, transaction))
   }
 
@@ -80,8 +79,7 @@ const PagesAccountsShow = () => {
    * @param {Object} transaction 
    */
   const onUpdateTransaction = async (accountId, transactionId, params) => {
-    console.debug(`[debug] Update transaction id[${transactionId}]= `, params)
-
+    //* console.debug(`[debug] Update transaction id[${transactionId}]= `, params)
     dispatch(actions.updateTransaction(accountId, transactionId, params))
   }
 
@@ -91,8 +89,6 @@ const PagesAccountsShow = () => {
   const renderAccountSummary = () => {
     if(Object.keys(accounts).length === 0 || accounts == null) return null
     
-    //* console.log(`[DEBUG] accountId= `, accountId)
-    //* console.log(`[DEBUG] Redux accounts= `, accounts)
     const account = accounts[accountId]
     return (
       <AccountSummary
@@ -105,7 +101,7 @@ const PagesAccountsShow = () => {
   }
 
   /**
-   * Render the form to create new account transactions.
+   * Render the form to create a new account transaction.
    */
   const renderTransactionForm = () => {
     if(Object.keys(accounts).length === 0 || accounts == null) return null

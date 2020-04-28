@@ -132,5 +132,17 @@ describe('Account Redux Reducer', () => {
         expect(result.data['2'].balance).toBe(4000)
       })
     })
+
+    describe('updateTransaction', () => {
+      it('Updates the account balance', () => {
+        const result  = reducer(initialState, {
+          type:     types.UPDATE_TRANSACTION,
+          payload:  { account: account }
+        })
+  
+        expect(Object.keys(result.data).length).toBe(2)
+        expect(result.data['2'].balance).toBe(4000)
+      })
+    })
   })
 })

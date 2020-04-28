@@ -15,6 +15,7 @@ export const types = {
   CREATE_ACCOUNT:           'CREATE_ACCOUNT',
   CREATE_ACCOUNT_ERROR:     'CREATE_ACCOUNT_ERROR',
   CREATE_TRANSACTION:       transactionTypes.CREATE_TRANSACTION,
+  UPDATE_TRANSACTION:       transactionTypes.UPDATE_TRANSACTION,
 }
 
 //
@@ -144,6 +145,14 @@ export const reducer  = (state = initialState, action) => {
         data: {
           ...state.data,
           [action.payload.account._id]: action.payload.account
+        }
+      }
+    case types.UPDATE_TRANSACTION:
+      return {
+        ...state,
+        data: {
+          ...state.data,
+          [action.payload.account._id]: action.payload.account,
         }
       }
     default:
