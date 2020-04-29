@@ -28,7 +28,7 @@ function PagesAccountsIndex() {
   // 3.) VERIFY THAT I DO NOT FETCH THE ACCOUNTS WHEN I RELOAD THE PAGE
   //     AND THE ACCOUNTS ARE AVAILABLE IN THE REDUX STORE.
   /////////////////////////////////////////////////////////////////////////////
-  const accounts  = useSelector(state => state.accounts.data)
+  const accounts  = useSelector(state => state.accounts.byId)
   const errors    = useSelector(state => state.errors)
 
   const dispatch  = useDispatch()

@@ -12,7 +12,7 @@ describe('Account Redux Reducer', () => {
   //
   describe('fetchAccounts()', () => {
     it('FETCH_ACCOUNTS: Returns array of accounts', () => {
-      const initialState = { data: {} }
+      const initialState = {}
       const accounts     = {
         '1': { _id: '1', name: 'Checking' },
         '2': { _id: '2', name: 'Savings' },
@@ -23,9 +23,9 @@ describe('Account Redux Reducer', () => {
         payload:  {accounts: accounts},
       })
 
-      expect(Object.keys(result.data).length).toBe(2)
-      expect(result.data['1'].id).toBe(accounts['1'].id)
-      expect(result.data['1'].name).toBe('Checking')
+      expect(Object.keys(result.byId).length).toBe(2)
+      expect(result.byId['1'].id).toBe(accounts['1'].id)
+      expect(result.byId['1'].name).toBe('Checking')
     })
 
     it('FETCH_ACCOUNTS_ERROR: Returns an error', () => {
@@ -35,14 +35,15 @@ describe('Account Redux Reducer', () => {
         payload:  {error: error}
       })
 
-      expect(result.error.code).toBe(error.code)
-      expect(result.error.message).toBe(error.message)
+      console.log(`[debug] result byId= `, result)
+      expect(result.byId.error.code).toBe(error.code)
+      expect(result.byId.error.message).toBe(error.message)
     })
   })
 
   describe('findAccount', () => {
     const initialState = {
-      data: {
+      byId: {
         '1': { _id: '1', name: 'Checking' },
         '2': { _id: '2', name: 'Savings' },
       }
@@ -51,13 +52,13 @@ describe('Account Redux Reducer', () => {
     it('FIND_ACCOUNT: Returns an account', () => {
       const account = { _id: '1', name: 'Checking' }
       const result  = reducer(initialState, {
-        type:     types.CREATE_ACCOUNT,
+        type:     types.FIND_ACCOUNT,
         payload:  { account: account }
       })
 
-      expect(Object.keys(result.data).length).toBe(2)
-      expect(result.data['1']._id).toBe(account._id)
-      expect(result.data['1'].name).toBe(account.name)
+      expect(Object.keys(result.byId).length).toBe(2)
+      expect(result.byId['1']._id).toBe(account._id)
+      expect(result.byId['1'].name).toBe(account.name)
     })
 
     it('FIND_ACCOUNT_ERROR: Returns an error', () => {
@@ -67,8 +68,8 @@ describe('Account Redux Reducer', () => {
         payload:  {error: error}
       })
 
-      expect(result.error.code).toBe(error.code)
-      expect(result.error.message).toBe(error.message)
+      expect(result.byId.error.code).toBe(error.code)
+      expect(result.byId.error.message).toBe(error.message)
     })
   })
 
@@ -77,7 +78,7 @@ describe('Account Redux Reducer', () => {
   //
   describe('createAccounts()', () => {
     const initialState = {
-      data: {
+      byId: {
         '1': { _id: '1', name: 'Checking' },
         '2': { _id: '2', name: 'Savings' },
       }
@@ -91,9 +92,9 @@ describe('Account Redux Reducer', () => {
         payload:  { account: account }
       })
     
-      expect(Object.keys(result.data).length).toBe(3)
-      expect(result.data['3']._id).toBe(account._id)
-      expect(result.data['3'].name).toBe(account.name)
+      expect(Object.keys(result.byId).length).toBe(3)
+      expect(result.byId['3']._id).toBe(account._id)
+      expect(result.byId['3'].name).toBe(account.name)
     })
 
     it('CREATE_ACCOUNT_ERROR: Returns an error', () => {
@@ -104,8 +105,8 @@ describe('Account Redux Reducer', () => {
       })
 
       //* expect(Object.keys(result).length).toBe(2)
-      expect(result.error.code).toBe(error.code)
-      expect(result.error.message).toBe(error.message)
+      expect(result.byId.error.code).toBe(error.code)
+      expect(result.byId.error.message).toBe(error.message)
     })
   })
 
@@ -114,7 +115,7 @@ describe('Account Redux Reducer', () => {
   //
   describe('Transaction Actions', () => {
     const initialState = {
-      data: {
+      byId: {
         '1': { _id: '1', name: 'Checking', balance: 1000 },
         '2': { _id: '2', name: 'Savings',  balance: 5000 },
       }
@@ -128,8 +129,8 @@ describe('Account Redux Reducer', () => {
           payload:  { account: account }
         })
   
-        expect(Object.keys(result.data).length).toBe(2)
-        expect(result.data['2'].balance).toBe(4000)
+        expect(Object.keys(result.byId).length).toBe(2)
+        expect(result.byId['2'].balance).toBe(4000)
       })
     })
 
@@ -140,8 +141,8 @@ describe('Account Redux Reducer', () => {
           payload:  { account: account }
         })
   
-        expect(Object.keys(result.data).length).toBe(2)
-        expect(result.data['2'].balance).toBe(4000)
+        expect(Object.keys(result.byId).length).toBe(2)
+        expect(result.byId['2'].balance).toBe(4000)
       })
     })
   })

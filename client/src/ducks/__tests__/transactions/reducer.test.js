@@ -23,51 +23,54 @@ describe('Transactions Reducer', () => {
         payload:  {transactions: transactions},
       })
 
-      expect(Object.keys(result.data).length).toBe(2)
-      expect(result.data['90']._id).toBe(transactions['90']._id)
-      expect(result.data['91'].name).toBe(transactions['91'].name)
+      expect(Object.keys(result.byId).length).toBe(2)
+      expect(result.byId['90']._id).toBe(transactions['90']._id)
+      expect(result.byId['91'].name).toBe(transactions['91'].name)
     })
 
     it('FETCH_TRANSACTIONS_BY_ACCOUNT_ID_ERROR: Returns an error', () => {
-      const error = {code: 404, message: 'Not found'}
-      const result = reducer({}, {
+      const error   = {code: 404, message: 'Not found'}
+      const result  = reducer({}, {
         type:     types.FETCH_TRANSACTIONS_BY_ACCOUNT_ID_ERROR,
         payload:  {error: error},
       })
 
-      expect(result.error.code).toBe(error.code)
-      expect(result.error.message).toBe(error.message)
+      expect(result.byId.error.code).toBe(error.code)
+      expect(result.byId.error.message).toBe(error.message)
     })
   })
   //
   // TEST: createTransaction
   //
   describe('createTransaction', () => {
+    const initialState  = { byId: transactions }
+
     it('CREATES_TRANSACTION: Create a new transaction', () => {
-      const transaction = { _id: '99', name: 'Entertainment' }
-      const result      = reducer( {data: transactions, error: {}}, {
+      const transaction   = { _id: '99', name: 'Entertainment' }
+      const result        = reducer(initialState, {
         type:     types.CREATE_TRANSACTION,
         payload:  {transaction: transaction}
       })
 
-      expect(Object.keys(result.data).length).toBe(3)
-      expect(result.data['99'].name).toBe(transaction.name)
+      expect(Object.keys(result.byId).length).toBe(3)
+      expect(result.byId['99'].name).toBe(transaction.name)
     })
 
     it('CREATES_TRANSACTION_ERROR: Returns an error', () => {
       const error   = { code: 400, message: 'Bad request' }
-      const result  = reducer( {data: transactions, error: {}}, {
+      const result  = reducer(initialState, {
         type:     types.CREATE_TRANSACTION_ERROR,
         payload:  {error: error}
       })
 
-      expect(result.error.code).toBe(error.code)
-      expect(result.error.message).toBe(error.message)
+      expect(result.byId.error.code).toBe(error.code)
+      expect(result.byId.error.message).toBe(error.message)
     })
   })
   describe('updateTransaction', () => {
+    const initialState  = { byId: transactions }
+
     it('UPDATES_TRANSACTION: Update a transactions', () => {
-      const initialState = {data: transactions, error: {}}
       const id           = '90'
       const transaction  = {
         ...transactions[id],
@@ -78,20 +81,19 @@ describe('Transactions Reducer', () => {
         payload:  {transaction: transaction}
       })
 
-      expect(Object.keys(result.data).length).toBe(2)
-      expect(result.data[id].name).toBe('Updated Name')
+      expect(Object.keys(result.byId).length).toBe(2)
+      expect(result.byId[id].name).toBe('Updated Name')
     })
 
     it('UPDATE_TRANSACTION_ERROR: Returns an error', () => {
-      const error        = { code: 400, message: 'Bad request' }
-      const initialState = { data: transactions, error: {} }
+      const error   = { code: 400, message: 'Bad request' }
       const result  = reducer(initialState, {
         type:     types.UPDATE_TRANSACTION_ERROR,
         payload:  {error: error}
       })
 
-      expect(result.error.code).toBe(error.code)
-      expect(result.error.message).toBe(error.message)
+      expect(result.byId.error.code).toBe(error.code)
+      expect(result.byId.error.message).toBe(error.message)
     })
   })
 })

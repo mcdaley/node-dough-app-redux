@@ -1,6 +1,8 @@
 //-----------------------------------------------------------------------------
 // client/src/ducks/transactions.js
 //-----------------------------------------------------------------------------
+import { combineReducers }        from 'redux'
+
 import TransactionsAPI            from '../api/transactions-api'
 
 //
@@ -106,13 +108,13 @@ export const actions = {
 //
 // Transactions Reducer
 //
-let    initialState  = {data: {}, error: {}}
-export const reducer = (state = initialState, action) => {
+let   initialState = {}
+const transactionsById = (state = initialState, action) => {
   switch(action.type) {
     case types.FETCH_TRANSACTIONS_BY_ACCOUNT_ID:
       return {
         ...state,
-        data: {...action.payload.transactions}
+        ...action.payload.transactions,
       }
     case types.FETCH_TRANSACTIONS_BY_ACCOUNT_ID_ERROR:
       return {
@@ -122,10 +124,7 @@ export const reducer = (state = initialState, action) => {
     case types.CREATE_TRANSACTION:
       return {
         ...state,
-        data: {
-          ...state.data,
-          [action.payload.transaction._id]: action.payload.transaction
-        }
+        [action.payload.transaction._id]: action.payload.transaction,
       }
     case types.CREATE_TRANSACTION_ERROR:
       return {
@@ -135,10 +134,7 @@ export const reducer = (state = initialState, action) => {
     case types.UPDATE_TRANSACTION:
       return {
         ...state,
-        data: {
-          ...state.data,
-          [action.payload.transaction._id]: action.payload.transaction
-        }
+        [action.payload.transaction._id]: action.payload.transaction,
       }
     case types.UPDATE_TRANSACTION_ERROR:
       return {
@@ -149,3 +145,10 @@ export const reducer = (state = initialState, action) => {
       return state
   }
 }
+
+//
+// Export the reducer
+//
+export const reducer = combineReducers({
+  byId:   transactionsById,
+})

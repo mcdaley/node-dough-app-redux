@@ -28,8 +28,8 @@ const PagesAccountsShow = () => {
   const [accountId, setAccountId] = useState(id)
 
   const dispatch     = useDispatch()
-  const accounts     = useSelector(state => state.accounts.data)
-  const transactions = useSelector(state => state.transactions.data)
+  const accounts     = useSelector(state => state.accounts.byId)
+  const transactions = useSelector(state => state.transactions.byId)
   const errors       = useSelector(state => state.transactions.error)
  
   /**

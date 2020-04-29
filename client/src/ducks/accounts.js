@@ -1,6 +1,8 @@
 //-----------------------------------------------------------------------------
 // client/src/ducks/accounts.js
 //-----------------------------------------------------------------------------
+import { combineReducers }            from 'redux'
+
 import AccountsAPI                    from '../api/accounts-api'
 import { types as transactionTypes }  from './transactions'
 
@@ -94,17 +96,13 @@ export const actions = {
 //
 // Account Reducer
 //
-let    accountId
-let    initialState   = {data: {}, error: {}}
-export const reducer  = (state = initialState, action) => {
+let   initialState   = {}
+const accountsById  = (state = initialState, action) => {
   switch(action.type) {
     case types.FETCH_ACCOUNTS:
       return {
         ...state,
-        data: {
-          ...state.data,
-          ...action.payload.accounts
-        },
+        ...action.payload.accounts,
       }
     case types.FETCH_ACCOUNTS_ERROR:
       return {
@@ -112,13 +110,9 @@ export const reducer  = (state = initialState, action) => {
         error: action.payload.error
       }
     case types.FIND_ACCOUNT:
-      accountId = action.payload.account._id
       return {
         ...state,
-        data: {
-          ...state.data,
-          [accountId]: action.payload.account
-        }
+        [action.payload.account._id]: action.payload.account,
       }
       case types.FIND_ACCOUNT_ERROR:
         return {
@@ -126,13 +120,9 @@ export const reducer  = (state = initialState, action) => {
           error: action.payload.error
         }
     case types.CREATE_ACCOUNT:
-      accountId = action.payload.account._id
       return {
         ...state,
-        data: {
-          ...state.data,
-          [accountId]: action.payload.account,
-        }
+        [action.payload.account._id]: action.payload.account,
       }
     case types.CREATE_ACCOUNT_ERROR:
       return {
@@ -142,21 +132,22 @@ export const reducer  = (state = initialState, action) => {
     case types.CREATE_TRANSACTION:
       return {
         ...state,
-        data: {
-          ...state.data,
-          [action.payload.account._id]: action.payload.account
-        }
+        [action.payload.account._id]: action.payload.account,
       }
     case types.UPDATE_TRANSACTION:
       return {
         ...state,
-        data: {
-          ...state.data,
-          [action.payload.account._id]: action.payload.account,
-        }
+        [action.payload.account._id]: action.payload.account,
       }
     default:
       return state
   }
 }
+
+//
+// Export the reducer
+//
+export const reducer = combineReducers({
+  byId:   accountsById,
+})
 
