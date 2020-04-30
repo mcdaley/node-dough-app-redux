@@ -40,7 +40,9 @@ function PagesAccountsIndex() {
     const fetchData = () => {
       dispatch(actions.fetchAccounts())
     }
-    fetchData()
+    if(accounts && Object.keys(accounts).length === 0) {
+      fetchData() 
+    }
   }, [])
 
 

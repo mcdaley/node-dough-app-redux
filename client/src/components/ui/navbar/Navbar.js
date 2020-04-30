@@ -5,8 +5,8 @@ import React      from 'react'
 import Navbar     from 'react-bootstrap/Navbar'
 import Nav        from 'react-bootstrap/Nav'
 import { 
-  withRouter, 
-  useLocation 
+  useLocation,
+  NavLink,
 }                 from 'react-router-dom'
 
 /**
@@ -18,25 +18,24 @@ const AppBar = () => {
   // Render the top navigation bar
   return(
     <Navbar collapseOnSelect expand="lg" bg="dark" variant="dark">
-      <Navbar.Brand     href="/">Dough Money Redux</Navbar.Brand>
+      <NavLink to="/" className="navbar-brand">Dough Money Redux</NavLink>
       <Navbar.Toggle    aria-controls="responsive-navbar-nav" />
       <Navbar.Collapse  id="responsive-navbar-nav">
         <Nav className="mr-auto" activeKey={location.pathname}>
-          <Nav.Link href="/home">
+          <NavLink to="/home"  className='nav-link' data-rb-event-key="/home">
             Home
-          </Nav.Link>
-          <Nav.Link href="/accounts/list">
+          </NavLink>
+          <NavLink to="/accounts/list" className='nav-link' data-rb-event-key="/accounts/list">
             Accounts
-          </Nav.Link>
-          <Nav.Link href="/about" >
+          </NavLink>
+          <NavLink to="/about" className='nav-link' data-rb-event-key="/about">
             About
-          </Nav.Link>
+          </NavLink>
         </Nav>
       </Navbar.Collapse>
     </Navbar>
   )
 }
-const AppBarWithRouter = withRouter(AppBar)
 
 // Export the AppBar
-export default AppBarWithRouter
+export default AppBar

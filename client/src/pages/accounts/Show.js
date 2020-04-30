@@ -10,6 +10,7 @@ import {
   Button, 
 }                                       from 'react-bootstrap'
 import { useParams, useHistory }        from 'react-router-dom'
+import { Link }                         from 'react-router-dom'
 
 import AccountSummary                   from '../../components/account/Summary'
 import TransactionGrid                  from '../../components/transaction/Grid'
@@ -33,24 +34,17 @@ const PagesAccountsShow = () => {
   const errors       = useSelector(state => state.transactions.error)
  
   /**
-   * Fetch transactions when the page loads.
+   * Fetch Account and Transactions when the page loads.
    */
   useEffect( () => {
     const fetchData = () => {
       dispatch(actions.fetchTransactionsByAccountId(accountId))
     }
-    fetchData()
-  }, [accountId])
 
-
-  /**
-   * Fetch accounts when the page loads
-   */
-  useEffect( () => {
-    const fetchData = () => {
-      dispatch(accountActions.findAccount(accountId))
+    // Fetch transactions if they aren't in redux store.
+    if(!accounts[accountId] || !accounts[accountId].transactions) {
+      fetchData()
     }
-    fetchData()
   }, [accountId])
 
   /**
@@ -137,15 +131,18 @@ const PagesAccountsShow = () => {
   const buildTransactionList = () => {
     let transactionList = []
     
-    Object.keys(transactions).forEach( (id) => {
-      transactionList.push(transactions[id])
-    })
+    //* Object.keys(transactions).forEach( (id) => {
+    //*   transactionList.push(transactions[id])
+    //* })
 
-    transactionList = transactionList.sort( (a,b) => {
-      return new Date(b.date) - new Date(a.date)
-    })
-    transactionList = runningBalance(transactionList)
-
+    const account = accounts[accountId]
+    if(account.transactions != null) {
+      transactionList = account.transactions.map( (txnId) => transactions[txnId] )
+      transactionList = transactionList.sort( (a,b) => {
+        return new Date(b.date) - new Date(a.date)
+      })
+      transactionList = runningBalance(transactionList)
+    }
     return transactionList
   }
 

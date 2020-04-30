@@ -7,18 +7,24 @@ import { types, reducer } from '../../accounts'
  * Account Redux Reducer
  */
 describe('Account Redux Reducer', () => {
+  const accounts     = {
+    '1': { _id: '1', name: 'Checking', balance: 1000, transactions: ['a', 'b', 'c'] },
+    '2': { _id: '2', name: 'Savings',  balance: 5000, transactions: [] },
+  }
+
+  const transactions = {
+    'a': { _id: 'a', description: 'One',   amount:  50.00, accountId: '1' },
+    'b': { _id: 'b', description: 'Two',   amount: -25.00, accountId: '1' },
+    'c': { _id: 'c', description: 'Three', amount:  20.00, accountId: '1' },
+  }
+
   //
   // TEST fetching accounts
   //
   describe('fetchAccounts()', () => {
     it('FETCH_ACCOUNTS: Returns array of accounts', () => {
       const initialState = {}
-      const accounts     = {
-        '1': { _id: '1', name: 'Checking' },
-        '2': { _id: '2', name: 'Savings' },
-      }
-
-      const result = reducer(initialState, {
+      const result       = reducer(initialState, {
         type:     types.FETCH_ACCOUNTS,
         payload:  {accounts: accounts},
       })
@@ -42,12 +48,7 @@ describe('Account Redux Reducer', () => {
   })
 
   describe('findAccount', () => {
-    const initialState = {
-      byId: {
-        '1': { _id: '1', name: 'Checking' },
-        '2': { _id: '2', name: 'Savings' },
-      }
-    }
+    const initialState = { byId: accounts }
 
     it('FIND_ACCOUNT: Returns an account', () => {
       const account = { _id: '1', name: 'Checking' }
@@ -77,13 +78,8 @@ describe('Account Redux Reducer', () => {
   // TEST create account
   //
   describe('createAccounts()', () => {
-    const initialState = {
-      byId: {
-        '1': { _id: '1', name: 'Checking' },
-        '2': { _id: '2', name: 'Savings' },
-      }
-    }
-
+    const initialState = { byId: accounts }
+    
     it('CREATE_ACCOUNT: Creates and returns an account', () => {
       const account = {_id: '3', name: 'Credit Card'}
 
@@ -111,39 +107,58 @@ describe('Account Redux Reducer', () => {
   })
 
   //
-  // TEST updating account balance when a transaction is created
+  // TEST Transaction Actions that effect Accounts
   //
   describe('Transaction Actions', () => {
-    const initialState = {
-      byId: {
-        '1': { _id: '1', name: 'Checking', balance: 1000 },
-        '2': { _id: '2', name: 'Savings',  balance: 5000 },
-      }
-    }
-    const account = { _id: '2', name: 'Savings',  balance: 4000 }
+    const initialState = { byId: accounts }
+    const account      = { _id: '2', name: 'Savings',  balance: 4000, transaction: [] }
 
+    // CREATE_TRANSACTION
     describe('createTransaction', () => {
       it('Updates the account balance', () => {
         const result  = reducer(initialState, {
           type:     types.CREATE_TRANSACTION,
-          payload:  { account: account }
+          payload:  { 
+            account:      account, 
+            transaction:  transactions['a'] }
         })
   
         expect(Object.keys(result.byId).length).toBe(2)
         expect(result.byId['2'].balance).toBe(4000)
+        expect(result.byId['2'].transactions.length).toBe(1)
       })
     })
 
+    // UPDATE_TRANSACTION
     describe('updateTransaction', () => {
       it('Updates the account balance', () => {
+        const account = accounts['1']
         const result  = reducer(initialState, {
           type:     types.UPDATE_TRANSACTION,
-          payload:  { account: account }
+          payload:  { 
+            account:      account,
+            transaction:  transactions['a']
+          }
         })
   
         expect(Object.keys(result.byId).length).toBe(2)
-        expect(result.byId['2'].balance).toBe(4000)
+        expect(result.byId['1'].balance).toBe(1000)
+        expect(result.byId['1'].transactions.length).toBe(3)
       })
+    })
+
+    // FETCH_TRANSACTIONS_BY_ACCOUNT_ID
+    describe('fetchTransactionsByAccountId', () => {
+      const result = reducer( initialState, {
+        type:     types.FETCH_TRANSACTIONS_BY_ACCOUNT_ID,
+        payload:  {
+          account:      accounts['1'],
+          transactions: transactions,
+        }
+      })
+
+      expect(Object.keys(result.byId).length).toBe(2)
+      expect(result.byId['1'].transactions.length).toBe(3)
     })
   })
 })

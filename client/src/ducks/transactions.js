@@ -4,6 +4,7 @@
 import { combineReducers }        from 'redux'
 
 import TransactionsAPI            from '../api/transactions-api'
+import AccountsAPI                from '../api/accounts-api'
 
 //
 // Transactions Action Types
@@ -29,11 +30,15 @@ export const actions = {
     return async function(dispatch, getState) {
       try {
         let {transactions} = await TransactionsAPI.findByAccountId(accountId)
+        let account        = await AccountsAPI.find(accountId)
 
         //** console.log(`[debug] TransactionsAPI.findByAccountId()= `, transactions)
         dispatch({
           type:     types.FETCH_TRANSACTIONS_BY_ACCOUNT_ID,
-          payload:  {transactions: transactions}
+          payload:  {
+            transactions: transactions,
+            account:      account
+          }
         })
       }
       catch(error) {

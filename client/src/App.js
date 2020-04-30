@@ -6,7 +6,7 @@ import {
 }                           from 'react-router-dom'
 import { Provider }         from 'react-redux'
 
-import AppBarWithRouter     from './components/ui/navbar/Navbar'
+import AppBar               from './components/ui/navbar/Navbar'
 import Home                 from './pages/home/home-page'
 import PagesAccountsIndex   from './pages/accounts/Index'
 import PagesAccountsShow    from './pages/accounts/Show'
@@ -24,7 +24,7 @@ function App() {
     <Provider store={store}>
       <div className="App">
         <Router>
-          <AppBarWithRouter />
+          <AppBar />
 
           {/* A <Switch> looks through its children <Route>s and
               renders the first one that matches the current URL. */}

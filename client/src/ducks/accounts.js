@@ -10,14 +10,15 @@ import { types as transactionTypes }  from './transactions'
 // Account Action Types
 //
 export const types = {
-  FETCH_ACCOUNTS:           'FETCH_ACCOUNTS',
-  FETCH_ACCOUNTS_ERROR:     'FETCH_ACCOUNTS_ERROR',
-  FIND_ACCOUNT:             'FIND_ACCOUNT',
-  FIND_ACCOUNT_ERROR:       'FIND_ACCOUNT_ERROR',
-  CREATE_ACCOUNT:           'CREATE_ACCOUNT',
-  CREATE_ACCOUNT_ERROR:     'CREATE_ACCOUNT_ERROR',
-  CREATE_TRANSACTION:       transactionTypes.CREATE_TRANSACTION,
-  UPDATE_TRANSACTION:       transactionTypes.UPDATE_TRANSACTION,
+  FETCH_ACCOUNTS:                   'FETCH_ACCOUNTS',
+  FETCH_ACCOUNTS_ERROR:             'FETCH_ACCOUNTS_ERROR',
+  FIND_ACCOUNT:                     'FIND_ACCOUNT',
+  FIND_ACCOUNT_ERROR:               'FIND_ACCOUNT_ERROR',
+  CREATE_ACCOUNT:                   'CREATE_ACCOUNT',
+  CREATE_ACCOUNT_ERROR:             'CREATE_ACCOUNT_ERROR',
+  CREATE_TRANSACTION:               transactionTypes.CREATE_TRANSACTION,
+  UPDATE_TRANSACTION:               transactionTypes.UPDATE_TRANSACTION,
+  FETCH_TRANSACTIONS_BY_ACCOUNT_ID: transactionTypes.FETCH_TRANSACTIONS_BY_ACCOUNT_ID
 }
 
 //
@@ -96,6 +97,13 @@ export const actions = {
 //
 // Account Reducer
 //
+///////////////////////////////////////////////////////////////////////////////
+// TODO: 04/30/2020
+// NEED TO HANDLE THE FOLLOWING ACTIONS:
+//  - FETCH_TRANSACTIONS_BY_ACCOUNT_ID
+//  - CREATE_TASK
+//  - DELETE_TASK
+///////////////////////////////////////////////////////////////////////////////
 let   initialState   = {}
 const accountsById  = (state = initialState, action) => {
   switch(action.type) {
@@ -130,14 +138,32 @@ const accountsById  = (state = initialState, action) => {
         error: action.payload.error
       }
     case types.CREATE_TRANSACTION:
+      let account     = action.payload.account
+      let transaction = action.payload.transaction
       return {
         ...state,
-        [action.payload.account._id]: action.payload.account,
+        [account._id]: {
+          ...account,
+          transactions: [...state[account._id].transactions, transaction._id]
+        }
       }
     case types.UPDATE_TRANSACTION:
+      const accountId = action.payload.account._id
+    
       return {
         ...state,
-        [action.payload.account._id]: action.payload.account,
+        [action.payload.account._id]: {
+          ...state[accountId],                // Need to keep transactions []
+          ...action.payload.account,
+        }
+      }
+    case types.FETCH_TRANSACTIONS_BY_ACCOUNT_ID:
+      return {
+        ...state,
+        [action.payload.account._id]: {
+          ...action.payload.account,
+          transactions: Object.keys(action.payload.transactions)
+        }
       }
     default:
       return state

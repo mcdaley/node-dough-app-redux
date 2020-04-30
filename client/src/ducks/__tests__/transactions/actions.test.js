@@ -6,6 +6,9 @@ import { types, actions }   from '../../transactions'
 import transactionsApiMock  from '../../../api/transactions-api'
 jest.mock('../../../api/transactions-api')
 
+import accountsApiMock      from '../../../api/accounts-api'
+jest.mock('../../../api/accounts-api')
+
 // Mock account data
 const accountsData = {
   '99': { 
@@ -61,17 +64,22 @@ describe('Transactions Redux Actions', () => {
     it('Dispatches FETCH_TRANSACTIONS_BY_ACCOUNT_ID', async () => {
       const dispatch = jest.fn()
       
+      const account  = { _id: '99', name: 'Test Checking Account' }
       const response = {
         transactions: transactionsData,
       }
       transactionsApiMock.findByAccountId.mockResolvedValueOnce(response)
+      accountsApiMock.find.mockResolvedValueOnce(account)
 
       await actions.fetchTransactionsByAccountId()(dispatch)
       
       expect(dispatch).toHaveBeenCalledTimes(1)
       expect(dispatch).toHaveBeenLastCalledWith({
         type:     types.FETCH_TRANSACTIONS_BY_ACCOUNT_ID,
-        payload:  {transactions: response.transactions}
+        payload:  {
+          transactions: response.transactions,
+          account:      account,
+        }
       })
     })
     
