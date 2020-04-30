@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------
 // server/utils/route-helpers.js
 //-----------------------------------------------------------------------------
-//* const mongoose        = require('mongoose')
+const mongoose        = require('mongoose')
 const { ObjectID }    = require('mongodb')
 
 const Transaction     = require('../models/transaction')
@@ -70,5 +70,70 @@ const validateTransactionId = (transactionId, options = {model: false}) => {
   })
 }
 
+/**
+ * Handle express.js route and mongoose.js errors and return a formatted 
+ * response that includes the status, code, and message. The errors for
+ * the Account and Transaction POST and PUT requests are the same, so 
+ * consolidating logic into a single error handler.
+ * 
+ * @param   {Error}   err
+ * @returns {Object}  Returns the http status, error code, and message.
+ */
+const handleErrors = (err) => {
+  let errorResponse = {}
+  let postErrors    = []
+
+  if(err instanceof mongoose.Error.ValidationError) {
+    /**
+     * Loop through all of the errors and standardize on error format:
+     * { code: 7xx, type: '', path: 'form-field, message: ''}
+     */
+    Object.keys(err.errors).forEach( (formField) => {
+      if(err.errors[formField] instanceof mongoose.Error.ValidatorError) {
+        postErrors.push({
+          code:     701, 
+          category: 'ValidationError', 
+          ...err.errors[formField].properties
+        })
+      }
+      else if(err.errors[formField] instanceof mongoose.Error.CastError) {
+        postErrors.push({
+          code:         701,
+          category:     'ValidationError', 
+          path:         err.errors[formField].path,
+          type:         'cast-error',
+          value:        err.errors[formField].value,
+          shortMessage: err.errors[formField].stringValue,
+          message:      err.errors[formField].message,
+        })
+      }
+      else {
+        logger.error(`[error] Unknown mongoose.Error.ValidationError err= `, err)
+        postErrors.push({code: 799, message: "Unknown mongoose validation error"})
+      }
+    })
+
+    errorResponse = {status: 400, errors: postErrors}
+  }
+  else if(err instanceof mongoose.Error.CastError) {
+    postErrors.push({
+      code:         701,
+      category:     'CastError', 
+      path:         err.path,
+      type:         'cast-error',
+      value:        err.value,
+      message:      err.message,
+    })
+
+    errorResponse = {status: 400, errors: postErrors}
+  }
+  else {
+    logger.error(`[error] Unknown error, err= `, err)
+    errorResponse = {status: 400, errors: err}
+  }
+  
+  return errorResponse
+}
+
 // Export the functions
-module.exports = { validateAccountId, validateTransactionId }
+module.exports = { validateAccountId, validateTransactionId, handleErrors }

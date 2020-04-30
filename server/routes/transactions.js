@@ -9,6 +9,7 @@ const Transaction         = require('../models/transaction')
 const Account             = require('../models/account')
 const logger              = require('../config/winston')
 const {
+  handleErrors,
   validateAccountId,
   validateTransactionId,
 }                         = require('../utils/route-helpers')
@@ -234,44 +235,9 @@ router.post('/v1/accounts/:accountId/transactions', async (req, res) => {
   }
   catch(err) {
     logger.error('Failed to create transaction, err= %o', err)
-    let errorResponse = {}
-    let postErrors    = []
-    if(err instanceof mongoose.Error.ValidationError) {
-      /**
-       * Loop through all of the errors and standardize on error format:
-       * { code: 7xx, type: '', path: 'form-field, message: ''}
-       */
-      Object.keys(err.errors).forEach( (formField) => {
-        if(err.errors[formField] instanceof mongoose.Error.ValidatorError) {
-          postErrors.push({
-            code:     701, 
-            category: 'ValidationError', 
-            ...err.errors[formField].properties
-          })
-        }
-        else if(err.errors[formField] instanceof mongoose.Error.CastError) {
-          postErrors.push({
-            code:         701,
-            category:     'ValidationError', 
-            path:         err.errors[formField].path,
-            type:         'cast-error',
-            value:        err.errors[formField].value,
-            shortMessage: err.errors[formField].stringValue,
-            message:      err.errors[formField].message,
-          })
-        }
-        else {
-          logger.error(`[error] Unknown mongoose.Error.ValidationError err= `, err)
-          postErrors.push({code: 799, message: "Unknown mongoose validation error"})
-        }
-      })
-      errorResponse = {errors: postErrors}
-    }
-    else {
-      logger.error(`[error] Failed to create transaction, err= `, err)
-      errorResponse = {errors: err}
-    }
-    res.status(400).send(errorResponse)
+    
+    const errorResponse = handleErrors(err)
+    res.status(errorResponse.status).send(errorResponse)
   }
 })
 
@@ -339,57 +305,9 @@ router.put('/v1/accounts/:accountId/transactions/:id', async (req, res) => {
   }
   catch(err) {
     logger.error('Failed to update the transaction, err= %o', err)
-    let errorResponse = {}
-    let postErrors    = []
-    if(err instanceof mongoose.Error.ValidationError) {
-      /**
-       * Loop through all of the errors and standardize on error format:
-       * { code: 7xx, type: '', path: 'form-field, message: ''}
-       */
-      Object.keys(err.errors).forEach( (formField) => {
-        if(err.errors[formField] instanceof mongoose.Error.ValidatorError) {
-          postErrors.push({
-            code:     701, 
-            category: 'ValidationError', 
-            ...err.errors[formField].properties
-          })
-        }
-        else if(err.errors[formField] instanceof mongoose.Error.CastError) {
-          postErrors.push({
-            code:         701,
-            category:     'ValidationError', 
-            path:         err.errors[formField].path,
-            type:         'cast-error',
-            value:        err.errors[formField].value,
-            shortMessage: err.errors[formField].stringValue,
-            message:      err.errors[formField].message,
-          })
-        }
-        else {
-          logger.error(`[error] Unknown mongoose.Error.ValidationError err= `, err)
-          postErrors.push({code: 799, message: "Unknown mongoose validation error"})
-        }
-      })
 
-      errorResponse = {errors: postErrors}
-    }
-    else if(err instanceof mongoose.Error.CastError) {
-      postErrors.push({
-        code:         701,
-        category:     'CastError', 
-        path:         err.path,
-        type:         'cast-error',
-        value:        err.value,
-        message:      err.message,
-      })
-
-      errorResponse = {errors: postErrors}
-    }
-    else {
-      logger.error(`[error] Failed to create transaction, err= `, err)
-      errorResponse = {errors: err}
-    }
-    res.status(400).send(errorResponse)
+    const errorResponse = handleErrors(err)
+    res.status(errorResponse.status).send(errorResponse)
   }
 })
 
