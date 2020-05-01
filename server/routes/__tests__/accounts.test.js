@@ -306,8 +306,8 @@ describe('Accounts API', () => {
         .expect(404)
         .expect( (res) => {
           //* console.log(`[error]: 404 Error Message, error= `, JSON.stringify(res.body, undefined, 2))
-          expect(res.body.code).to.equal(404)
-          expect(res.body.message).to.equal('Account not found')
+          expect(res.body.errors.code).to.equal(404)
+          expect(res.body.errors.message).to.equal('Account not found')
         })
         .end(done)
     })
@@ -321,8 +321,8 @@ describe('Accounts API', () => {
         .send(update)
         .expect(404)
         .expect( (res) => {
-          expect(res.body.code).to.equal(404)
-          expect(res.body.message).to.equal('Account not found')
+          expect(res.body.errors.code).to.equal(404)
+          expect(res.body.errors.message).to.equal('Account not found')
         })
         .end(done)
     })

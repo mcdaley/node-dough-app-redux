@@ -1,39 +1,36 @@
 //-----------------------------------------------------------------------------
 // server/utils/route-helpers.js
 //-----------------------------------------------------------------------------
-const mongoose        = require('mongoose')
-const { ObjectID }    = require('mongodb')
+const mongoose            = require('mongoose')
+const { ObjectID }        = require('mongodb')
 
-const Transaction     = require('../models/transaction')
-const Account         = require('../models/account')
-const logger          = require('../config/winston')
+const Transaction         = require('../models/transaction')
+const Account             = require('../models/account')
+const { DBModelIdError }  = require('./custom-errors')
+const logger              = require('../config/winston')
 
 /**
- * Helper to validate an accountId. First, the method just verifies if the
- * accountId is a valid mongodb ObjectID. If the accountId is not valid
- * it returns false. If the accountId is valid then function returns valid
- * and if the model flag is set to true then the function looks up the
- * account and returns it.
- * @param   {String} accountId - Account Id to validate
- * @param   {Object} options   - Object w/ boolean valid and account 
- * @returns {Object} Returns an object w/ a boolean valid flag and an account.
+ * Validates the format of the MongoDB ObjectID and then finds and returns
+ * a Promise with the Account. If the Account is not found it rejects the
+ * promise with a DBModelError.
+ * @param   {String}  accountId - Account Id to validate
+ * @param   {String}  msg       - Override the default error message
+ * @returns {Promise} Returns a Promise w/ the account.
  */
-const validateAccountId = (accountId, options = {model: false, msg: 'Account not found'}) => {
+const validateAndFindAccountId = (accountId, {msg = 'Account not found'} = {}) => {
   return new Promise( async (resolve, reject) => {
-    let error = {code: 404, message: options.msg}
+    let error = {code: 404, message: msg}
 
+    // Validate if valid ObjectID
     if(!ObjectID.isValid(accountId)) {
       logger.error('Invalid account id=[%s]', accountId)
-      reject(error)
+      reject(new DBModelIdError(error))
     }
-    else if(options.model === false) {
-      resolve(undefined)
-    }
-    else { // options.model === true
-      //* account = await Account.findById(accountId)
+    else {
+      // Validate Account is in the DB
       let account = await Account.findOne({ _id: accountId })
       if(account == null) {
-        reject(error)
+        reject(new DBModelIdError(error))
       }
       else {
         resolve(account)
@@ -43,29 +40,32 @@ const validateAccountId = (accountId, options = {model: false, msg: 'Account not
 }
 
 /**
- * Helper to validate an transactionId. First, the method just verifies if the
- * transactionId is a valid mongodb ObjectID. If the transactionId is not valid
- * it returns false. If the transactionId is valid then function returns valid
- * and if the model flag is set to true then the function looks up the
- * transaction and returns it.
- * @param   {String} accountId - Account Id to validate
- * @param   {Object} options   - Object w/ boolean valid and account 
- * @returns {Object} Returns an object w/ a boolean valid flag and an account.
+ * Validates the format of the MongoDB ObjectID and then finds and returns
+ * a Promise with the Transaction. If the Transaction is not found it rejects
+ * the promise with a DBModelError.
+ 
+ * @param   {String}  transactionId - Account Id to validate
+ * @returns {Object}  Returns a Promise w/ the transaction
+ * @throws  {DBModelIdError} For an invalid transaction ID
  */
-const validateTransactionId = (transactionId, options = {model: false}) => {
+const validateAndFindTransactionId = (transactionId) => {
   return new Promise( async (resolve, reject) => {
     let error = {code: 404, message: 'Transaction not found'}
 
+    // Validate if valid ObjectID
     if(!ObjectID.isValid(transactionId)) {
       logger.error('Invalid transaction id=[%s]', transactionId)
-      reject(error)
+      reject(new DBModelIdError(error))
     }
-    else if(options.model === false) {
-      resolve(undefined)
-    }
-    else {    // options.modle === true
+    else {
+      // Validate Account is in the DB
       let transaction = await Transaction.findOne({ _id: transactionId })
-      transaction == null ? reject(error) : resolve(transaction)
+      if(transaction == null) {
+        reject(new DBModelIdError(error))
+      }
+      else {
+        resolve(transaction)
+      }
     }
   })
 }
@@ -83,7 +83,10 @@ const handleErrors = (err) => {
   let errorResponse = {}
   let postErrors    = []
 
-  if(err instanceof mongoose.Error.ValidationError) {
+  if(err instanceof DBModelIdError) {
+    errorResponse = {status: err.code, errors: err}
+  }
+  else if(err instanceof mongoose.Error.ValidationError) {
     /**
      * Loop through all of the errors and standardize on error format:
      * { code: 7xx, type: '', path: 'form-field, message: ''}
@@ -136,4 +139,4 @@ const handleErrors = (err) => {
 }
 
 // Export the functions
-module.exports = { validateAccountId, validateTransactionId, handleErrors }
+module.exports = { validateAndFindAccountId, validateAndFindTransactionId, handleErrors }

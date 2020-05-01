@@ -1,20 +1,22 @@
 //-----------------------------------------------------------------------------
 // server/routes/accounts.js
 //-----------------------------------------------------------------------------
-const express           = require('express')
-const mongoose          = require('mongoose')
-const { ObjectID }      = require('mongodb')
+const express               = require('express')
 
-const Account           = require('../models/account')
-const Transaction       = require('../models/transaction')
-const logger            = require('../config/winston')
-const { handleErrors }  = require('../utils/route-helpers')
-const { currentUser }   = require('../utils/current-user-helper')
+const Account               = require('../models/account')
+const Transaction           = require('../models/transaction')
+const logger                = require('../config/winston')
+const { 
+  handleErrors,
+  validateAndFindAccountId,
+}                           = require('../utils/route-helpers')
+const { DBModelIdError }    = require('../utils/custom-errors')
+const { currentUser }       = require('../utils/current-user-helper')
 
 // Get the Express Router
 const router  = express.Router()
 
-/*
+/**
  * GET /v1/accounts
  */ 
 router.get('/v1/accounts', async (req, res) => {
@@ -24,7 +26,7 @@ router.get('/v1/accounts', async (req, res) => {
     let user      = await currentUser()
     let accounts  = await Account.find({userId: user._id})
 
-    logger.info('Retrieved accounts for user= %s', user._id)
+    logger.info('Retrieved [%d] accounts for user= %s', accounts.length, user._id)
     logger.debug('Accounts= %o', accounts)
 
     res.status(200).send({accounts})
@@ -42,25 +44,18 @@ router.get('/v1/accounts/:id', async (req, res) => {
   logger.info('GET /api/v1/accounts/%s', req.params.id)
   const id = req.params.id
 
-  if(!ObjectID.isValid(id)) { 
-    logger.error('Invalid Account Id=[%s]', id)
-    return res.status(404).send({error: {code: 404, msg: 'Account not found'}}) 
-  }
-
   try {
     let user    = await currentUser()
-    let account = await Account.findById(id)
-
-    if(account == null) {
-      logger.error('Account not found for id=[%s]', id)
-      return res.status(404).send( {error: {code: 404, msg: 'Account not found'}} )
-    }
+    let account = await validateAndFindAccountId(id)
 
     logger.info('Account for userId=[%s], account=[%s]', id, account)
     res.status(200).send({account})
   }
   catch(err) {
     logger.error('Failed to find account w/ userId=[%s], err=[%o]',id, err)
+    if(err instanceof DBModelIdError) {
+      return res.status(404).send(err)
+    }
     res.status(400).send(err)
   }
 })
@@ -152,30 +147,17 @@ router.put('/v1/accounts/:id', async (req, res) => {
   
   let accountId = req.params.id
 
-  // Verify accountId is a valid ObjectID
-  if(!ObjectID.isValid(accountId)) {
-    logger.error('Invalid account id=[%s]', accountId)
-    return res.status(404).send({
-      code:     404,
-      message:  'Account not found',
-    })
-  }
-
   try {
     let user    = await currentUser()    // Simulate authentication
+
+    // Validate accountId
+    await validateAndFindAccountId(accountId)
 
     let query   = { _id:  accountId }
     let update  = req.body
     let options = { new: true, runValidators: true }
     
     let result  = await Account.findOneAndUpdate(query, update, options) 
-    if(result == null) {
-      logger.warn('Failed to find account w/ id=[%s]', accountId)
-      return res.status(404).send({
-        code:     404,
-        message:  'Account not found'
-      })
-    }
 
     logger.info('Updated account w/ id=[%s], doc=[%o]', accountId, result)
     res.status(200).send(result)

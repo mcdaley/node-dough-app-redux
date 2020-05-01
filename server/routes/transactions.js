@@ -1,19 +1,19 @@
 //-----------------------------------------------------------------------------
 // server/routes/transactions.js
 //-----------------------------------------------------------------------------
-const express             = require('express')
-const mongoose            = require('mongoose')
-const { ObjectID }        = require('mongodb')
+const express                   = require('express')
+const { ObjectID }              = require('mongodb')
 
-const Transaction         = require('../models/transaction')
-const Account             = require('../models/account')
-const logger              = require('../config/winston')
+const Transaction               = require('../models/transaction')
+const Account                   = require('../models/account')
+const logger                    = require('../config/winston')
 const {
   handleErrors,
-  validateAccountId,
-  validateTransactionId,
-}                         = require('../utils/route-helpers')
-const { currentUser }     = require('../utils/current-user-helper')
+  validateAndFindAccountId,
+  validateAndFindTransactionId,
+}                               = require('../utils/route-helpers')
+const { DBModelIdError }        = require('../utils/custom-errors')
+const { currentUser }           = require('../utils/current-user-helper')
 
 
 // Get the Express Router
@@ -30,42 +30,10 @@ router.get('/v1/accounts/:accountId/transactions/:id', async (req, res) => {
   let accountId     = req.params.accountId
   let transactionId = req.params.id
 
-  // Verify accountId is a valid ObjectID
-  if(!ObjectID.isValid(accountId)) {
-    logger.error('Invalid account id=[%s]', accountId)
-    return res.status(404).send({
-      code:     404,
-      message:  'Account not found',
-    })
-  }
-
-  // Verify transactionId is a valid ObjectID
-  if(!ObjectID.isValid(transactionId)) {
-    logger.error('Invalid transaction id=[%s]', transactionId)
-    return res.status(404).send({
-      code:     404,
-      message:  'Transaction not found',
-    })
-  }
-
   try {
     let user        = await currentUser()
-    let transaction = await Transaction.findOne({
-      _id:        transactionId,
-      accountId:  accountId,
-    })
-
-    // Return 404 if transaction is not found.
-    if(transaction == null) {
-      logger.error(
-        'Failed to find transaction id=[%s] w/ account id=[%s]',
-        transactionId, accountId
-      )
-      return res.status(404).send({
-        code:     404,
-        message:  'Transaction not found',
-      })
-    }
+    let account     = await validateAndFindAccountId(accountId)
+    let transaction = await validateAndFindTransactionId(transactionId)
 
     logger.info(
       'Retrieved transaction w/ account id=[%s], transaction= %o',
@@ -78,6 +46,9 @@ router.get('/v1/accounts/:accountId/transactions/:id', async (req, res) => {
       'Failed to retrieve transaction id=[%s] for account id=[%s], error= %o',
       transactionId, accountId, err
     )
+    if(err instanceof DBModelIdError) {
+      return res.status(404).send(err)
+    }
     res.status(400).send(err)
   }
 })
@@ -121,32 +92,11 @@ router.get('/v1/accounts/:accountId/transactions', async (req, res) => {
   /////////////////////////////////////////////////////////////////////////////
   
   let accountId = req.params.accountId
-  
-  if(!ObjectID.isValid(accountId)) {
-    logger.error('Invalid account id=[%s]', accountId)
-    return res.status(404).send({
-      code:     404,
-      message:  'Account not found',
-    })
-  }
 
   try {
-    let user          = await currentUser()
+    let user         = await currentUser()
 
-    // SEE THE ABOVE TODO ABOUT ADDING A CHECK FOR THE USER!
-    let account = await Account.findOne({
-      _id:      accountId,
-      //* userId:   userId,
-    })
-
-    if(account == null) {
-      logger.error('User id=[%s] trying access account id=[%s]', user._id, accountId)
-      return res.status(404).send({
-        code:     404,
-        message:  'Account not found'
-      })
-    }
-
+    let account      = await validateAndFindAccountId(accountId)
     let transactions = await Transaction.find({accountId: accountId}).sort({ date: -1})
     transactions     = runningBalance(account, transactions)
 
@@ -163,6 +113,9 @@ router.get('/v1/accounts/:accountId/transactions', async (req, res) => {
       'Failed to retrieve transactions for accountId=[%s], error= %o', 
       accountId, err
     )
+    if(err instanceof DBModelIdError) {
+      return res.status(404).send(err)
+    }
     res.status(400).send(err)
   }
 })
@@ -186,31 +139,10 @@ router.post('/v1/accounts/:accountId/transactions', async (req, res) => {
 
   let accountId = req.params.accountId    // Get account id from url
 
-  if(!ObjectID.isValid(accountId)) {
-    logger.error('Invalid account id=[%s]', accountId)
-    return res.status(404).send({
-      code:     404,
-      message:  'Account not found',
-    })
-  }
-
   try {
     let user    = await currentUser()
 
-    let userId  = req.body.userId
-    let account = await Account.findOne({
-      _id:      accountId,
-      //* userId:   userId,
-      userId:   user._id,
-    })
-
-    if(account == null) {
-      logger.error('User id=[%s] trying access account id=[%s]', user._id, accountId)
-      return res.status(404).send({
-        code:     404,
-        message:  'Account not found'
-      })
-    }
+    let account = await validateAndFindAccountId(accountId)
 
     let transaction = new Transaction({
       date:         req.body.date     ? new Date(req.body.date) : new Date(),
@@ -252,21 +184,14 @@ router.put('/v1/accounts/:accountId/transactions/:id', async (req, res) => {
 
   let accountId     = req.params.accountId
   let transactionId = req.params.id
-  let account       = undefined
-  let transaction   = undefined
   
-  // Validate the accountId and the transactionId
   try {
-    account     = await validateAccountId(accountId, {model: true, msg: 'Transaction not found'})
-    transaction = await validateTransactionId(transactionId, {model: true})
-  }
-  catch(error) {
-    return res.status(error.code).send(error)
-  }
+    let user    = await currentUser()   // Verify user is logged-in
 
-  // Update the transaction
-  try {
-    let user    = await currentUser()
+    // Validate the accountId and the transactionId
+    let account     = await validateAndFindAccountId(accountId, {msg: 'Transaction not found'})
+    let transaction = await validateAndFindTransactionId(transactionId)
+
     let query   = { _id: transactionId, accountId: accountId }
     let update  = (function makeUpdateQueryParams(body) {
       let update = {}
