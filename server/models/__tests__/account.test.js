@@ -12,7 +12,12 @@ const User          = require('../user')
  * Create accounts test data
  */
 let usersData = [
-  { _id: new ObjectID(), email: 'fergie@bills.com', phone: '415-694-2910' },
+  { 
+    _id:        new ObjectID(), 
+    email:      'fergie@bills.com', 
+    phone:      '415-694-2910',
+    password:   'password123',
+  },
 ]
 
 let accountsData = [
@@ -150,7 +155,13 @@ describe('Account', () => {
   describe('Save account to DB', () => {
     
     // Clear out the DB and seed the database w/ a user
-    const users = [new User({_id: new ObjectID(), email: 'fergie@bills.com'})]
+    const users = [
+      new User({
+        _id:      new ObjectID(), 
+        email:    'fergie@bills.com', 
+        password: 'password123'
+      })
+    ]
     
     beforeEach( async function() {
       await User.deleteMany({})

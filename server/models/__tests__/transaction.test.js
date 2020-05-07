@@ -21,7 +21,8 @@ describe('Transaction', () => {
     // Create user and account models required for validation tests
     const user    = new User({
       _id:                new ObjectID(), 
-      email:              'fergie@bills.com'
+      email:              'fergie@bills.com',
+      password:           'password123'
     })
     const account = new Account({
       _id:                new ObjectID(), 
@@ -101,9 +102,10 @@ describe('Transaction', () => {
      */
     let usersData = [
       { 
-        _id:    new ObjectID(), 
-        email:  'fergie@bills.com', 
-        phone:  '415-694-2910' 
+        _id:      new ObjectID(), 
+        email:    'fergie@bills.com', 
+        phone:    '415-694-2910',
+        password: 'password123',
       },
     ]
 

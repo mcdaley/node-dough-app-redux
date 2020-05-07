@@ -14,7 +14,12 @@ const Transaction   = require('../../models/transaction')
  * Create accounts test data
  */
 let usersData = [
-  { _id: new ObjectID(), email: 'fergie@bills.com', phone: '415-694-2910' },
+  { 
+    _id:      new ObjectID(), 
+    email:    'fergie@bills.com', 
+    phone:    '415-694-2910',
+    password: 'password123',
+  },
 ]
 
 let accountsData = [

@@ -15,9 +15,10 @@ const Account       = require('../../models/account')
  */
 let usersData = [
   { 
-    _id:    new ObjectID(), 
-    email:  'fergie@bills.com', 
-    phone:  '415-694-2910' 
+    _id:      new ObjectID(), 
+    email:    'fergie@bills.com', 
+    phone:    '415-694-2910',
+    password: 'password123',
   },
 ]
 
