@@ -28,6 +28,15 @@ describe('User', () => {
         expect(err.errors.phone.message).to.equal('911 is not a valid phone number')
       })
     })
+
+    it('Requies a password', () => {
+      let user = new User()
+
+      user.validate( (err) => {
+        expect(err.errors.password).to.exist
+        expect(err.errors.password.message).to.match(/password is required/i)
+      })
+    })
   })
 
   describe('Saves to DB', () => {
@@ -41,13 +50,15 @@ describe('User', () => {
 
       badUser.save( function(err) {
         expect(err.errors.email).to.exist
-        expect(err.errors.email.message).to.match(/email is required/)
+        expect(err.errors.email.message).to.match(/email is required/i)
+        expect(err.errors.password).to.exist
+        expect(err.errors.password.message).to.match(/password is required/i)
         done()
       })
     })
 
     it('Saves valid user to DB', (done) => {
-      let user = new User({email: 'avp@bills.com'})
+      let user = new User({email: 'avp@bills.com', password: 'password123'})
 
       user.save( function(err) {
         expect(err).to.not.exist
@@ -56,7 +67,11 @@ describe('User', () => {
     })
 
     it('Saves valid user w/ fields to DB', (done) => {
-      let user = new User({email: 'marv@bills.com', phone: '716-649-1475'})
+      let user = new User({
+        email:    'marv@bills.com', 
+        phone:    '716-649-1475', 
+        password: 'password123'
+      })
 
       user
         .save()

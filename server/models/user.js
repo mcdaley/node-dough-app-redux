@@ -6,6 +6,9 @@ const mongoose  = require('mongoose')
 const userSchema = new mongoose.Schema({
   email: {
     type:         String,
+    index:        true,
+    unique:       true,
+    dropDups:     true,
     required:     [true, 'User email is required'],
   },
   phone: {
@@ -16,6 +19,10 @@ const userSchema = new mongoose.Schema({
       },
       message: props => `${props.value} is not a valid phone number`
     }
+  },
+  password: {
+    type:         String,
+    required:     [true, 'Password is required']
   }
 })
 
