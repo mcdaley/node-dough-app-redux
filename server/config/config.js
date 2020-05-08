@@ -12,22 +12,19 @@ require('dotenv').config()
 let env = process.env.NODE_ENV || 'development'
 
 if(env === 'development') {
-  process.env.NODE_ENV    = 'development'
-  process.env.PORT        = process.env.DEV_PORT
-  process.env.MONGODB_URI = process.env.DEV_MONGODB_URI
-  process.env.LOG_FILE    = process.env.DEV_LOG_FILE
+  process.env.NODE_ENV            = 'development'
+  process.env.PORT                = process.env.DEV_PORT
+  process.env.MONGODB_URI         = process.env.DEV_MONGODB_URI
+  process.env.SECRET              = process.env.DEV_SECRET
+  process.env.JWT_EXPIRATION_MS   = process.env.DEV_JWT_EXPIRATION_MS
+  process.env.LOG_FILE            = process.env.DEV_LOG_FILE
 }
 else if(env === 'test') {
-  process.env.NODE_ENV    = 'test'
-  process.env.PORT        = process.env.TEST_PORT
-  process.env.MONGODB_URI = process.env.TEST_MONGODB_URI
-  process.env.LOG_FILE    = process.env.TEST_LOG_FILE
+  process.env.NODE_ENV            = 'test'
+  process.env.PORT                = process.env.TEST_PORT
+  process.env.MONGODB_URI         = process.env.TEST_MONGODB_URI
+  process.env.SECRET              = process.env.TEST_SECRET
+  process.env.JWT_EXPIRATION_MS   = process.env.TEST_JWT_EXPIRATION_MS
+  process.env.LOG_FILE            = process.env.TEST_LOG_FILE
 }
-
-/** 
-module.exports = {
-  PORT:   process.env.PORT,
-  MONGODB_URI
-}
-**/
 
