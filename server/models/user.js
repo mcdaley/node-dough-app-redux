@@ -7,8 +7,14 @@ const userSchema = new mongoose.Schema({
   email: {
     type:         String,
     index:        true,
-    unique:       true,
-    dropDups:     true,
+    unique:       [true, 'Duplicate email'],
+    //* dropDups:     true,
+    validate:     {
+      validator: function(email) {
+        return /^\w+([\.-]?\w+)+@\w+([\.:]?\w+)+(\.[a-zA-Z0-9]{2,3})+$/.test(email)
+      },
+      message: props => `${props.value} is not a valid email address`
+    },
     required:     [true, 'User email is required'],
   },
   phone: {

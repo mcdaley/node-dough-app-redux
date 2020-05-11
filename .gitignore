@@ -5,5 +5,7 @@ node_modules/
 logs/
 .idea
 .env
+cookie*.txt
+
 
 

@@ -3,6 +3,7 @@
 //-----------------------------------------------------------------------------
 const express             = require('express')
 const jwt                 = require('jsonwebtoken')
+const MongoError          = require('mongodb').MongoError
 
 const User                = require('../models/user')
 const passport            = require('../config/passport')
@@ -19,15 +20,23 @@ router.post('/v1/register', async (req, res) => {
   logger.debug('Attempt to create user w/ email=[%s], password=[%s]', email, password)
 
   try {
-    let user    = new User({email: email, password: password})
-    let result  = await user.save()
-
-    logger.info('Successfully created account for user= %o', result)
-    res.status(200).send({result})
+    let userModel = new User({email: email, password: password})
+    await userModel.save()
+    let user      = { _id: userModel._id, email: userModel.email }
+    
+    logger.info('Successfully created account for user= %o', user)
+    res.status(201).send({user})
   }
   catch(error) {
     logger.error('Failed to create account for email=[%s], error= %o', email, error)
-    res.status(400).send({error})
+    if(error instanceof MongoError) {
+      // Email already exists in the DB
+      let err = { email: {code: 707, message: 'Email already in use'} }
+      res.status(400).send({status: error.code, errors: err})
+    }
+    else {
+      res.status(400).send(error)
+    }
   }
 })
 

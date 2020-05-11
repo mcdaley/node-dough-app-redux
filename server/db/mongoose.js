@@ -8,6 +8,7 @@ const logger   = require('../config/winston')
 
 mongoose.promise = global.Promise
 mongoose.set('useFindAndModify', false);
+mongoose.set('useCreateIndex', true)
 
 mongoose.connect(
   process.env.MONGODB_URI,
