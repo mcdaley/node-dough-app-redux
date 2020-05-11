@@ -3,13 +3,13 @@
 //-----------------------------------------------------------------------------
 const passport      = require('passport')
 const LocalStrategy = require('passport-local').Strategy
+const JWTStrategy   = require('passport-jwt').Strategy
 
 const User          = require('../models/user')
 const logger        = require('./winston')
 
 /**
- * Setup the passport Local strategy to handle the signup and signin
- * routes for the API.
+ * Setup the passport Local strategy to handle the user login for the API.
  */
 passport.use(new LocalStrategy({
     usernameField:  'email',
@@ -37,6 +37,31 @@ passport.use(new LocalStrategy({
       logger.error('Failed to authenticate user w/ email=[%s], err=[%o]', email, error)
       return done(error)
     }
+  }
+))
+
+/**
+ * Setup up JSON Web Token strategy that will verify if a user has a
+ * valid JSON Web Token.
+ */
+const cookieExtractor = (req) => {
+  let token = null
+  if(req && req.cookies) {
+    token = req.cookies['jwt']
+  }
+  return token
+}
+
+passport.use(new JWTStrategy({
+    jwtFromRequest: cookieExtractor,
+    secretOrKey:    process.env.SECRET,
+  },
+  (jwtPayload, done) => {
+    if(Date.now() > jwtPayload.expires) {
+      return done({code: 401, message: 'authorization token expired'}, false)
+    }
+
+    return done(null, jwtPayload)
   }
 ))
 

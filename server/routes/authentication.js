@@ -1,12 +1,13 @@
 //-----------------------------------------------------------------------------
 // server/routes/authenication.js
 //-----------------------------------------------------------------------------
-const express       = require('express')
-const jwt           = require('jsonwebtoken')
+const express             = require('express')
+const jwt                 = require('jsonwebtoken')
 
-const User          = require('../models/user')
-const passport      = require('../config/passport')
-const logger        = require('../config/winston')
+const User                = require('../models/user')
+const passport            = require('../config/passport')
+const { authenticateJwt } = require('../utils/auth-helpers')
+const logger              = require('../config/winston')
 
 const router = express.Router()
 
@@ -42,9 +43,11 @@ router.post('/v1/login', (req, res) => {
         return res.status(400).send({error})
       }
       
+      logger.debug('[MCD] JWT_EXPIRATION_MS= %d', parseInt(process.env.JWT_EXPIRATION_MS))
       const payload = {
-        email:  user.email,
-        expires: Date.now() + parseInt(process.env.JWT_EXPIRATION_MS),
+        _id:      user._id,
+        email:    user.email,
+        expires:  Date.now() + parseInt(process.env.JWT_EXPIRATION_MS),
       };
 
       // Assign a payload to req.user
@@ -63,6 +66,7 @@ router.post('/v1/login', (req, res) => {
     }
   )(req, res)
 })
+
 
 // Export Authentication Routes
 module.exports = router

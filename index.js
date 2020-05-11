@@ -5,6 +5,7 @@ require('./server/config/config')
 
 const express         = require('express')
 const bodyParser      = require('body-parser')
+const cookieParser    = require('cookie-parser')
 
 const mongoose        = require('./server/db/mongoose')
 const passport        = require('./server/config/passport')
@@ -13,6 +14,7 @@ const logger          = require('./server/config/winston')
 const authentication  = require('./server/routes/authentication')
 const accounts        = require('./server/routes/accounts')
 const transactions    = require('./server/routes/transactions')
+const protected       = require('./server/routes/protected')
 
 /*
  * main()
@@ -20,6 +22,7 @@ const transactions    = require('./server/routes/transactions')
 const app = express()
 
 app.use(bodyParser.json())
+app.use(cookieParser())
 
 app.use(morgan(
   ':method :url :status :response-time ms - :res[content-length] - :req[content-length] - :body ',
@@ -41,6 +44,7 @@ app.use((req, res, next) => {
 app.use('/api', authentication)
 app.use('/api', accounts)
 app.use('/api', transactions)
+app.use('/api', protected)
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {
