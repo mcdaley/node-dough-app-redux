@@ -54,7 +54,7 @@ router.post('/v1/login', (req, res) => {
       
       logger.debug('[MCD] JWT_EXPIRATION_MS= %d', parseInt(process.env.JWT_EXPIRATION_MS))
       const payload = {
-        _id:      user._id,
+        _id:      user._id.toHexString(),
         email:    user.email,
         expires:  Date.now() + parseInt(process.env.JWT_EXPIRATION_MS),
       };
@@ -67,10 +67,10 @@ router.post('/v1/login', (req, res) => {
 
         // Generate a signed json web token and return it in the response
         const token = jwt.sign(JSON.stringify(payload), process.env.SECRET);
-        const data  = {_id: user._id, email: user.email}
+        const data  = {_id: payload._id, email: payload.email, expires: payload.expires}
 
-        res.cookie('jwt', token, { httpOnly: true });
-        res.status(200).send({user: data});
+        //* res.cookie('jwt', token, { httpOnly: true });
+        res.status(200).cookie('jwt', token).send({user: data});
       })
     }
   )(req, res)

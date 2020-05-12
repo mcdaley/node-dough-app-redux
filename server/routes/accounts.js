@@ -11,6 +11,7 @@ const {
   validateAndFindAccountId,
 }                           = require('../utils/route-helpers')
 const { DBModelIdError }    = require('../utils/custom-errors')
+const { authenticateJwt }   = require('../utils/auth-helpers')
 const { currentUser }       = require('../utils/current-user-helper')
 
 // Get the Express Router
@@ -19,12 +20,12 @@ const router  = express.Router()
 /**
  * GET /v1/accounts
  */ 
-router.get('/v1/accounts', async (req, res) => {
+router.get('/v1/accounts', authenticateJwt, async (req, res) => {
   logger.info(`GET /api/v1/accounts`)
 
   try {
-    let user      = await currentUser()
-    let accounts  = await Account.find({userId: user._id})
+    const { user }  = req
+    const accounts  = await Account.find({userId: user._id})
 
     logger.info('Retrieved [%d] accounts for user= %s', accounts.length, user._id)
     logger.debug('Accounts= %o', accounts)
@@ -40,13 +41,13 @@ router.get('/v1/accounts', async (req, res) => {
 /*
  * GET /v1/accounts/:id
  */
-router.get('/v1/accounts/:id', async (req, res) => {
+router.get('/v1/accounts/:id', authenticateJwt, async (req, res) => {
   logger.info('GET /api/v1/accounts/%s', req.params.id)
   const id = req.params.id
 
   try {
-    let user    = await currentUser()
-    let account = await validateAndFindAccountId(id)
+    let { user }  = req
+    let account   = await validateAndFindAccountId(id)
 
     logger.info('Account for userId=[%s], account=[%s]', id, account)
     res.status(200).send({account})
@@ -63,7 +64,7 @@ router.get('/v1/accounts/:id', async (req, res) => {
 /*
  * POST /v1/accounts
  */
-router.post('/v1/accounts', async (req, res) => {
+router.post('/v1/accounts', authenticateJwt, async (req, res) => {
   logger.info('POST/api/v1/accounts, request body= %o', req.body)
 
   /**
@@ -107,7 +108,7 @@ router.post('/v1/accounts', async (req, res) => {
   }
 
   try {
-    let user            = await currentUser()    // Simulate authentication
+    let { user }        = req
     let openingBalance  = getBalance()
     let openingDate     = req.body.openingDate ? new Date(req.body.openingDate) : new Date()
 
@@ -142,13 +143,13 @@ router.post('/v1/accounts', async (req, res) => {
 /*
  * PUT /v1/accounts/:id
  */
-router.put('/v1/accounts/:id', async (req, res) => {
+router.put('/v1/accounts/:id', authenticateJwt, async (req, res) => {
   logger.info('PUT /api/v1/account/%s, request body= %o', req.params.id, req.body)
   
   let accountId = req.params.id
 
   try {
-    let user    = await currentUser()    // Simulate authentication
+    let { user }  = req
 
     // Validate accountId
     await validateAndFindAccountId(accountId)
@@ -173,14 +174,14 @@ router.put('/v1/accounts/:id', async (req, res) => {
 /*
  * DELETE /api/v1/accounts/:id
  */
-router.delete('/v1/accounts/:id', async (req, res) => {
+router.delete('/v1/accounts/:id', authenticateJwt, async (req, res) => {
   logger.info('PUT /api/v1/account/%s, request= %o', req.params.id, req.body)
   
   let id = req.params.id
 
   try {
-    let user  = await currentUser()
-    let doc   = await Account.findByIdAndRemove(id)
+    let { user }  = req
+    let doc       = await Account.findByIdAndRemove(id)
 
     if(doc == null) {
       logger.warn('Failed to find account w/ id=[%s]', id)

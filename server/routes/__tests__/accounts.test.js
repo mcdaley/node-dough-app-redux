@@ -3,6 +3,7 @@
 //-----------------------------------------------------------------------------
 const expect        = require('chai').expect
 const request       = require('supertest')
+const cookieParser  = require('cookie-parser')
 const { ObjectID }  = require('mongodb')
 
 const { app }       = require('../../../index')
@@ -70,18 +71,60 @@ beforeEach( async () => {
 })
 
 describe('Accounts API', () => {
+  // Login the user and store the json web token
+  let jwt           = null
+  let credentials   = {email: usersData[0].email, password: usersData[0].password}
+  let currentUser   = request.agent(app)
+
+  beforeEach( function(done) {
+    currentUser
+      .post('/api/v1/login')
+      .send(credentials)
+      .expect(200)
+      .end( (err, res) => {
+        if(err) { return done(err) }
+
+        //* console.log(`[DEBUG] Response Header = `, JSON.stringify(res.header, undefined, 2))
+        jwt = res.header['set-cookie']
+        done()
+      })
+  });
+
   /*
    * GET /api/v1/accounts
    */
   describe('GET /api/v1/accounts', () => {
+    //-------------------------------------------------------------------------
+    // TODO: 05/12/20
+    //
+    //  Authentication Test Enhancements:
+    //  1.) Create a user once at the beginning of the tests and store the
+    //      "jwt" token in a variable that can be accessed in all the tests.
+    //  2.) Logout the user after the tests.
+    //  3.) Add authorization tests to all of the routes.
+    //-------------------------------------------------------------------------
+
     it('Returns all of the users accounts', (done) => {
       request(app)
         .get('/api/v1/accounts')
+        .set('Cookie', jwt)
         .expect(200)
         .expect( (res) => {
+          //* console.log(`[debug] res.body= `, JSON.stringify(res.body, undefined, 2))
           expect(res.body.accounts.length).to.equal(3)
         })
         .end(done)        
+    })
+
+    it('Returns unauthorized if the user is not logged into the app', (done) => {
+      request(app)
+        .get('/api/v1/accounts')
+        .expect(401)
+        .expect( (res) => {
+          //* console.log(`[debug] res.body= `, JSON.stringify(res.body, undefined, 2))
+          expect(res.body.error.message).to.match(/not authorized/i)
+        })
+        .end(done)
     })
   })
 
@@ -94,6 +137,7 @@ describe('Accounts API', () => {
 
       request(app)
         .get(`/api/v1/accounts/${accountId}`)
+        .set('Cookie', jwt)
         .expect(200)
         .expect( (res) => {
           expect(res.body.account.name).to.equal(accountsData[0].name)
@@ -105,6 +149,7 @@ describe('Accounts API', () => {
     it('Returns error for invalid account ID', (done) => {
       request(app)
         .get(`/api/v1/accounts/invalid-id`)
+        .set('Cookie', jwt)
         .expect(404)
         .end(done)
     })
@@ -114,6 +159,7 @@ describe('Accounts API', () => {
 
       request(app)
         .get(`/api/v1/accounts/${notFoundId}`)
+        .set('Cookie', jwt)
         .expect(404)
         .end(done)
     })
@@ -130,6 +176,7 @@ describe('Accounts API', () => {
 
       request(app)
         .post('/api/v1/accounts')
+        .set('Cookie', jwt)
         .send(account)
         .expect(400)
         .expect( (res) => {
@@ -151,6 +198,7 @@ describe('Accounts API', () => {
 
       request(app)
         .post('/api/v1/accounts')
+        .set('Cookie', jwt)
         .send(account)
         .expect(400)
         .expect( (res) => {
@@ -168,6 +216,7 @@ describe('Accounts API', () => {
 
       request(app)
         .post('/api/v1/accounts')
+        .set('Cookie', jwt)
         .send(account)
         .expect(400)
         .expect( (res) => {
@@ -188,6 +237,7 @@ describe('Accounts API', () => {
 
       request(app)
         .post('/api/v1/accounts')
+        .set('Cookie', jwt)
         .send(account)
         .expect(400)
         .expect( (res) => {
@@ -206,6 +256,7 @@ describe('Accounts API', () => {
 
       request(app)
         .post('/api/v1/accounts')
+        .set('Cookie', jwt)
         .send(account)
         .expect(201)
         .expect( (res) => {
@@ -249,6 +300,7 @@ describe('Accounts API', () => {
 
       request(app)
         .post('/api/v1/accounts')
+        .set('Cookie', jwt)
         .send(account)
         .expect(201)
         .expect( (res) => {
@@ -307,6 +359,7 @@ describe('Accounts API', () => {
 
       request(app)
         .put(`/api/v1/accounts/${id}`)
+        .set('Cookie', jwt)
         .send(update)
         .expect(404)
         .expect( (res) => {
@@ -323,6 +376,7 @@ describe('Accounts API', () => {
 
       request(app)
         .put(`/api/v1/accounts/${id}`)
+        .set('Cookie', jwt)
         .send(update)
         .expect(404)
         .expect( (res) => {
@@ -338,6 +392,7 @@ describe('Accounts API', () => {
 
       request(app)
         .put(`/api/v1/accounts/${accountId}`)
+        .set('Cookie', jwt)
         .send(update)
         .expect(400)
         .expect( (res) => {
@@ -357,6 +412,7 @@ describe('Accounts API', () => {
 
       request(app)
         .put(`/api/v1/accounts/${accountId}`)
+        .set('Cookie', jwt)
         .send(update)
         .expect(400)
         .expect( (res) => {
@@ -376,6 +432,7 @@ describe('Accounts API', () => {
 
       request(app)
         .put(`/api/v1/accounts/${accountId}`)
+        .set('Cookie', jwt)
         .send(update)
         .expect(400)
         .expect( (res) => {
@@ -394,6 +451,7 @@ describe('Accounts API', () => {
 
       request(app)
         .put(`/api/v1/accounts/${accountId}`)
+        .set('Cookie', jwt)
         .send(update)
         .expect(400)
         .expect( (res) => {
@@ -413,6 +471,7 @@ describe('Accounts API', () => {
 
       request(app)
         .put(`/api/v1/accounts/${id}`)
+        .set('Cookie', jwt)
         .send(update)
         .expect(400)
         .expect( (res) => {
@@ -433,6 +492,7 @@ describe('Accounts API', () => {
 
       request(app)
         .put(`/api/v1/accounts/${id}`)
+        .set('Cookie', jwt)
         .send(update)
         .expect(200)
         .expect( (res) => {
@@ -452,6 +512,7 @@ describe('Accounts API', () => {
 
       request(app)
         .put(`/api/v1/accounts/${id}`)
+        .set('Cookie', jwt)
         .send(update)
         .expect(200)
         .expect( (res) => {
@@ -484,6 +545,7 @@ describe('Accounts API', () => {
 
       request(app)
         .delete(`/api/v1/accounts/${id}`)
+        .set('Cookie', jwt)
         .expect(404)
         .end(done)
     })
@@ -493,6 +555,7 @@ describe('Accounts API', () => {
 
       request(app)
         .delete(`/api/v1/accounts/${id}`)
+        .set('Cookie', jwt)
         .expect(400)
         .end(done)
     })
@@ -502,6 +565,7 @@ describe('Accounts API', () => {
 
       request(app)
         .delete(`/api/v1/accounts/${id}`)
+        .set('Cookie', jwt)
         .expect(200)
         .expect( (res) => {
           expect(res.body.name).to.equal(accountsData[0].name)
