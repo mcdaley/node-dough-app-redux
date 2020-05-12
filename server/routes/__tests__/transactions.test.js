@@ -3,6 +3,7 @@
 //-----------------------------------------------------------------------------
 const expect        = require('chai').expect
 const request       = require('supertest')
+const cookieParser  = require('cookie-parser')
 const { ObjectID }  = require('mongodb')
 
 const { app }       = require('../../../index')
@@ -103,17 +104,48 @@ describe('Transactions API', () => {
       console.log(`[ERROR] Failed to create account test data, err= `, err)
     }
   })
+
+  // Login the user and store the json web token
+  let jwt           = null
+  let credentials   = {email: usersData[0].email, password: usersData[0].password}
+  let currentUser   = request.agent(app)
+
+  beforeEach( function(done) {
+    currentUser
+      .post('/api/v1/login')
+      .send(credentials)
+      .expect(200)
+      .end( (err, res) => {
+        if(err) { return done(err) }
+
+        //* console.log(`[DEBUG] Response Header = `, JSON.stringify(res.header, undefined, 2))
+        jwt = res.header['set-cookie']
+        done()
+      })
+  });
   
   /*
    * GET /api/v1/accounts/:accountId/transactions/:id
    */
   describe('GET /api/v1/accounts/:accountId/transactions/:id', () => {
+    it('Returns a 401 error for an unauthorized user', (done) => {
+      request(app)
+        .get('/api/v1/accounts')
+        .expect(401)
+        .expect( (res) => {
+          //* console.log(`[debug] res.body= `, JSON.stringify(res.body, undefined, 2))
+          expect(res.body.error.message).to.match(/not authorized/i)
+        })
+        .end(done)
+    })
+
     it('Returns 404 for an invalid account Id', (done) => {
       let invalidAccountId  = 'bad-account-id'
       let transactionId     = transactionsData[1]._id.toHexString()
 
       request(app)
         .get(`/api/v1/accounts/${invalidAccountId}/transactions/${transactionId}`)
+        .set('Cookie', jwt)
         .expect(404)
         .end(done)
     })
@@ -124,6 +156,7 @@ describe('Transactions API', () => {
 
       request(app)
         .get(`/api/v1/accounts/${missingAccountId}/transactions/${transactionId}`)
+        .set('Cookie', jwt)
         .expect(404)
         .end(done)
     })
@@ -134,6 +167,7 @@ describe('Transactions API', () => {
 
       request(app)
         .get(`/api/v1/accounts/${accountId}/transactions/${invalidTxnId}`)
+        .set('Cookie', jwt)
         .expect(404)
         .end(done)
     })
@@ -144,6 +178,7 @@ describe('Transactions API', () => {
 
       request(app)
         .get(`/api/v1/accounts/${accountId}/transactions/${txnId}`)
+        .set('Cookie', jwt)
         .expect(404)
         .end(done)
     })
@@ -154,6 +189,7 @@ describe('Transactions API', () => {
 
       request(app)
         .get(`/api/v1/accounts/${accountId}/transactions/${txnId}`)
+        .set('Cookie', jwt)
         .expect(200)
         .expect( (res) => {
           let {transaction} = res.body
@@ -170,11 +206,23 @@ describe('Transactions API', () => {
    * GET /api/v1/accounts/:accountId/transactions
    */
   describe('GET /api/v1/accounts/:accountId/transactions', () => {
+    it('Returns a 401 error for an unauthorized user', (done) => {
+      request(app)
+        .get('/api/v1/accounts')
+        .expect(401)
+        .expect( (res) => {
+          //* console.log(`[debug] res.body= `, JSON.stringify(res.body, undefined, 2))
+          expect(res.body.error.message).to.match(/not authorized/i)
+        })
+        .end(done)
+    })
+
     it('Returns 404 for an invalid account ID', (done) => {
       let invalidAccountId = 'bad-account-id'
 
       request(app)
         .get(`/api/v1/accounts/${invalidAccountId}/transactions`)
+        .set('Cookie', jwt)
         .expect(404)
         .expect( (res) => {
           expect(res.body.code).to.equal(404)
@@ -188,6 +236,7 @@ describe('Transactions API', () => {
 
       request(app)
         .get(`/api/v1/accounts/${missingAccountId}/transactions`)
+        .set('Cookie', jwt)
         .expect(404)
         .expect( (res) => {
           expect(res.body.code).to.equal(404)
@@ -201,6 +250,7 @@ describe('Transactions API', () => {
 
       request(app)
         .get(`/api/v1/accounts/${accountId}/transactions`)
+        .set('Cookie', jwt)
         .expect(200)
         .expect( (res) => {
           expect(res.body.transactions.length).to.equal(4)
@@ -213,6 +263,7 @@ describe('Transactions API', () => {
 
       request(app)
         .get(`/api/v1/accounts/${accountId}/transactions`)
+        .set('Cookie', jwt)
         .expect(200)
         .expect( (res) => {
           let {transactions}  = res.body
@@ -244,12 +295,24 @@ describe('Transactions API', () => {
       }
     })
 
+    it('Returns a 401 error for an unauthorized user', (done) => {
+      request(app)
+        .get('/api/v1/accounts')
+        .expect(401)
+        .expect( (res) => {
+          //* console.log(`[debug] res.body= `, JSON.stringify(res.body, undefined, 2))
+          expect(res.body.error.message).to.match(/not authorized/i)
+        })
+        .end(done)
+    })
+
     it('Returns a 400 error if the description is not defined', (done) =>{
       // Remove description from the transaction
       delete transaction.description
       
       request(app)
         .post(`/api/v1/accounts/${accountId}/transactions`)
+        .set('Cookie', jwt)
         .send(transaction)
         .expect(400)
         .end(done)
@@ -260,6 +323,7 @@ describe('Transactions API', () => {
 
       request(app)
         .post(`/api/v1/accounts/${accountId}/transactions`)
+        .set('Cookie', jwt)
         .send(transaction)
         .expect(400)
         .end(done)
@@ -270,6 +334,7 @@ describe('Transactions API', () => {
 
       request(app)
         .post(`/api/v1/accounts/${badAccountId}/transactions`)
+        .set('Cookie', jwt)
         .send(transaction)
         .expect(404)
         .expect( (res) => {
@@ -284,6 +349,7 @@ describe('Transactions API', () => {
 
       request(app)
         .post(`/api/v1/accounts/${missingAccountId}/transactions`)
+        .set('Cookie', jwt)
         .send(transaction)
         .expect(404)
         .expect( (res) => {
@@ -299,6 +365,7 @@ describe('Transactions API', () => {
 
       request(app)
         .post(`/api/v1/accounts/${accountId}/transactions`)
+        .set('Cookie', jwt)
         .send(badTxn)
         .expect(400)
         .expect( (res) => {
@@ -317,6 +384,7 @@ describe('Transactions API', () => {
 
       request(app)
         .post(`/api/v1/accounts/${accountId}/transactions`)
+        .set('Cookie', jwt)
         .send(badTxn)
         .expect(400)
         .expect( (res) => {
@@ -335,6 +403,7 @@ describe('Transactions API', () => {
       
       request(app)
         .post(`/api/v1/accounts/${accountId}/transactions`)
+        .set('Cookie', jwt)
         .send(transaction)
         .expect(201)
         .expect( (res) => {
@@ -393,6 +462,7 @@ describe('Transactions API', () => {
       
       request(app)
         .post(`/api/v1/accounts/${accountId}/transactions`)
+        .set('Cookie', jwt)
         .send(creditTxn)
         .expect(201)
         .expect( (res) => {
@@ -445,6 +515,17 @@ describe('Transactions API', () => {
    * PUT /api/v1/accounts/:accountId/transactions/:id
    */
   describe('PUT /api/v1/accounts/:accountId/transactions/:id', () => {
+    it('Returns a 401 error for an unauthorized user', (done) => {
+      request(app)
+        .get('/api/v1/accounts')
+        .expect(401)
+        .expect( (res) => {
+          //* console.log(`[debug] res.body= `, JSON.stringify(res.body, undefined, 2))
+          expect(res.body.error.message).to.match(/not authorized/i)
+        })
+        .end(done)
+    })
+
     it('Returns a 404 error for an invalid accountId', (done) => {
       let badAccountId  = 'BAD'
       let transactionId = transactionsData[1]._id.toHexString()
@@ -454,6 +535,7 @@ describe('Transactions API', () => {
 
       request(app)
         .put(`/api/v1/accounts/${badAccountId}/transactions/${transactionId}`)
+        .set('Cookie', jwt)
         .send(update)
         .expect(404)
         .expect( (res) => {
@@ -472,6 +554,7 @@ describe('Transactions API', () => {
 
       request(app)
         .put(`/api/v1/accounts/${badAccountId}/transactions/${transactionId}`)
+        .set('Cookie', jwt)
         .send(update)
         .expect(404)
         .expect( (res) => {
@@ -490,6 +573,7 @@ describe('Transactions API', () => {
 
       request(app)
         .put(`/api/v1/accounts/${accountId}/transactions/${transactionId}`)
+        .set('Cookie', jwt)
         .send(update)
         .expect(404)
         .expect( (res) => {
@@ -508,6 +592,7 @@ describe('Transactions API', () => {
 
       request(app)
         .put(`/api/v1/accounts/${accountId}/transactions/${transactionId}`)
+        .set('Cookie', jwt)
         .send(update)
         .expect(404)
         .expect( (res) => {
@@ -526,6 +611,7 @@ describe('Transactions API', () => {
 
       request(app)
         .put(`/api/v1/accounts/${accountId}/transactions/${transactionId}`)
+        .set('Cookie', jwt)
         .send(update)
         .expect(400)
         .expect( (res) => {
@@ -548,6 +634,7 @@ describe('Transactions API', () => {
 
       request(app)
         .put(`/api/v1/accounts/${accountId}/transactions/${transactionId}`)
+        .set('Cookie', jwt)
         .send(update)
         .expect(400)
         .expect( (res) => {
@@ -568,6 +655,7 @@ describe('Transactions API', () => {
 
       request(app)
         .put(`/api/v1/accounts/${accountId}/transactions/${transactionId}`)
+        .set('Cookie', jwt)
         .send(update)
         .expect(400)
         .expect( (res) => {
@@ -592,6 +680,7 @@ describe('Transactions API', () => {
 
       request(app)
         .put(`/api/v1/accounts/${accountId}/transactions/${transactionId}`)
+        .set('Cookie', jwt)
         .send(update)
         .expect(200)
         .expect( (res) => {
@@ -617,6 +706,7 @@ describe('Transactions API', () => {
 
       request(app)
         .put(`/api/v1/accounts/${accountId}/transactions/${transactionId}`)
+        .set('Cookie', jwt)
         .send(update)
         .expect(200)
         .expect( (res) => {
@@ -666,12 +756,24 @@ describe('Transactions API', () => {
    * DELETE /api/v1/accounts/:accountId/transactions/:id
    */
   describe('DELETE /api/v1/accounts/:accountId/transactions/:id', () => {
+    it('Returns a 401 error for an unauthorized user', (done) => {
+      request(app)
+        .get('/api/v1/accounts')
+        .expect(401)
+        .expect( (res) => {
+          //* console.log(`[debug] res.body= `, JSON.stringify(res.body, undefined, 2))
+          expect(res.body.error.message).to.match(/not authorized/i)
+        })
+        .end(done)
+    })
+
     it('Returns 404 for an invalid account Id', (done) => {
       let invalidAccountId  = 'bad-account-id'
       let transactionId     = transactionsData[1]._id.toHexString()
 
       request(app)
         .delete(`/api/v1/accounts/${invalidAccountId}/transactions/${transactionId}`)
+        .set('Cookie', jwt)
         .expect(404)
         .end(done)
     })
@@ -682,6 +784,7 @@ describe('Transactions API', () => {
 
       request(app)
         .delete(`/api/v1/accounts/${missingAccountId}/transactions/${transactionId}`)
+        .set('Cookie', jwt)
         .expect(404)
         .end(done)
     })
@@ -692,6 +795,7 @@ describe('Transactions API', () => {
 
       request(app)
         .delete(`/api/v1/accounts/${accountId}/transactions/${invalidTxnId}`)
+        .set('Cookie', jwt)
         .expect(404)
         .end(done)
     })
@@ -702,6 +806,7 @@ describe('Transactions API', () => {
 
       request(app)
         .delete(`/api/v1/accounts/${accountId}/transactions/${txnId}`)
+        .set('Cookie', jwt)
         .expect(404)
         .end(done)
     })
@@ -712,6 +817,7 @@ describe('Transactions API', () => {
 
       request(app)
         .delete(`/api/v1/accounts/${accountId}/transactions/${txnId}`)
+        .set('Cookie', jwt)
         .expect(200)
         .expect( (res) => {
           let txn = res.body.transaction

@@ -13,6 +13,7 @@ const {
   validateAndFindTransactionId,
 }                               = require('../utils/route-helpers')
 const { DBModelIdError }        = require('../utils/custom-errors')
+const { authenticateJwt }       = require('../utils/auth-helpers')
 const { currentUser }           = require('../utils/current-user-helper')
 
 
@@ -22,7 +23,7 @@ const router  = express.Router()
 /*
  * GET /v1/accounts/:accountId/transactions/:id
  */
-router.get('/v1/accounts/:accountId/transactions/:id', async (req, res) => {
+router.get('/v1/accounts/:accountId/transactions/:id', authenticateJwt, async (req, res) => {
   logger.info(
     'GET /api/v1/accounts/:id/transactions/:id, params= %o', req.params
   )
@@ -31,7 +32,7 @@ router.get('/v1/accounts/:accountId/transactions/:id', async (req, res) => {
   let transactionId = req.params.id
 
   try {
-    let user        = await currentUser()
+    let { user }    = req
     let account     = await validateAndFindAccountId(accountId)
     let transaction = await validateAndFindTransactionId(transactionId)
 
@@ -56,7 +57,7 @@ router.get('/v1/accounts/:accountId/transactions/:id', async (req, res) => {
 /*
  * GET /api/v1/accounts/:accountId/transactions
  */
-router.get('/v1/accounts/:accountId/transactions', async (req, res) => {
+router.get('/v1/accounts/:accountId/transactions', authenticateJwt, async (req, res) => {
   logger.info(
     'GET /api/v1/accounts/:accountId/transactions, params= %o', req.params
   )
@@ -83,21 +84,16 @@ router.get('/v1/accounts/:accountId/transactions', async (req, res) => {
 
     return transactions
   }
-
-  /////////////////////////////////////////////////////////////////////////////
-  // TODO: 04/07/2020
-  // NEED TO ENSURE THE USER CAN ONLY RETURN TRANSACTIONS FOR AN ACCOUNT
-  // THAT THE USER OWNS. WILL NEED TO IMPLEMENT THIS FEATURE WHEN I ADD
-  // AUTHENTICATION.
-  /////////////////////////////////////////////////////////////////////////////
   
   let accountId = req.params.accountId
-
   try {
-    let user         = await currentUser()
+    let { user }     = req
 
     let account      = await validateAndFindAccountId(accountId)
-    let transactions = await Transaction.find({accountId: accountId}).sort({ date: -1})
+    let transactions = await Transaction.find({
+      accountId:  accountId,
+      userId:     user._id
+    }).sort({ date: -1})
     transactions     = runningBalance(account, transactions)
 
     logger.debug('Transactions w/ balance= [%o]', transactions)
@@ -123,26 +119,16 @@ router.get('/v1/accounts/:accountId/transactions', async (req, res) => {
 /*
  * POST /api/v1/accounts/:accountId/transactions
  */
-router.post('/v1/accounts/:accountId/transactions', async (req, res) => {
+router.post('/v1/accounts/:accountId/transactions', authenticateJwt, async (req, res) => {
   logger.info(
     'POST /api/v1/accounts/:accountId/transactions, params= %o, body= %o', 
     req.params, req.body
   )
 
-  /////////////////////////////////////////////////////////////////////////////
-  // TODO: 04/07/2020
-  // I WILL NEED TO CLEANUP THE LOGIC FOR USING THE USER-ID. RIGHT NOW, THE
-  // USER-ID IS REQUIRED IN THE API CALL. IN THE FUTURE, I WILL BE ABLE TO
-  // GET THE USER-ID FROM THE AUTHENTICATION CHECK AND I SHOULD USE THAT
-  // FOR VALIDATING THE ACCOUNT.
-  /////////////////////////////////////////////////////////////////////////////
-
   let accountId = req.params.accountId    // Get account id from url
-
   try {
-    let user    = await currentUser()
-
-    let account = await validateAndFindAccountId(accountId)
+    let { user }    = req
+    let account     = await validateAndFindAccountId(accountId)
 
     let transaction = new Transaction({
       date:         req.body.date     ? new Date(req.body.date) : new Date(),
@@ -176,7 +162,7 @@ router.post('/v1/accounts/:accountId/transactions', async (req, res) => {
 /**
  * PUT /api/v1/accounts/:accountId/transactions/:id
  */
-router.put('/v1/accounts/:accountId/transactions/:id', async (req, res) => {
+router.put('/v1/accounts/:accountId/transactions/:id', authenticateJwt, async (req, res) => {
   logger.info(
     'PUT /api/v1/accounts/:accountId/transactions/:id, params= %o, body= %o', 
     req.params, req.body
@@ -184,11 +170,9 @@ router.put('/v1/accounts/:accountId/transactions/:id', async (req, res) => {
 
   let accountId     = req.params.accountId
   let transactionId = req.params.id
+  let { user }      = req
   
   try {
-    let user    = await currentUser()   // Verify user is logged-in
-
-    // Validate the accountId and the transactionId
     let account     = await validateAndFindAccountId(accountId, {msg: 'Transaction not found'})
     let transaction = await validateAndFindTransactionId(transactionId)
 
@@ -239,7 +223,7 @@ router.put('/v1/accounts/:accountId/transactions/:id', async (req, res) => {
 /*
  * DELETE /api/v1/accounts/:accountId/transactions/:id
  */
-router.delete('/v1/accounts/:accountId/transactions/:id', async (req, res) => {
+router.delete('/v1/accounts/:accountId/transactions/:id', authenticateJwt, async (req, res) => {
   logger.info(
     'DELETE /api/v1/accounts/:accountId/transactions/:id, params= %o, body= %o', 
     req.params, req.body
@@ -268,10 +252,11 @@ router.delete('/v1/accounts/:accountId/transactions/:id', async (req, res) => {
 
   // Delete the transaction
   try {
-    let user        = await currentUser()
+    let { user }    = req
     let transaction = await Transaction.findOneAndDelete({
       _id:        transactionId,
-      accountId:  accountId
+      accountId:  accountId,
+      userId:     user._id,
     })
 
     // Transaction does not exist in DB
