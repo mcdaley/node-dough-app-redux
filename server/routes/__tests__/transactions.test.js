@@ -128,7 +128,7 @@ describe('Transactions API', () => {
    * GET /api/v1/accounts/:accountId/transactions/:id
    */
   describe('GET /api/v1/accounts/:accountId/transactions/:id', () => {
-    it('Returns a 401 error for an unauthorized user', (done) => {
+    it('Returns 401 error for an unauthorized user', (done) => {
       request(app)
         .get('/api/v1/accounts')
         .expect(401)
@@ -206,7 +206,7 @@ describe('Transactions API', () => {
    * GET /api/v1/accounts/:accountId/transactions
    */
   describe('GET /api/v1/accounts/:accountId/transactions', () => {
-    it('Returns a 401 error for an unauthorized user', (done) => {
+    it('Returns 401 error for an unauthorized user', (done) => {
       request(app)
         .get('/api/v1/accounts')
         .expect(401)
@@ -295,7 +295,7 @@ describe('Transactions API', () => {
       }
     })
 
-    it('Returns a 401 error for an unauthorized user', (done) => {
+    it('Returns 401 error for an unauthorized user', (done) => {
       request(app)
         .get('/api/v1/accounts')
         .expect(401)
@@ -306,7 +306,7 @@ describe('Transactions API', () => {
         .end(done)
     })
 
-    it('Returns a 400 error if the description is not defined', (done) =>{
+    it('Returns 400 error if the description is not defined', (done) =>{
       // Remove description from the transaction
       delete transaction.description
       
@@ -318,7 +318,7 @@ describe('Transactions API', () => {
         .end(done)
     })
 
-    it('Returns a 400 error for an invalid date', (done) => {
+    it('Returns 400 error for an invalid date', (done) => {
       transaction.date = 'invalid-date'
 
       request(app)
@@ -329,7 +329,7 @@ describe('Transactions API', () => {
         .end(done)
     })
 
-    it('Returns a 404 error for an invalid accountId', (done) => {
+    it('Returns 404 error for an invalid accountId', (done) => {
       let badAccountId = 'BAD'
 
       request(app)
@@ -344,7 +344,7 @@ describe('Transactions API', () => {
         .end(done)
     })
 
-    it('Returns a 404 error if accountId is not found in DB', (done) => {
+    it('Returns 404 error if accountId is not found in DB', (done) => {
       let missingAccountId = new ObjectID().toHexString()
 
       request(app)
@@ -360,7 +360,7 @@ describe('Transactions API', () => {
         .end(done)
     })
 
-    it('Returns a 400 error if the description is blank', (done) => {
+    it('Returns 400 error if the description is blank', (done) => {
       let badTxn = {...transaction, description: ''}
 
       request(app)
@@ -379,7 +379,7 @@ describe('Transactions API', () => {
         .end(done)
     })
 
-    it('Returns a 400 error for an invalid amount', (done) => {
+    it('Returns 400 error for an invalid amount', (done) => {
       let badTxn = {...transaction, amount: 'invalid-amount'}
 
       request(app)
@@ -515,7 +515,7 @@ describe('Transactions API', () => {
    * PUT /api/v1/accounts/:accountId/transactions/:id
    */
   describe('PUT /api/v1/accounts/:accountId/transactions/:id', () => {
-    it('Returns a 401 error for an unauthorized user', (done) => {
+    it('Returns 401 error for an unauthorized user', (done) => {
       request(app)
         .get('/api/v1/accounts')
         .expect(401)
@@ -526,7 +526,7 @@ describe('Transactions API', () => {
         .end(done)
     })
 
-    it('Returns a 404 error for an invalid accountId', (done) => {
+    it('Returns 404 error for an invalid accountId', (done) => {
       let badAccountId  = 'BAD'
       let transactionId = transactionsData[1]._id.toHexString()
       let update        = {
@@ -545,7 +545,7 @@ describe('Transactions API', () => {
         .end(done)
     })
 
-    it('Returns a 404 error for a missing accountId', (done) => {
+    it('Returns 404 error for a missing accountId', (done) => {
       let badAccountId  = new ObjectID().toHexString()
       let transactionId = transactionsData[1]._id.toHexString()
       let update        = {
@@ -564,7 +564,7 @@ describe('Transactions API', () => {
         .end(done)
     })
 
-    it('Returns a 404 error for an invalid transactionId', (done) => {
+    it('Returns 404 error for an invalid transactionId', (done) => {
       let transactionId = 'invalid-transaction-id'
       let accountId     = accountsData[0]._id.toHexString()
       let update        = {
@@ -583,7 +583,7 @@ describe('Transactions API', () => {
         .end(done)
     })
 
-    it('Returns a 404 error for a missing transactionId', (done) => {
+    it('Returns 404 error for a missing transactionId', (done) => {
       let transactionId = new ObjectID().toHexString()
       let accountId     = accountsData[0]._id.toHexString()
       let update        = {
@@ -602,7 +602,7 @@ describe('Transactions API', () => {
         .end(done)
     })
 
-    it('Returns a 400 error if the description is blank', (done) => {
+    it('Returns 400 error if the description is blank', (done) => {
       let accountId     = transactionsData[1].accountId.toHexString()
       let transactionId = transactionsData[1]._id.toHexString()
       let update        = {
@@ -625,7 +625,7 @@ describe('Transactions API', () => {
         .end(done)
     })
 
-    it('Returns a 400 error for an invalid date', (done) => {
+    it('Returns 400 error for an invalid date', (done) => {
       let accountId     = transactionsData[1].accountId.toHexString()
       let transactionId = transactionsData[1]._id.toHexString()
       let update        = {
@@ -648,7 +648,7 @@ describe('Transactions API', () => {
         .end(done)
     })
 
-    it('Returns a 400 error for an invalid amount', (done) => {
+    it('Returns 400 error for an invalid amount', (done) => {
       let accountId     = transactionsData[1].accountId.toHexString()
       let transactionId = transactionsData[1]._id.toHexString()
       let update        = { amount: 'invalid-amount' }
@@ -756,7 +756,7 @@ describe('Transactions API', () => {
    * DELETE /api/v1/accounts/:accountId/transactions/:id
    */
   describe('DELETE /api/v1/accounts/:accountId/transactions/:id', () => {
-    it('Returns a 401 error for an unauthorized user', (done) => {
+    it('Returns 401 error for an unauthorized user', (done) => {
       request(app)
         .get('/api/v1/accounts')
         .expect(401)

@@ -101,8 +101,17 @@ describe('Accounts API', () => {
     //  1.) Create a user once at the beginning of the tests and store the
     //      "jwt" token in a variable that can be accessed in all the tests.
     //  2.) Logout the user after the tests.
-    //  3.) Add authorization tests to all of the routes.
     //-------------------------------------------------------------------------
+    it('Returns 401 error for an unauthorized user', (done) => {
+      request(app)
+        .get('/api/v1/accounts')
+        .expect(401)
+        .expect( (res) => {
+          //* console.log(`[debug] res.body= `, JSON.stringify(res.body, undefined, 2))
+          expect(res.body.error.message).to.match(/not authorized/i)
+        })
+        .end(done)
+    })
 
     it('Returns all of the users accounts', (done) => {
       request(app)
@@ -115,8 +124,13 @@ describe('Accounts API', () => {
         })
         .end(done)        
     })
+  })
 
-    it('Returns unauthorized if the user is not logged into the app', (done) => {
+  /*
+   * GET /api/v1/accounts/:id
+   */
+  describe('GET /api/v1/accounts/:id', () => {
+    it('Returns 401 error for an unauthorized user', (done) => {
       request(app)
         .get('/api/v1/accounts')
         .expect(401)
@@ -126,12 +140,7 @@ describe('Accounts API', () => {
         })
         .end(done)
     })
-  })
 
-  /*
-   * GET /api/v1/accounts/:id
-   */
-  describe('GET /api/v1/accounts/:id', () => {
     it('Returns the user\'s account w/ id', (done) => {
       let accountId = accountsData[0]._id
 
@@ -169,6 +178,17 @@ describe('Accounts API', () => {
    * POST /api/v1/accounts
    */
   describe('POST /api/v1/accounts', () => {
+    it('Returns 401 error for an unauthorized user', (done) => {
+      request(app)
+        .get('/api/v1/accounts')
+        .expect(401)
+        .expect( (res) => {
+          //* console.log(`[debug] res.body= `, JSON.stringify(res.body, undefined, 2))
+          expect(res.body.error.message).to.match(/not authorized/i)
+        })
+        .end(done)
+    })
+
     it('Returns an error if required fields are blank', (done) => {
       let account   = {...accountsData[1]}
       delete(account.name)
@@ -353,7 +373,18 @@ describe('Accounts API', () => {
    * PUT /api/v1/accounts/:id
    */
   describe('PUT /api/v1/accounts/:id', () => {
-    it('Returns a 404 status if the account is not found', (done) => {
+    it('Returns 401 error for an unauthorized user', (done) => {
+      request(app)
+        .get('/api/v1/accounts')
+        .expect(401)
+        .expect( (res) => {
+          //* console.log(`[debug] res.body= `, JSON.stringify(res.body, undefined, 2))
+          expect(res.body.error.message).to.match(/not authorized/i)
+        })
+        .end(done)
+    })
+
+    it('Returns 404 status if the account is not found', (done) => {
       let id      = new ObjectID().toHexString()
       let update  = { name: 'ID Not Found' }
 
@@ -370,7 +401,7 @@ describe('Accounts API', () => {
         .end(done)
     })
     
-    it('Returns a 404 error for an invalid account id', (done) => {
+    it('Returns 404 error for an invalid account id', (done) => {
       let id      = 'INVALID_ACCOUNT_ID'
       let update  = { name: 'Invalid Account ID' }
 
@@ -386,7 +417,7 @@ describe('Accounts API', () => {
         .end(done)
     })
 
-    it('Returns a 400 error if the name is blank', (done) => {
+    it('Returns 400 error if the name is blank', (done) => {
       let accountId = accountsData[0]._id
       let update    = { name: '' }
 
@@ -406,7 +437,7 @@ describe('Accounts API', () => {
         .end(done)
     })
 
-    it('Returns a 400 error if the financialInstitute is blank', (done) => {
+    it('Returns 400 error if the financialInstitute is blank', (done) => {
       let accountId = accountsData[0]._id
       let update    = { financialInstitute: '' }
 
@@ -426,7 +457,7 @@ describe('Accounts API', () => {
         .end(done)
     })
 
-    it('Returns a 400 error for an invalid balance', (done) => {
+    it('Returns 400 error for an invalid balance', (done) => {
       let accountId = accountsData[0]._id
       let update    = { balance: 'INVALID_BALANCE' }
 
@@ -445,7 +476,7 @@ describe('Accounts API', () => {
         .end(done)
     })
 
-    it('Returns a 400 error for an invalid asOfDate', (done) => {
+    it('Returns 400 error for an invalid asOfDate', (done) => {
       let accountId = accountsData[0]._id
       let update    = { asOfDate: 'INVALID_DATE' }
 
@@ -540,7 +571,18 @@ describe('Accounts API', () => {
    * DELETE /api/v1/accounts/:id
    */
   describe('DELETE /api/v1/accounts/:id', () => {
-    it('Returns a 404 status if the account is not found', (done) => {
+    it('Returns 401 error for an unauthorized user', (done) => {
+      request(app)
+        .get('/api/v1/accounts')
+        .expect(401)
+        .expect( (res) => {
+          //* console.log(`[debug] res.body= `, JSON.stringify(res.body, undefined, 2))
+          expect(res.body.error.message).to.match(/not authorized/i)
+        })
+        .end(done)
+    })
+    
+    it('Returns 404 status if the account is not found', (done) => {
       let id = new ObjectID().toHexString()
 
       request(app)
@@ -550,7 +592,7 @@ describe('Accounts API', () => {
         .end(done)
     })
 
-    it('Returns a 400 error if the account ID is invalid', (done) => {
+    it('Returns 400 error if the account ID is invalid', (done) => {
       let id = 'invalid-account-id'
 
       request(app)
