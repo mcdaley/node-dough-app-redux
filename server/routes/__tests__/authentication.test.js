@@ -111,6 +111,83 @@ describe('Authentication API', () => {
         })
     })
   })
+
+  /**
+   * POST /api/v1/login
+   */
+  describe('POSY /api/v1/login', () => {
+    //-------------------------------------------------------------------------
+    // TODO: 05/11/20
+    // THIS TEST DOES NOT CALL THE LocalStrategy AND DOES NOT GENERATE THE
+    // CORRECT RESPONSE. IF I CALL THE API W/O AN EMAIL AND PASSWORD THEN I
+    // RECEIVE THE CORRECT ERROR MESSAGE. 
+    //-------------------------------------------------------------------------
+    it.skip('Requires an email and a password', (done) => {
+      request(app)
+        .post('/api/v1/login')
+        .send({email: '', password: ''})
+        .expect(400)
+        .expect( (res) => {
+          console.log(`[debug] POST login error= `, JSON.stringify(res.body, undefined, 2))
+          expect(true).to.equal(true)
+        })
+        .end(done)
+    })
+
+    it('Requires a valid email address', (done) => {
+      request(app)
+        .post('/api/v1/login')
+        .send({email: 'marv.levy', password: 'password123'})
+        .expect(400)
+        .expect( (res) => {
+          //* console.log(`[debug] POST login error= `, JSON.stringify(res.body, undefined, 2))
+          expect(res.body.error.code).to.equal(400)
+          expect(res.body.error.message).to.match(/invalid credentials/i)
+        })
+        .end(done)
+    })
+
+    it('Requires the users correct password', (done) => {
+      request(app)
+        .post('/api/v1/login')
+        .send({email: usersData[0].email, password: 'wrong-password'})
+        .expect(400)
+        .expect( (res) => {
+          //* console.log(`[debug] POST login error= `, JSON.stringify(res.body, undefined, 2))
+          expect(res.body.error.code).to.equal(400)
+          expect(res.body.error.message).to.match(/invalid credentials/i)
+        })
+        .end(done)
+    })
+
+    it('Requires a registered user', (done) => {
+      let unregisteredUser = {email: 'bruce@bills.com', password: 'password123'}
+
+      request(app)
+        .post('/api/v1/login')
+        .send({email: unregisteredUser.email, password: unregisteredUser.password})
+        .expect(400)
+        .expect( (res) => {
+          //* console.log(`[debug] POST login error= `, JSON.stringify(res.body, undefined, 2))
+          expect(res.body.error.code).to.equal(400)
+          expect(res.body.error.message).to.match(/invalid credentials/i)
+        })
+        .end(done)      
+    })
+
+    it('Logs in a user w/ valid credentials', (done) => {
+      request(app)
+        .post('/api/v1/login')
+        .send({email: usersData[0].email, password: usersData[0].password})
+        .expect(200)
+        .expect( (res) => {
+          //* console.log(`[debug] POST logins response= `, JSON.stringify(res.body, undefined, 2))
+          expect(res.body.user.email).to.equal(usersData[0].email)
+          expect(res.body.user._id).to.equal(usersData[0]._id.toHexString())
+        })
+        .end(done)
+    })
+  })
 })
 
 
