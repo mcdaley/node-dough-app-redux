@@ -184,6 +184,7 @@ describe('Authentication API', () => {
           //* console.log(`[debug] POST logins response= `, JSON.stringify(res.body, undefined, 2))
           expect(res.body.user.email).to.equal(usersData[0].email)
           expect(res.body.user._id).to.equal(usersData[0]._id.toHexString())
+          expect(res.header.authorization).to.match(/Bearer/)
         })
         .end(done)
     })

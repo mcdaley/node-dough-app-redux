@@ -85,7 +85,7 @@ describe('Accounts API', () => {
         if(err) { return done(err) }
 
         //* console.log(`[DEBUG] Response Header = `, JSON.stringify(res.header, undefined, 2))
-        jwt = res.header['set-cookie']
+        jwt = res.header['authorization']
         done()
       })
   });
@@ -116,10 +116,11 @@ describe('Accounts API', () => {
     it('Returns all of the users accounts', (done) => {
       request(app)
         .get('/api/v1/accounts')
-        .set('Cookie', jwt)
+        .set('Authorization', jwt)
         .expect(200)
         .expect( (res) => {
           //* console.log(`[debug] res.body= `, JSON.stringify(res.body, undefined, 2))
+          expect(res.header['access-control-expose-headers']).to.match(/Authorization/i)
           expect(res.body.accounts.length).to.equal(3)
         })
         .end(done)        
@@ -146,7 +147,7 @@ describe('Accounts API', () => {
 
       request(app)
         .get(`/api/v1/accounts/${accountId}`)
-        .set('Cookie', jwt)
+        .set('Authorization', jwt)
         .expect(200)
         .expect( (res) => {
           expect(res.body.account.name).to.equal(accountsData[0].name)
@@ -158,7 +159,7 @@ describe('Accounts API', () => {
     it('Returns error for invalid account ID', (done) => {
       request(app)
         .get(`/api/v1/accounts/invalid-id`)
-        .set('Cookie', jwt)
+        .set('Authorization', jwt)
         .expect(404)
         .end(done)
     })
@@ -168,7 +169,7 @@ describe('Accounts API', () => {
 
       request(app)
         .get(`/api/v1/accounts/${notFoundId}`)
-        .set('Cookie', jwt)
+        .set('Authorization', jwt)
         .expect(404)
         .end(done)
     })
@@ -196,7 +197,7 @@ describe('Accounts API', () => {
 
       request(app)
         .post('/api/v1/accounts')
-        .set('Cookie', jwt)
+        .set('Authorization', jwt)
         .send(account)
         .expect(400)
         .expect( (res) => {
@@ -218,7 +219,7 @@ describe('Accounts API', () => {
 
       request(app)
         .post('/api/v1/accounts')
-        .set('Cookie', jwt)
+        .set('Authorization', jwt)
         .send(account)
         .expect(400)
         .expect( (res) => {
@@ -236,7 +237,7 @@ describe('Accounts API', () => {
 
       request(app)
         .post('/api/v1/accounts')
-        .set('Cookie', jwt)
+        .set('Authorization', jwt)
         .send(account)
         .expect(400)
         .expect( (res) => {
@@ -257,7 +258,7 @@ describe('Accounts API', () => {
 
       request(app)
         .post('/api/v1/accounts')
-        .set('Cookie', jwt)
+        .set('Authorization', jwt)
         .send(account)
         .expect(400)
         .expect( (res) => {
@@ -276,7 +277,7 @@ describe('Accounts API', () => {
 
       request(app)
         .post('/api/v1/accounts')
-        .set('Cookie', jwt)
+        .set('Authorization', jwt)
         .send(account)
         .expect(201)
         .expect( (res) => {
@@ -320,7 +321,7 @@ describe('Accounts API', () => {
 
       request(app)
         .post('/api/v1/accounts')
-        .set('Cookie', jwt)
+        .set('Authorization', jwt)
         .send(account)
         .expect(201)
         .expect( (res) => {
@@ -390,7 +391,7 @@ describe('Accounts API', () => {
 
       request(app)
         .put(`/api/v1/accounts/${id}`)
-        .set('Cookie', jwt)
+        .set('Authorization', jwt)
         .send(update)
         .expect(404)
         .expect( (res) => {
@@ -407,7 +408,7 @@ describe('Accounts API', () => {
 
       request(app)
         .put(`/api/v1/accounts/${id}`)
-        .set('Cookie', jwt)
+        .set('Authorization', jwt)
         .send(update)
         .expect(404)
         .expect( (res) => {
@@ -423,7 +424,7 @@ describe('Accounts API', () => {
 
       request(app)
         .put(`/api/v1/accounts/${accountId}`)
-        .set('Cookie', jwt)
+        .set('Authorization', jwt)
         .send(update)
         .expect(400)
         .expect( (res) => {
@@ -443,7 +444,7 @@ describe('Accounts API', () => {
 
       request(app)
         .put(`/api/v1/accounts/${accountId}`)
-        .set('Cookie', jwt)
+        .set('Authorization', jwt)
         .send(update)
         .expect(400)
         .expect( (res) => {
@@ -463,7 +464,7 @@ describe('Accounts API', () => {
 
       request(app)
         .put(`/api/v1/accounts/${accountId}`)
-        .set('Cookie', jwt)
+        .set('Authorization', jwt)
         .send(update)
         .expect(400)
         .expect( (res) => {
@@ -482,7 +483,7 @@ describe('Accounts API', () => {
 
       request(app)
         .put(`/api/v1/accounts/${accountId}`)
-        .set('Cookie', jwt)
+        .set('Authorization', jwt)
         .send(update)
         .expect(400)
         .expect( (res) => {
@@ -502,7 +503,7 @@ describe('Accounts API', () => {
 
       request(app)
         .put(`/api/v1/accounts/${id}`)
-        .set('Cookie', jwt)
+        .set('Authorization', jwt)
         .send(update)
         .expect(400)
         .expect( (res) => {
@@ -523,7 +524,7 @@ describe('Accounts API', () => {
 
       request(app)
         .put(`/api/v1/accounts/${id}`)
-        .set('Cookie', jwt)
+        .set('Authorization', jwt)
         .send(update)
         .expect(200)
         .expect( (res) => {
@@ -543,7 +544,7 @@ describe('Accounts API', () => {
 
       request(app)
         .put(`/api/v1/accounts/${id}`)
-        .set('Cookie', jwt)
+        .set('Authorization', jwt)
         .send(update)
         .expect(200)
         .expect( (res) => {
@@ -587,7 +588,7 @@ describe('Accounts API', () => {
 
       request(app)
         .delete(`/api/v1/accounts/${id}`)
-        .set('Cookie', jwt)
+        .set('Authorization', jwt)
         .expect(404)
         .end(done)
     })
@@ -597,7 +598,7 @@ describe('Accounts API', () => {
 
       request(app)
         .delete(`/api/v1/accounts/${id}`)
-        .set('Cookie', jwt)
+        .set('Authorization', jwt)
         .expect(400)
         .end(done)
     })
@@ -607,7 +608,7 @@ describe('Accounts API', () => {
 
       request(app)
         .delete(`/api/v1/accounts/${id}`)
-        .set('Cookie', jwt)
+        .set('Authorization', jwt)
         .expect(200)
         .expect( (res) => {
           expect(res.body.name).to.equal(accountsData[0].name)

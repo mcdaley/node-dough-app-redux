@@ -119,7 +119,7 @@ describe('Transactions API', () => {
         if(err) { return done(err) }
 
         //* console.log(`[DEBUG] Response Header = `, JSON.stringify(res.header, undefined, 2))
-        jwt = res.header['set-cookie']
+        jwt = res.header['authorization']
         done()
       })
   });
@@ -145,7 +145,7 @@ describe('Transactions API', () => {
 
       request(app)
         .get(`/api/v1/accounts/${invalidAccountId}/transactions/${transactionId}`)
-        .set('Cookie', jwt)
+        .set('Authorization', jwt)
         .expect(404)
         .end(done)
     })
@@ -156,7 +156,7 @@ describe('Transactions API', () => {
 
       request(app)
         .get(`/api/v1/accounts/${missingAccountId}/transactions/${transactionId}`)
-        .set('Cookie', jwt)
+        .set('Authorization', jwt)
         .expect(404)
         .end(done)
     })
@@ -167,7 +167,7 @@ describe('Transactions API', () => {
 
       request(app)
         .get(`/api/v1/accounts/${accountId}/transactions/${invalidTxnId}`)
-        .set('Cookie', jwt)
+        .set('Authorization', jwt)
         .expect(404)
         .end(done)
     })
@@ -178,7 +178,7 @@ describe('Transactions API', () => {
 
       request(app)
         .get(`/api/v1/accounts/${accountId}/transactions/${txnId}`)
-        .set('Cookie', jwt)
+        .set('Authorization', jwt)
         .expect(404)
         .end(done)
     })
@@ -189,7 +189,7 @@ describe('Transactions API', () => {
 
       request(app)
         .get(`/api/v1/accounts/${accountId}/transactions/${txnId}`)
-        .set('Cookie', jwt)
+        .set('Authorization', jwt)
         .expect(200)
         .expect( (res) => {
           let {transaction} = res.body
@@ -222,7 +222,7 @@ describe('Transactions API', () => {
 
       request(app)
         .get(`/api/v1/accounts/${invalidAccountId}/transactions`)
-        .set('Cookie', jwt)
+        .set('Authorization', jwt)
         .expect(404)
         .expect( (res) => {
           expect(res.body.code).to.equal(404)
@@ -236,7 +236,7 @@ describe('Transactions API', () => {
 
       request(app)
         .get(`/api/v1/accounts/${missingAccountId}/transactions`)
-        .set('Cookie', jwt)
+        .set('Authorization', jwt)
         .expect(404)
         .expect( (res) => {
           expect(res.body.code).to.equal(404)
@@ -250,7 +250,7 @@ describe('Transactions API', () => {
 
       request(app)
         .get(`/api/v1/accounts/${accountId}/transactions`)
-        .set('Cookie', jwt)
+        .set('Authorization', jwt)
         .expect(200)
         .expect( (res) => {
           expect(res.body.transactions.length).to.equal(4)
@@ -263,7 +263,7 @@ describe('Transactions API', () => {
 
       request(app)
         .get(`/api/v1/accounts/${accountId}/transactions`)
-        .set('Cookie', jwt)
+        .set('Authorization', jwt)
         .expect(200)
         .expect( (res) => {
           let {transactions}  = res.body
@@ -312,7 +312,7 @@ describe('Transactions API', () => {
       
       request(app)
         .post(`/api/v1/accounts/${accountId}/transactions`)
-        .set('Cookie', jwt)
+        .set('Authorization', jwt)
         .send(transaction)
         .expect(400)
         .end(done)
@@ -323,7 +323,7 @@ describe('Transactions API', () => {
 
       request(app)
         .post(`/api/v1/accounts/${accountId}/transactions`)
-        .set('Cookie', jwt)
+        .set('Authorization', jwt)
         .send(transaction)
         .expect(400)
         .end(done)
@@ -334,7 +334,7 @@ describe('Transactions API', () => {
 
       request(app)
         .post(`/api/v1/accounts/${badAccountId}/transactions`)
-        .set('Cookie', jwt)
+        .set('Authorization', jwt)
         .send(transaction)
         .expect(404)
         .expect( (res) => {
@@ -349,7 +349,7 @@ describe('Transactions API', () => {
 
       request(app)
         .post(`/api/v1/accounts/${missingAccountId}/transactions`)
-        .set('Cookie', jwt)
+        .set('Authorization', jwt)
         .send(transaction)
         .expect(404)
         .expect( (res) => {
@@ -365,7 +365,7 @@ describe('Transactions API', () => {
 
       request(app)
         .post(`/api/v1/accounts/${accountId}/transactions`)
-        .set('Cookie', jwt)
+        .set('Authorization', jwt)
         .send(badTxn)
         .expect(400)
         .expect( (res) => {
@@ -384,7 +384,7 @@ describe('Transactions API', () => {
 
       request(app)
         .post(`/api/v1/accounts/${accountId}/transactions`)
-        .set('Cookie', jwt)
+        .set('Authorization', jwt)
         .send(badTxn)
         .expect(400)
         .expect( (res) => {
@@ -403,7 +403,7 @@ describe('Transactions API', () => {
       
       request(app)
         .post(`/api/v1/accounts/${accountId}/transactions`)
-        .set('Cookie', jwt)
+        .set('Authorization', jwt)
         .send(transaction)
         .expect(201)
         .expect( (res) => {
@@ -462,7 +462,7 @@ describe('Transactions API', () => {
       
       request(app)
         .post(`/api/v1/accounts/${accountId}/transactions`)
-        .set('Cookie', jwt)
+        .set('Authorization', jwt)
         .send(creditTxn)
         .expect(201)
         .expect( (res) => {
@@ -535,7 +535,7 @@ describe('Transactions API', () => {
 
       request(app)
         .put(`/api/v1/accounts/${badAccountId}/transactions/${transactionId}`)
-        .set('Cookie', jwt)
+        .set('Authorization', jwt)
         .send(update)
         .expect(404)
         .expect( (res) => {
@@ -554,7 +554,7 @@ describe('Transactions API', () => {
 
       request(app)
         .put(`/api/v1/accounts/${badAccountId}/transactions/${transactionId}`)
-        .set('Cookie', jwt)
+        .set('Authorization', jwt)
         .send(update)
         .expect(404)
         .expect( (res) => {
@@ -573,7 +573,7 @@ describe('Transactions API', () => {
 
       request(app)
         .put(`/api/v1/accounts/${accountId}/transactions/${transactionId}`)
-        .set('Cookie', jwt)
+        .set('Authorization', jwt)
         .send(update)
         .expect(404)
         .expect( (res) => {
@@ -592,7 +592,7 @@ describe('Transactions API', () => {
 
       request(app)
         .put(`/api/v1/accounts/${accountId}/transactions/${transactionId}`)
-        .set('Cookie', jwt)
+        .set('Authorization', jwt)
         .send(update)
         .expect(404)
         .expect( (res) => {
@@ -611,7 +611,7 @@ describe('Transactions API', () => {
 
       request(app)
         .put(`/api/v1/accounts/${accountId}/transactions/${transactionId}`)
-        .set('Cookie', jwt)
+        .set('Authorization', jwt)
         .send(update)
         .expect(400)
         .expect( (res) => {
@@ -634,7 +634,7 @@ describe('Transactions API', () => {
 
       request(app)
         .put(`/api/v1/accounts/${accountId}/transactions/${transactionId}`)
-        .set('Cookie', jwt)
+        .set('Authorization', jwt)
         .send(update)
         .expect(400)
         .expect( (res) => {
@@ -655,7 +655,7 @@ describe('Transactions API', () => {
 
       request(app)
         .put(`/api/v1/accounts/${accountId}/transactions/${transactionId}`)
-        .set('Cookie', jwt)
+        .set('Authorization', jwt)
         .send(update)
         .expect(400)
         .expect( (res) => {
@@ -680,7 +680,7 @@ describe('Transactions API', () => {
 
       request(app)
         .put(`/api/v1/accounts/${accountId}/transactions/${transactionId}`)
-        .set('Cookie', jwt)
+        .set('Authorization', jwt)
         .send(update)
         .expect(200)
         .expect( (res) => {
@@ -706,7 +706,7 @@ describe('Transactions API', () => {
 
       request(app)
         .put(`/api/v1/accounts/${accountId}/transactions/${transactionId}`)
-        .set('Cookie', jwt)
+        .set('Authorization', jwt)
         .send(update)
         .expect(200)
         .expect( (res) => {
@@ -773,7 +773,7 @@ describe('Transactions API', () => {
 
       request(app)
         .delete(`/api/v1/accounts/${invalidAccountId}/transactions/${transactionId}`)
-        .set('Cookie', jwt)
+        .set('Authorization', jwt)
         .expect(404)
         .end(done)
     })
@@ -784,7 +784,7 @@ describe('Transactions API', () => {
 
       request(app)
         .delete(`/api/v1/accounts/${missingAccountId}/transactions/${transactionId}`)
-        .set('Cookie', jwt)
+        .set('Authorization', jwt)
         .expect(404)
         .end(done)
     })
@@ -795,7 +795,7 @@ describe('Transactions API', () => {
 
       request(app)
         .delete(`/api/v1/accounts/${accountId}/transactions/${invalidTxnId}`)
-        .set('Cookie', jwt)
+        .set('Authorization', jwt)
         .expect(404)
         .end(done)
     })
@@ -806,7 +806,7 @@ describe('Transactions API', () => {
 
       request(app)
         .delete(`/api/v1/accounts/${accountId}/transactions/${txnId}`)
-        .set('Cookie', jwt)
+        .set('Authorization', jwt)
         .expect(404)
         .end(done)
     })
@@ -817,7 +817,7 @@ describe('Transactions API', () => {
 
       request(app)
         .delete(`/api/v1/accounts/${accountId}/transactions/${txnId}`)
-        .set('Cookie', jwt)
+        .set('Authorization', jwt)
         .expect(200)
         .expect( (res) => {
           let txn = res.body.transaction

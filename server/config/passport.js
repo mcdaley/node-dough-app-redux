@@ -4,6 +4,7 @@
 const passport      = require('passport')
 const LocalStrategy = require('passport-local').Strategy
 const JWTStrategy   = require('passport-jwt').Strategy
+const ExtractJwt    = require('passport-jwt').ExtractJwt
 
 const User          = require('../models/user')
 const logger        = require('./winston')
@@ -42,18 +43,11 @@ passport.use(new LocalStrategy({
 
 /**
  * Setup up JSON Web Token strategy that will verify if a user has a
- * valid JSON Web Token.
+ * valid JSON Web Token by extracting the Bearer token in the 'Authorization'
+ * header of the request.
  */
-const cookieExtractor = (req) => {
-  let token = null
-  if(req && req.cookies) {
-    token = req.cookies['jwt']
-  }
-  return token
-}
-
 passport.use(new JWTStrategy({
-    jwtFromRequest: cookieExtractor,
+    jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
     secretOrKey:    process.env.SECRET,
   },
   (jwtPayload, done) => {

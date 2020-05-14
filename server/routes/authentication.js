@@ -69,8 +69,7 @@ router.post('/v1/login', (req, res) => {
         const token = jwt.sign(JSON.stringify(payload), process.env.SECRET);
         const data  = {_id: payload._id, email: payload.email, expires: payload.expires}
 
-        //* res.cookie('jwt', token, { httpOnly: true });
-        res.status(200).cookie('jwt', token).send({user: data});
+        res.status(200).set({Authorization: `Bearer ${token}`}).send({user: data})
       })
     }
   )(req, res)
