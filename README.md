@@ -1,5 +1,40 @@
 # Dough App
 
+## ToDo
+
+### User Authentication
+Add user authentication to the react client.
+
+#### authAPI
+- register API
+- login API
+  * Retrieve and parse JWT from response
+  * Store JWT and user info in local storage or cookies
+- Add authService to handle sign-up, sign-in, and isAuthenticated?
+- API tests
+  * register
+  * login
+
+#### Sign Up Form
+- Form to sign up user
+- Call register API to sign-up users
+- Component tests
+
+#### Login Form
+- Form to login user
+- Call login API to login
+- Retrieve, parse, and store the JWT
+- Redirect user to /accounts page
+
+#### Protected Routes
+- Add PrivateRoutes component
+- Update Router to use Private routes for accounts and transactions
+- Test protected routes
+
+#### Logout
+- Add "sign out" link that logs the user out of the system
+ 
+
 ## Overview
 Dough is a replica of Quicken written w/ the MERN stack. The goal of the project is to learn the following:
 

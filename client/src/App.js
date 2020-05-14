@@ -8,13 +8,14 @@ import { Provider }         from 'react-redux'
 
 import AppBar               from './components/ui/navbar/Navbar'
 import Home                 from './pages/home/home-page'
+import SignIn               from './pages/auth/SignIn'
 import PagesAccountsIndex   from './pages/accounts/Index'
 import PagesAccountsShow    from './pages/accounts/Show'
 import About                from './pages/about/about-page'
 
 // Setup redux store
 import configureStore from './ducks/configureStore'
-const  store          = configureStore()
+const  store  = configureStore()
 
 /**
  * Dough App
@@ -30,6 +31,7 @@ function App() {
               renders the first one that matches the current URL. */}
           <Switch>
             <Route path="/home"               exact component={Home} />
+            <Route page="/login"              exact component={SignIn} />
             <Route path="/accounts/list"      exact component={PagesAccountsIndex} />
             <Route path="/accounts/show/:id"  exact component={PagesAccountsShow} />
             <Route path="/about"              exact component={About} />
