@@ -1,8 +1,9 @@
 //-----------------------------------------------------------------------------
 // client/src/api/auth-api.js
 //-----------------------------------------------------------------------------
-import axios      from 'axios'
-import Cookies    from 'js-cookie'
+import axios          from 'axios'
+import localStorage   from 'local-storage'
+import Cookies        from 'js-cookie'
 
 /**
  * User authentication API
@@ -21,11 +22,11 @@ const AuthAPI = {
       try {
         let result = await axios.post(url, {email: email, password: password})
 
-        console.log(`[debug] Registered user= `, result.data)
+        //* console.log(`[debug] Registered user= `, result.data)
         resolve(result.data)
       }
       catch(error) {
-        console.log(`[error] Failed to create account for email=[${email}], error= `, error)
+        //* console.log(`[error] Failed to create account for email=[${email}], error= `, error)
         reject(error)
       }
     })
@@ -40,34 +41,39 @@ const AuthAPI = {
    */
   login(email, password) {
     return new Promise( async (resolve, reject) => {
-      const url    = 'http://localhost:5000/api/v1/login'
-      const config = {withCredentials: true}
+      const url = 'http://localhost:5000/api/v1/login'
 
       try {
-        let response = await axios.post(url, {email: email, password: password}, config)
+        let response = await axios.post(url, {email: email, password: password})
 
-        console.log(`[debug] Login config= `, response.config)
-        console.log(`[debug] Login Headers= `, response.headers)
-        console.log(`[debug] Login Cookies= `, response.headers['set-cookie'])
-        ///////////////////////////////////////////////////////////////////////
-        // TODO: 05/13/20
-        // ONCE I GET THE COOKIE THEN I SHOULD BE ABLE TO USE JS-COOKIE TO
-        // SET THE COOKIE IN THE BROWSER, I THINK IT WILL THEN BE SENT IN 
-        // ALL OF MY FUTURE REQUESTS?
-        //
-        // I can set the cookie using the following code:
-        //  Cookie.set('jwt', token) 
-        ///////////////////////////////////////////////////////////////////////
+        // Save the JWT and user to local storage.
+        if(!response.headers['authorization']) {
+          reject({code: 500, message: 'Authorization error from the server'})
+        }
+        const jwt     = response.headers['authorization']
+        const {user}  = response.data
+        saveAuthorization(jwt, user)
 
-        console.log(`[debug] Signed in user= `, response.data)
-        resolve(response.data)
+        //* console.log(`[debug] Signed in user= `, response.data)
+        resolve({user})
       }
       catch(error) {
-        console.log(`[error] Failed to login user w/ email=[${email}], error= `, error)
+        //* console.log(`[error] Failed to login user w/ email=[${email}], error= `, error)
         reject(error)
       }
     })
   }
+}
+
+/**
+ * Save the user and the jwt in localstorage so that it can be retrieved and
+ * used to authenticate requests to the server.
+ * @param {String} token 
+ * @param {Object} user 
+ */
+const saveAuthorization = (jwt, user) => {
+  localStorage.set('token', jwt)
+  localStorage.set('user',  user)
 }
 
 // Export the authAPI

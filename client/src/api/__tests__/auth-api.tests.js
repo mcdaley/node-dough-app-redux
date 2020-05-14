@@ -1,9 +1,9 @@
 //-----------------------------------------------------------------------------
 // client/src/api/__tests__/auth-api.tests.js
 //-----------------------------------------------------------------------------
-import Cookies    from 'js-cookie'
-import mockAxios  from 'axios'
-import AuthAPI    from '../auth-api'
+import mockAxios      from 'axios'
+import localStorage   from 'local-storage'
+import AuthAPI        from '../auth-api'
 
 jest.mock('axios')    // https://jestjs.io/docs/en/mock-functions#mocking-modules
 
@@ -21,7 +21,8 @@ describe('AuthAPI', () => {
     password: 'password123'
   }
 
-  let userData = { _id: 'xxx', email: credentials.email, expires: Date.now() + 5000 }
+  let userData  = { _id: 'xxx', email: credentials.email, expires: Date.now() + 5000 }
+  let headers   = { authorization: 'Bearer encryptedtoken'}
 
   /**
    * TEST: AuthAPI.register()
@@ -42,7 +43,7 @@ describe('AuthAPI', () => {
         Promise.reject(error),
       )
 
-      // Call AuthAPI
+      // Call sign-up api
       try {
         let result = await AuthAPI.register()
       }
@@ -86,36 +87,76 @@ describe('AuthAPI', () => {
       expect(user._id).toBe(userData._id)
     })
   })
-})
 
-/**
- * TEST: AuthAPI.login()
- */
-describe('login', () => {
-  //---------------------------------------------------------------------------
-  // Login Tests
-  //  1.) Logins user and returns user and jwt
-  //  2.) Requires an email and password
-  //  3.) User email not found
-  //  4.) Incorrect password
-  //---------------------------------------------------------------------------
-  it.skip('Logs a user into the app', async () => {
-    ///////////////////////////////////////////////////////////////////////////
-    // Mock the Cookies.get() when I am trying to access a protected route?
-    //  Cookies.get = jest.fn().mockImplementation(() => 'fake-json-web-token')
-    //
-    //  NEED TO THINK THROUGH HOW THE COOKIE INTEGRATION WORKS:
-    //  1.) LOGIN RESPONSE
-    //    a.) PARSE COOKIE FROM THE HEADER
-    //    b.) SET THE COOKIE IN THE BROWSER USING Cookies.set(). I THINK THAT
-    //        I WANT TO MOCK THIS CALL, BUT HOW? OR DO I MOCK THE CALL TO THE
-    //        SERVICE THAT STORES THE COOKIE? I THINK THE 2ND OPTION MAKES
-    //        THE MOST SENSE.
-    //  2.) HOW DO I TEST THE LOGIN RESPONSE?
-    //    a.) HERE I HAVE TO FIGURE OUT HOW I WANT TO VERIFY A COOKIE WAS 
-    //        SENT IN THE RESPONSE. TYPICALLY. THIS IS WHERE I CAN MOCK THE
-    //        SERVICE THAT STORES THE COOKIE.
-    ///////////////////////////////////////////////////////////////////////////
-    
+  /**
+   * TEST: AuthAPI.login()
+   */
+  describe('login', () => {
+    //---------------------------------------------------------------------------
+    // Login Tests
+    //  [x] 1.) Logins user and returns user and jwt
+    //  2.) Requires an email and password
+    //  3.) User email not found
+    //  4.) Incorrect password
+    //---------------------------------------------------------------------------
+    it('Requires an email and a password', async () => {
+      let error  = {
+        errors: {
+          email:    { message: 'User email is required' },
+          password: { message: 'Password is required' }
+        }
+      }
+
+      mockAxios.post.mockImplementationOnce( () =>
+        Promise.reject(error),
+      )
+
+      try {
+        let result = await AuthAPI.login()
+      }
+      catch(err) {
+        //* console.log(`[error] MCD reqister error= `, err)
+        expect(err.errors.email.message).toMatch(/email is require/i)
+        expect(err.errors.password.message).toMatch(/password is require/i)
+      }
+    })
+
+    it('Returns 400 error for an incorrect password', async () => {
+      let error = {
+        "error": {
+          "code": 400,
+          "message": "Invalid credentials"
+        } 
+      }
+
+      mockAxios.post.mockImplementationOnce( () =>
+        Promise.reject(error),
+      )
+
+      try {
+        let result = await AuthAPI.login()
+      }
+      catch(err) {
+        //* console.log(`[error] MCD reqister error= `, err)
+        expect(err.error.code).toBe(400)
+        expect(err.error.message).toMatch(/invalid credentials/i)       
+      }
+    })
+
+    it('Logs a user into the app', async () => {
+      mockAxios.post.mockResolvedValueOnce({
+        headers:  headers,
+        data:     { user: userData },
+      })
+
+      const { user } = await AuthAPI.login(credentials.email, credentials.password)
+      
+      expect(user.email).toBe(userData.email)
+      expect(user._id).toBe(userData._id)
+
+      expect(localStorage.get('token')).toBe(headers.authorization)
+      expect(localStorage.get('user')._id).toBe(userData._id)
+      expect(localStorage.get('user').email).toBe(userData.email)
+    })
   })
 })

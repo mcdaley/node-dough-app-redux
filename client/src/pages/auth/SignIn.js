@@ -17,11 +17,15 @@ import AuthAPI    from '../../api/auth-api'
  */
 const PagesAuthSignIn = () => {
   const handleSignIn = async ({email, password}) => {
-    alert(`Sign in user w/ email=${email}, password=${password}`)
+    console.log(`[debug] Sign in user w/ email=${email}, password=${password}`)
 
     try {
       let user = await AuthAPI.login(email, password)
       console.log(`[info] Logged in user w/ email=${email} & password=${password}`)
+
+      //////////////////////////////////////////////////////////////////////////////
+      // Need to redirect to the /accounts page after the user logs into the app
+      //////////////////////////////////////////////////////////////////////////////
     }
     catch(err) {
       console.log(`[error] Failed to login user w/ email=${email}, password=${password}, err=`, err)

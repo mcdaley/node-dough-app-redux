@@ -8,12 +8,12 @@ Add user authentication to the react client.
 #### authAPI
 - register API
 - login API
-  * Retrieve and parse JWT from response
-  * Store JWT and user info in local storage or cookies
+  [x] * Retrieve and parse JWT from response
+  [x] * Store JWT and user info in local storage or cookies
 - Add authService to handle sign-up, sign-in, and isAuthenticated?
 - API tests
-  * register
-  * login
+  [x] * register
+  [x] * login
 
 #### Sign Up Form
 - Form to sign up user
