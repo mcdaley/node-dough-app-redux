@@ -6,12 +6,12 @@
 Add user authentication to the react client.
 
 #### authAPI
-- register API
-- login API
+[x] - register API
+[x] - login API
   [x] * Retrieve and parse JWT from response
   [x] * Store JWT and user info in local storage or cookies
-- Add authService to handle sign-up, sign-in, and isAuthenticated?
-- API tests
+[x] - Add authService to handle sign-up, sign-in, and isAuthenticated?
+[x] - API tests
   [x] * register
   [x] * login
 
@@ -19,16 +19,18 @@ Add user authentication to the react client.
 - Form to sign up user
 - Call register API to sign-up users
 - Component tests
+- Login user after sign-up
 
 #### Login Form
-- Form to login user
-- Call login API to login
-- Retrieve, parse, and store the JWT
+[x] - Form to login user
+[x]- Call login API to login
+[x] - Retrieve, parse, and store the JWT
 - Redirect user to /accounts page
+- Display error for the wrong password
 
 #### Protected Routes
-- Add PrivateRoutes component
-- Update Router to use Private routes for accounts and transactions
+[x] - Add PrivateRoutes component
+[x] - Update Router to use Private routes for accounts and transactions
 - Test protected routes
 
 #### Logout
