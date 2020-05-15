@@ -3,6 +3,8 @@
 //-----------------------------------------------------------------------------
 import axios              from 'axios'
 
+import AuthAPI            from './auth-api'
+
 /**
  * API for managing user accounts.
  */
@@ -14,8 +16,10 @@ const AccountsAPI = {
   get() {
     return new Promise( async (resolve, reject) => {
       try {
-        const result   = await axios.get('http://localhost:5000/api/v1/accounts');
-        const accounts = normalize(result.data.accounts)
+        const token     = AuthAPI.isAuthenticated()
+        const config    = { headers: {Authorization: token} }
+        const result    = await axios.get('http://localhost:5000/api/v1/accounts', config);
+        const accounts  = normalize(result.data.accounts)
         
         //* console.log(`[debug] fetchData, results = `, result.data)
         resolve(accounts);
@@ -43,7 +47,10 @@ const AccountsAPI = {
 
       const url = `http://localhost:5000/api/v1/accounts/${id}`
       try {
-        const result  = await axios.get(url);
+        const token   = AuthAPI.isAuthenticated()
+        const config  = { headers: {Authorization: token} }
+
+        const result  = await axios.get(url, config);
         
         //* console.log(`[debug] find(${id}), results = `, result.data)
         resolve(result.data.account);
@@ -70,7 +77,10 @@ const AccountsAPI = {
       const url = 'http://localhost:5000/api/v1/accounts'
 
       try {
-        let response = await axios.post(url, params)
+        const token     = AuthAPI.isAuthenticated()
+        const config    = { headers: {Authorization: token} }
+        
+        let   response  = await axios.post(url, params, config)
 
         //* console.log(`[info] Created account= `, response.data)
         resolve(response.data)

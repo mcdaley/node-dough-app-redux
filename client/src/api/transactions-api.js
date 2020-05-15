@@ -1,7 +1,9 @@
 //-----------------------------------------------------------------------------
 // client/src/api/transactions-api.js
 //-----------------------------------------------------------------------------
-import axios  from 'axios'
+import axios    from 'axios'
+
+import AuthAPI  from './auth-api'
 
 /**
  * API for managing a user's account transactions.
@@ -18,7 +20,8 @@ const TransactionsAPI = {
 
       const url = `http://localhost:5000/api/v1/accounts/${accountId}/transactions`
       try {
-        let result        = await axios.get(url)
+        let config        = { headers: {Authorization: AuthAPI.isAuthenticated()} }
+        let result        = await axios.get(url, config)
         let account       = result.data.account
         let transactions  = result.data.transactions.map( (txn) => setCreditAndDebitFields(txn) )
         transactions      = normalize(transactions)
@@ -51,7 +54,8 @@ const TransactionsAPI = {
 
       const url = `http://localhost:5000/api/v1/accounts/${accountId}/transactions`
       try {
-        let result      = await axios.post(url, params)
+        let config      = { headers: {Authorization: AuthAPI.isAuthenticated()} }
+        let result      = await axios.post(url, params, config)
         let transaction = setCreditAndDebitFields(result.data.transaction)
         let account     = result.data.account
         //* console.log(`[debug] Created transaction for account=[${accountId}], `, transaction)
@@ -114,7 +118,8 @@ const TransactionsAPI = {
       
       const url = `http://localhost:5000/api/v1/accounts/${accountId}/transactions/${transactionId}`
       try {
-        let result      = await axios.put(url, params)
+        let config      = { headers: {Authorization: AuthAPI.isAuthenticated()} }
+        let result      = await axios.put(url, params, config)
         let transaction = setCreditAndDebitFields(result.data.transaction)
         let account     = result.data.account
 

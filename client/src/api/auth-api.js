@@ -62,6 +62,14 @@ const AuthAPI = {
         reject(error)
       }
     })
+  },
+  /**
+   * Check to see if there is a jwt token in localstorage
+   */
+  isAuthenticated() {
+    const token = localStorage.get('token')
+
+    return token
   }
 }
 
