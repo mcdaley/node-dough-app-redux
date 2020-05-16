@@ -25,10 +25,19 @@ const AccountsAPI = {
         resolve(accounts);
       } 
       catch (err) {
-        console.log(`[error] Failed to retrieve user accounts, error= `, err.response)
-        let {error} = err.response.data
-        if(error.code === 401) {
-          // User was unauthorized, take user to the login page.
+        ///////////////////////////////////////////////////////////////////////
+        // TODO: 05/16/2020
+        // - MAKE SURE I CAN HANDLE THE DIFFERENT TYPES OF SERVER ERRORS. 
+        //   NEED TO CHECK API TO SEE WHAT ERROR CODES CAN BE RETURNED.
+        //
+        // - IF TOKEN EXPIRED OR IF TOKEN IS INVALID THEN I SHOULD CLEAR THE
+        //   'jwt' TOKEN FROM LOCAL-STORAGE.
+        ///////////////////////////////////////////////////////////////////////
+        if(err.response) {
+          // Server returned a response w/ a message.
+          console.log(`[error] Failed to retrieve user accounts, error= `, err.response)
+          
+          let {error} = err.response.data
           reject(error)
         }
         else {

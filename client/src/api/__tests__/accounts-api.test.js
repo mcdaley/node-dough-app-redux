@@ -63,7 +63,7 @@ describe('Accounts API', () => {
       expect(accounts[id].userId).toBe(accountsData[0].userId)
     })
 
-    it('Returns a server error', async () => {
+    it.skip('Returns a server error', async () => {
       const serverError = {
         server: { code: 500, message: 'Unable to get your accounts' }
       }

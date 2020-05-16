@@ -15,6 +15,9 @@ Add user authentication to the react client.
   [x] * register
   [x] * login
 
+#### Bugs
+- User w/ expired token is able to navigate to the /accounts/list page
+
 #### Sign Up Form
 - Form to sign up user
 - Call register API to sign-up users
@@ -36,7 +39,9 @@ Add user authentication to the react client.
 
 #### Logout
 [x] - Add "sign out" link that logs the user out of the system
-- Update Navbar links after user signs out.
+- Update Navbar links after user signs out. Add a dropdown w/ the user's 
+  email address w/ a Logout Link and add the user to the state. When a user
+  clicks logout then I can clear the user from the state.
 
 #### Navbar
 - Different Navbar links if a user is authenticated

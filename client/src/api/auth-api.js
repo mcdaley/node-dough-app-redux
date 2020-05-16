@@ -57,9 +57,13 @@ const AuthAPI = {
         //* console.log(`[debug] Signed in user= `, response.data)
         resolve({user})
       }
-      catch(error) {
-        //* console.log(`[error] Failed to login user w/ email=[${email}], error= `, error)
-        reject(error)
+      catch(err) {
+        //* console.log(`[error] Failed to login user w/ email=[${email}], error= `, err)
+        if(err.response) {
+          const {error} = err.response.data
+          return reject(error)
+        }
+        reject(err)
       }
     })
   },
