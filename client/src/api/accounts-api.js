@@ -4,6 +4,7 @@
 import axios              from 'axios'
 
 import AuthAPI            from './auth-api'
+import { handleErrors }   from '../utils/api-helpers'
 
 /**
  * API for managing user accounts.
@@ -25,26 +26,9 @@ const AccountsAPI = {
         resolve(accounts);
       } 
       catch (err) {
-        ///////////////////////////////////////////////////////////////////////
-        // TODO: 05/16/2020
-        // - MAKE SURE I CAN HANDLE THE DIFFERENT TYPES OF SERVER ERRORS. 
-        //   NEED TO CHECK API TO SEE WHAT ERROR CODES CAN BE RETURNED.
-        //
-        // - IF TOKEN EXPIRED OR IF TOKEN IS INVALID THEN I SHOULD CLEAR THE
-        //   'jwt' TOKEN FROM LOCAL-STORAGE.
-        ///////////////////////////////////////////////////////////////////////
-        if(err.response) {
-          console.log(`[error] Failed to retrieve user accounts, error= `, err.response)
-          
-          let {error} = err.response.data
-          reject(error)
-        }
-        else {
-          reject({
-            code:     500,
-            message:  'Unable to get your accounts',
-          })
-        } 
+        //* console.log(`[error] Failed to get accounts, error= `, err)
+        const error = handleErrors(err)
+        reject(error) 
       }
     })
   },
@@ -70,12 +54,8 @@ const AccountsAPI = {
       }
       catch (err) {
         //* console.log(`[error] Failed to retrieve accounts w/ id=[${id}], error= `, err)
-        reject({
-          server: {
-            code:     500,
-            message:  `Unable to get account, id=[${id}]`,
-          }
-        })
+        const error = handleErrors(err)
+        reject(error)
       }
     })
   },
@@ -98,43 +78,9 @@ const AccountsAPI = {
         //* console.log(`[info] Created account= `, response.data)
         resolve(response.data)
       }
-      catch(error) {
-        if (error.response) {
-          console.log(
-            `[error] Failed to create account, `  + 
-            `status=[${error.response.status}], ` +
-            `data= [${error.response.data}]`
-          )
-          // Convert errors from [] to an {}
-          let errors = {}
-          error.response.data.errors.forEach( (err) => {
-            errors[err.path] = {
-              code:     err.code, 
-              field:    err.path, 
-              message:  err.message}
-          })
-    
-          reject(errors)
-        } 
-        else if (error.request) {
-          // The request was made but no response was received
-          reject({
-            server: {
-              code:     500,
-              message:  'Unable to connect to the server',
-            }
-          })
-        } 
-        else {
-          // Received unknown server error.
-          console.log('Error', error.message);
-          reject({
-            server: {
-              code:     500,
-              message:  'Unable to connect to the server',
-            }
-          })
-        }
+      catch(err) {
+        const error = handleErrors(err)
+        reject(error)
       }
     })
   }

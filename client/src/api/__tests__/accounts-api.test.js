@@ -63,22 +63,48 @@ describe('Accounts API', () => {
       expect(accounts[id].userId).toBe(accountsData[0].userId)
     })
 
-    it.skip('Returns a server error', async () => {
-      const serverError = {
-        server: { code: 500, message: 'Unable to get your accounts' }
+    it('Returns 401 error for an expired token', async () => {
+      // Fake error response for expired token
+      const error = {
+        response: {
+          status: 401,
+          data:   {
+            error: {
+              code:     401,
+              message:  'Expired token'
+            }
+          }
+        }
       }
 
       // Add mock implementation to simulate a server error
       axiosMock.get.mockImplementationOnce(() =>
-        Promise.reject(serverError),
+        Promise.reject(error),
       )
 
       try {
         const accounts = await AccountsAPI.get()
       }
-      catch(error) {
-        expect(error.server.code).toBe(500)
-        expect(error.server.message).toMatch(/Unable to get your accounts/)
+      catch(err) {
+        expect(err.code).toBe(401)
+        expect(err.message).toMatch(/expired token/i)
+      }
+    })
+
+    it('Returns a server error', async () => {
+      const error = { code: 500, message: 'server error' }
+
+      // Add mock implementation to simulate a server error
+      axiosMock.get.mockImplementationOnce(() =>
+        Promise.reject(error),
+      )
+
+      try {
+        const accounts = await AccountsAPI.get()
+      }
+      catch(err) {
+        expect(err.code).toBe(500)
+        expect(err.message).toMatch(/server error/i)
       }
     })
   })
@@ -87,23 +113,50 @@ describe('Accounts API', () => {
    * AccountsAPI.find()
    */
   describe('find', () => { 
-    it('Returns a 500 message if account is not found', async () => {
-      const serverError = {
-        server: { code: 500, message: 'Not found' }
+    it('Returns 401 error for an expired token', async () => {
+      // Fake error response for expired token
+      const error = {
+        response: {
+          status: 401,
+          data:   {
+            error: {
+              code:     401,
+              message:  'Expired token'
+            }
+          }
+        }
       }
 
-      // Add mock implementation to simulate a 404 error
+      // Add mock implementation to simulate a server error
       axiosMock.get.mockImplementationOnce(() =>
-        Promise.reject(serverError),
+        Promise.reject(error),
       )
 
       try {
         const accountId = '99'
         const account   = await AccountsAPI.find('99')
       }
-      catch(error) {
-        expect(error.server.code).toBe(500)
-        expect(error.server.message).toMatch(/unable to get account/i)
+      catch(err) {
+        expect(err.code).toBe(401)
+        expect(err.message).toMatch(/expired token/i)
+      }
+    })
+
+    it('Returns a 500 message if account is not found', async () => {
+      const error = { code: 500, message: 'server error' }
+
+      // Add mock implementation to simulate a 404 error
+      axiosMock.get.mockImplementationOnce(() =>
+        Promise.reject(error),
+      )
+
+      try {
+        const accountId = '99'
+        const account   = await AccountsAPI.find('99')
+      }
+      catch(err) {
+        expect(err.code).toBe(500)
+        expect(err.message).toMatch(/server error/i)
       }
     })
 
@@ -177,21 +230,19 @@ describe('Accounts API', () => {
         openingDate:        '2020-03-31T07:00:00.000Z',
       }
 
-      const serverError = {
-        server: { code: 500, message: 'Unable to get your accounts' }
-      }
+      const error = { code: 500, message: 'server error' }
 
       // Add mock implementation to simulate a server error
       axiosMock.post.mockImplementationOnce((url, params) =>
-        Promise.reject(serverError),
+        Promise.reject(error),
       )
 
       try {
         const accounts= await AccountsAPI.create(params)
       }
-      catch(error) {
-        expect(error.server.code).toBe(500)
-        expect(error.server.message).toMatch(/Unable to connect to the server/)
+      catch(err) {
+        expect(err.code).toBe(500)
+        expect(err.message).toMatch(/server error/i)
       }
     })
   })
