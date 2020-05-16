@@ -29,7 +29,7 @@ function PagesAccountsIndex() {
   //     AND THE ACCOUNTS ARE AVAILABLE IN THE REDUX STORE.
   /////////////////////////////////////////////////////////////////////////////
   const accounts  = useSelector(state => state.accounts.byId)
-  const errors    = useSelector(state => state.errors)
+  const error     = useSelector(state => state.accounts.byId.error)
 
   const dispatch  = useDispatch()
   
@@ -90,11 +90,11 @@ function PagesAccountsIndex() {
    * or if there was an error creating a new account.
    */
   function displayError() {
-    if(errors == null) { return null }
+    if(error == null) { return null }
 
     return (
       <Alert variant='danger' style={{width:'100%'}}>
-        {errors.server.message}
+        {error.message}
       </Alert>
     )
   }

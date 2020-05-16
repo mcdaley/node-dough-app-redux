@@ -15,8 +15,12 @@ Add user authentication to the react client.
   [x] * register
   [x] * login
 
+#### Enahancement
+- Provide flash message when user's session is expired.
+
 #### Bugs
-- User w/ expired token is able to navigate to the /accounts/list page
+[x] - User w/ expired token is able to navigate to the /accounts/list page
+      [x] * Logout out user if the jwt is expired in AuthAPI.isAuthenticated
 
 #### Sign Up Form
 - Form to sign up user

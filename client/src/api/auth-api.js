@@ -68,10 +68,24 @@ const AuthAPI = {
     })
   },
   /**
-   * Check to see if there is a jwt token in localstorage
+   * Check to see if the user has a valid jwt. Vreify that the token exists
+   * and if it is not expired. If the token is expired then remove it.
+   * @returns {String} Return the token if it is valid, otherwise returns null.
    */
   isAuthenticated() {
+    function isTokenExpired() {
+      if(user.expires < Date.now()) {
+        AuthAPI.logout()
+        return true
+      }
+      return false
+    }
+
+    const user  = localStorage.get('user')
     const token = localStorage.get('token')
+
+    if(!user && !token)  { return null }
+    if(isTokenExpired()) { return null }
 
     return token
   },

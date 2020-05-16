@@ -34,7 +34,6 @@ const AccountsAPI = {
         //   'jwt' TOKEN FROM LOCAL-STORAGE.
         ///////////////////////////////////////////////////////////////////////
         if(err.response) {
-          // Server returned a response w/ a message.
           console.log(`[error] Failed to retrieve user accounts, error= `, err.response)
           
           let {error} = err.response.data
@@ -42,10 +41,8 @@ const AccountsAPI = {
         }
         else {
           reject({
-            server: {
-              code:     500,
-              message:  'Unable to get your accounts',
-            }
+            code:     500,
+            message:  'Unable to get your accounts',
           })
         } 
       }
