@@ -8,7 +8,7 @@ import {
   Col,
   Button, 
 }                       from 'react-bootstrap'
-import { useHistory }   from 'react-router-dom'
+import { useHistory, useLocation }   from 'react-router-dom'
 
 import Form             from '../../components/auth/Form'
 import AuthAPI          from '../../api/auth-api'
@@ -17,19 +17,17 @@ import AuthAPI          from '../../api/auth-api'
  * SignIn page for the app.
  */
 const PagesAuthSignIn = () => {
-  const history = useHistory()
+  const history   = useHistory()
+  const location  = useLocation()
 
   const handleSignIn = async ({email, password}) => {
     console.log(`[debug] Sign in user w/ email=${email}, password=${password}`)
 
     try {
-      let user = await AuthAPI.login(email, password)
-      console.log(`[info] Logged in user w/ email=${email} & password=${password}`)
+      let user = await AuthAPI.login(email, password);
+      console.log(`[info] Logged in user w/ email=${email} & password=${password}`);
 
-      //////////////////////////////////////////////////////////////////////////////
-      // Need to redirect to the /accounts page after the user logs into the app
-      //////////////////////////////////////////////////////////////////////////////
-      history.push('/accounts/list')
+      history.replace('/accounts/list')
     }
     catch(err) {
       console.log(`[error] Failed to login user w/ email=${email}, password=${password}, err=`, err)

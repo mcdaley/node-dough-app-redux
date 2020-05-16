@@ -33,6 +33,13 @@ function PagesAccountsIndex() {
 
   const dispatch  = useDispatch()
   
+  /////////////////////////////////////////////////////////////////////////////
+  // TODO: 05/15/2020
+  // NEED TO HANDLE THE 401 UNAUTHORIZED ERRORS, SHOULD REDIRECT THE USER
+  // TO THE /login PAGE W/ THE ERROR MESSAGE.
+  //  1.) NEED TO SET THE ERROR  FLAG AND REDIRECT THE USER
+  //  2.) NEED TO NOT TRY TO RENDER THE ACCOUNTS LIST.
+  /////////////////////////////////////////////////////////////////////////////
   /**
    * Fetch user's accounts when the page loads.
    */

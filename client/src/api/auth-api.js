@@ -70,6 +70,14 @@ const AuthAPI = {
     const token = localStorage.get('token')
 
     return token
+  },
+  /**
+   * Log out the user by clearing the jwt and user from local storage.
+   */
+  logout() {
+    console.log(`[debug] Sign user out of the app`)
+    localStorage.remove('token')
+    localStorage.remove('user')
   }
 }
 

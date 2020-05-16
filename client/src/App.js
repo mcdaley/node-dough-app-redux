@@ -8,10 +8,11 @@ import { Provider }         from 'react-redux'
 
 import AppBar               from './components/ui/navbar/Navbar'
 import PrivateRoute         from './components/routes/Private'
-import Home                 from './pages/home/home-page'
-import SignIn               from './pages/auth/SignIn'
+import PagesAuthSignIn      from './pages/auth/SignIn'
+import PagesAuthSignOut     from './pages/auth/SignOut'
 import PagesAccountsIndex   from './pages/accounts/Index'
 import PagesAccountsShow    from './pages/accounts/Show'
+import Home                 from './pages/home/home-page'
 import About                from './pages/about/about-page'
 
 // Setup redux store
@@ -36,10 +37,11 @@ function App() {
             <PrivateRoute exact path="/accounts/show/:id"  component={PagesAccountsShow} />
 
             {/* Public Routes */}
-            <Route exact path="/home"   component={Home} />
-            <Route exact path="/about"  component={About} />
-            <Route exact page="/login"  component={SignIn} />
-            <Route path="/"             component={Home} />
+            <Route exact path='/home'     component={Home} />
+            <Route exact path='/about'    component={About} />
+            <Route exact path='/login'    component={PagesAuthSignIn} />
+            <Route exact path='/logout'   component={PagesAuthSignOut} />
+            <Route path="/"               component={Home} />
           </Switch>
         </Router>
       </div>

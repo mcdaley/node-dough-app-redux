@@ -25,13 +25,20 @@ const AccountsAPI = {
         resolve(accounts);
       } 
       catch (err) {
-        //* console.log(`[error] Failed to retrieve user accounts, error= `, err)
-        reject({
-          server: {
-            code:     500,
-            message:  'Unable to get your accounts',
-          }
-        })
+        console.log(`[error] Failed to retrieve user accounts, error= `, err.response)
+        let {error} = err.response.data
+        if(error.code === 401) {
+          // User was unauthorized, take user to the login page.
+          reject(error)
+        }
+        else {
+          reject({
+            server: {
+              code:     500,
+              message:  'Unable to get your accounts',
+            }
+          })
+        } 
       }
     })
   },

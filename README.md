@@ -19,14 +19,15 @@ Add user authentication to the react client.
 - Form to sign up user
 - Call register API to sign-up users
 - Component tests
-- Login user after sign-up
+- Redirect to /login after signup?
 
 #### Login Form
 [x] - Form to login user
 [x]- Call login API to login
 [x] - Retrieve, parse, and store the JWT
-- Redirect user to /accounts page
+[x] - Redirect user to /accounts page
 - Display error for the wrong password
+- Login Form UI tests
 
 #### Protected Routes
 [x] - Add PrivateRoutes component
@@ -34,7 +35,13 @@ Add user authentication to the react client.
 - Test protected routes
 
 #### Logout
-- Add "sign out" link that logs the user out of the system
+[x] - Add "sign out" link that logs the user out of the system
+- Update Navbar links after user signs out.
+
+#### Navbar
+- Different Navbar links if a user is authenticated
+  * Display Home, About, and Sign Up/Sign In links if  user is not authenticated.
+  * Display Dashboard, Accounts, Reports, and  Sign Out if user is authenticated.
  
 
 ## Overview
