@@ -92,26 +92,53 @@ describe('Transactions API', () => {
       expect(transactions[id].debit).toBe('')
     })
 
-    it('Returns a server error', async () => {
-      const accountId   = transactionsData[0].accountId
-      const serverError = {
-        server: { 
-          code:     500, 
-          message:  `Unable to get your transactions for account id=[${accountId}]` 
+    it('Returns 401 error for an expired token', async () => {
+      // Fake error response for expired token
+      const accountId = transactionsData[0].accountId
+      const error     = {
+        response: {
+          status: 401,
+          data:   {
+            error: {
+              code:     401,
+              message:  'Expired token'
+            }
+          }
         }
       }
 
       // Add mock implementation to simulate a server error
       axiosMock.get.mockImplementationOnce(() =>
-        Promise.reject(serverError),
+        Promise.reject(error),
+      )
+
+      try {
+        const accounts = await TransactionsAPI.findByAccountId(accountId)
+      }
+      catch(err) {
+        expect(err.code).toBe(401)
+        expect(err.message).toMatch(/expired token/i)
+      }
+    })
+
+    it('Returns 500 server error', async () => {
+      const accountId = transactionsData[0].accountId
+      const error     = {
+        code:     500, 
+        message:  `Failed to get transactions for account id=[${accountId}]`,
+      }
+
+      // Add mock implementation to simulate a server error
+      axiosMock.get.mockImplementationOnce(() =>
+        Promise.reject(error),
       )
 
       try {
         const transactions = await TransactionsAPI.findByAccountId(accountId)
       }
       catch(error) {
-        expect(error.server.code).toBe(500)
-        expect(error.server.message).toMatch(/Unable to get transactions/)
+        expect(error.code).toBe(500)
+        expect(error.message).toMatch(/Failed to get transactions/i)
       }
     })
   })
@@ -189,25 +216,23 @@ describe('Transactions API', () => {
       expect(account.balance).toBe(newBalance)
     })
 
-    it('Returns a server error', async () => {
+    it('Returns 500 server error', async () => {
       const url     = 'http://localhost:5000/api/v1/accounts/xxx/transactions'
       const params  = {}
 
-      const serverError = {
-        server: { code: 500, message: 'Unable to get your accounts' }
-      }
+      const error = { code: 500, message: 'api message' }
 
       // Add mock implementation to simulate a server error
       axiosMock.post.mockImplementationOnce((url, params) =>
-        Promise.reject(serverError),
+        Promise.reject(error),
       )
 
       try {
         const transaction = await TransactionsAPI.create(params)
       }
       catch(error) {
-        expect(error.server.code).toBe(500)
-        expect(error.server.message).toMatch(/Unable to connect to the server/)
+        expect(error.code).toBe(500)
+        expect(error.message).toMatch(/failed to create transaction/i)
       }
     })
   })
@@ -257,20 +282,31 @@ describe('Transactions API', () => {
       const baseUrl   = `http://localhost:5000/api/v1`
       const url       = `${baseUrl}/${accountId}/transactions/${badTxnId}`
       const params    = {}
-      const serverErr = { code: 404, message: 'Transaction not found' }
+      const error = {
+        response: {
+          status: 404,
+          data:   {
+            error: {
+              code:     404,
+              message:  'Not found'
+            }
+          }
+        }
+      }
 
       // Add mock implementation to simulate a server error
       axiosMock.put.mockImplementationOnce((url, params) =>
-        Promise.reject(serverErr),
+        Promise.reject(error),
       )
 
       try {
         let {transaction} = await TransactionsAPI.update(accountId, badTxnId, params)
         console.debug(`[debug]: transaction= `, transaction)
       }
-      catch(error) {
-        expect(error.server.code).toBe(404)
-        expect(error.server.message).toMatch(/transaction not found/i)
+      catch(err) {
+        //* console.log(`[error] Failed to update txn= `, JSON.stringify(err, undefined, 2))
+        expect(err.code).toBe(404)
+        expect(err.message).toMatch(/not found/i)
       }
     })
 
@@ -284,29 +320,36 @@ describe('Transactions API', () => {
         description:  '',
         amount:       'invalid-amount'
       }
+      const error = {
+        response: {
+          status: 400,
+          data:   {
+            errors: [
+              { code: 701, path: 'description', value: '', message: 'Description is required'},
+              { code: 701, path: 'amount', value: 'invalid-amount', message: 'Amount is a number'},
+            ]
+          }
+        }
+      }
 
       // Add mock implementation to simulate a server error
       axiosMock.put.mockImplementationOnce( (url, params) =>
-        Promise.reject({ errors: [
-            { code: 701, path: 'description', value: '', message: 'Description is required'},
-            { code: 701, path: 'amount', value: 'invalid-amount', message: 'Amount is a number'},
-          ]
-        }),
+        Promise.reject(error)
       )
 
       try {
         let {transaction} = await TransactionsAPI.update(accountId, txnId, params)
       }
-      catch(error) {
-        expect(error[0].code).toBe(701)
-        expect(error[0].path).toBe('description')
-        expect(error[0].value).toBe('')
-        expect(error[0].message).toMatch(/description is required/i)
+      catch(err) {
+        //* console.log(`[error] MCD Failed to update txn= `, JSON.stringify(err, undefined, 2))
 
-        expect(error[1].code).toBe(701)
-        expect(error[1].path).toBe('amount')
-        expect(error[1].value).toBe('invalid-amount')
-        expect(error[1].message).toMatch(/amount is a number/i)
+        expect(err['description'].code).toBe(701)
+        expect(err['description'].field).toBe('description')
+        expect(err['description'].message).toMatch(/description is required/i)
+
+        expect(err['amount'].code).toBe(701)
+        expect(err['amount'].field).toBe('amount')
+        expect(err['amount'].message).toMatch(/amount is a number/i)
       }
     })
   })

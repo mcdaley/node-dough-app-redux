@@ -1,9 +1,10 @@
 //-----------------------------------------------------------------------------
 // client/src/api/transactions-api.js
 //-----------------------------------------------------------------------------
-import axios    from 'axios'
+import axios              from 'axios'
 
-import AuthAPI  from './auth-api'
+import AuthAPI            from './auth-api'
+import { handleErrors }   from '../utils/api-helpers'
 
 /**
  * API for managing a user's account transactions.
@@ -29,14 +30,11 @@ const TransactionsAPI = {
         //* console.log(`[debug] Account Id=[${accountId}], transactions = `, transactions)
         resolve({account, transactions});
       }
-      catch(error) {
+      catch(err) {
         //* console.log(`[error] Failed to fetch transactions for account id=[${accountId}], error= `, error)
-        reject({
-          server: {
-            code:     500,
-            message:  `Unable to get transactions for account id=[${accountId}]`,
-          }
-        })
+        const message = `Failed to get transactions for account id=[${accountId}]`
+        const error   = handleErrors(err, message)
+        reject(error)
       }
     })
   },
@@ -62,43 +60,10 @@ const TransactionsAPI = {
 
         resolve({transaction, account})
       }
-      catch(error) {
-        if (error.response) {
-          console.log(
-            `[error] Failed to create transaction, ` + 
-            `status=[${error.response.status}], `    +
-            `data= [${error.response.data}]`
-          )
-          // Convert errors from [] to an {}
-          let errors = {}
-          error.response.data.errors.forEach( (err) => {
-            errors[err.path] = {
-              code:     err.code, 
-              field:    err.path, 
-              message:  err.message}
-          })
-    
-          reject(errors)
-        } 
-        else if (error.request) {
-          // The request was made but no response was received
-          reject({
-            server: {
-              code:     500,
-              message:  'Unable to connect to the server',
-            }
-          })
-        } 
-        else {
-          // Received unknown server error.
-          //* console.log('Error', error.message);
-          reject({
-            server: {
-              code:     500,
-              message:  'Unable to connect to the server',
-            }
-          })
-        }
+      catch(err) {
+        const message = `Failed to create transaction for account id=[${accountId}]`
+        const error   = handleErrors(err, message)
+        reject(error)
       }
     })
   },
@@ -126,55 +91,10 @@ const TransactionsAPI = {
         //* console.log(`[debug] Updated transaction for account=[${accountId}], `, transaction)
         resolve({transaction, account})
       }
-      catch(error) {
-        if (error.response) {
-          console.log(
-            `[error] Failed to update the transaction, `  + 
-            `status=[${error.response.status}], ` +
-            `data= [${error.response.data}]`
-          )
-          // Convert errors from [] to an {}
-          let errors = {}
-          error.response.data.errors.forEach( (err) => {
-            errors[err.path] = {
-              code:     err.code, 
-              field:    err.path, 
-              message:  err.message}
-          })
-    
-          reject(errors)
-        } 
-        else if (error.request) {
-          // The request was made but no response was received
-          reject({
-            server: {
-              code:     500,
-              message:  'Unable to connect to the server',
-            }
-          })
-        } 
-        else if(Array.isArray(error.errors)) {
-          // Handle form input validation errors
-          let inputErrors = error.errors.map( (err) => {
-            return { 
-              code:     err.code, 
-              path:     err.path,
-              value:    err.value,
-              message:  err.message
-            } 
-          })
-          reject(inputErrors)
-        }
-        else {
-          // Received unknown server error.
-          //** console.log('Error', error.message);
-          reject({
-            server: {
-              code:     error.code || 500,
-              message:  error.message || 'Unable to connect to the server',
-            }
-          })
-        }
+      catch(err) {
+        const message = `Failed to update transaction for account id=[${accountId}]`
+        const error   = handleErrors(err, message)
+        reject(error)
       }
     })
   }

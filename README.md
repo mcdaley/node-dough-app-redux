@@ -19,6 +19,12 @@ Add user authentication to the react client.
 - Provide flash message when user's session is expired.
 
 #### Bugs
+- Expired User creates a transaction is not redirected to the login page
+  * Add const [error, setError] = useState({state.transactions.byId.error})
+  * If the error.code = 401 then use logout user and redirect to /login
+- If user deletes all of their transactions and then goes to view them then 
+  the server crashes when calculating the running balance.
+  * Should not calculate it if transactions = []
 [x] - User w/ expired token is able to navigate to the /accounts/list page
       [x] * Logout out user if the jwt is expired in AuthAPI.isAuthenticated
 
