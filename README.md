@@ -19,9 +19,13 @@ Add user authentication to the react client.
 - Provide flash message when user's session is expired.
 
 #### Bugs
+- Need to clear out redux store when a user logs out of the application.
+  * Look into adding User duck w/ sign-in and sign-out actions?
+  * How do I clear state when there is a 401 error while the user is
+    in the App?
 - Expired User creates a transaction is not redirected to the login page
-  * Add const [error, setError] = useState({state.transactions.byId.error})
-  * If the error.code = 401 then use logout user and redirect to /login
+  [x] * Add const [error, setError] = useState({state.transactions.byId.error})
+  [x] * If the error.code = 401 then use logout user and redirect to /login
 - If user deletes all of their transactions and then goes to view them then 
   the server crashes when calculating the running balance.
   * Should not calculate it if transactions = []
@@ -39,7 +43,7 @@ Add user authentication to the react client.
 [x]- Call login API to login
 [x] - Retrieve, parse, and store the JWT
 [x] - Redirect user to /accounts page
-- Display error for the wrong password
+[x] - Display error for the wrong password
 - Login Form UI tests
 
 #### Protected Routes
@@ -55,8 +59,8 @@ Add user authentication to the react client.
 
 #### Navbar
 - Different Navbar links if a user is authenticated
-  * Display Home, About, and Sign Up/Sign In links if  user is not authenticated.
-  * Display Dashboard, Accounts, Reports, and  Sign Out if user is authenticated.
+  [x] * Display Home, About, and Sign Up/Sign In links if  user is not authenticated.
+  [x] * Display Dashboard, Accounts, Reports, and  Sign Out if user is authenticated.
  
 
 ## Overview

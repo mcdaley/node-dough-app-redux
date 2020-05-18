@@ -1,17 +1,17 @@
 //-----------------------------------------------------------------------------
 // src/client/pages/auth/SignIn.js
 //-----------------------------------------------------------------------------
-import React, { useState }    from 'react'
+import React, { useState }          from 'react'
 import { 
   Alert, 
   Col,
   Container, 
   Row,
-}                             from 'react-bootstrap'
-import { useHistory }         from 'react-router-dom'
+}                                   from 'react-bootstrap'
+import { useHistory, useLocation }  from 'react-router-dom'
 
-import Form                   from '../../components/auth/Form'
-import AuthAPI                from '../../api/auth-api'
+import Form                         from '../../components/auth/Form'
+import AuthAPI                      from '../../api/auth-api'
 
 /**
  * SignIn page for the app.
@@ -19,6 +19,7 @@ import AuthAPI                from '../../api/auth-api'
 const PagesAuthSignIn = () => {
   const [error, setError] = useState(null)
   const history           = useHistory()
+  const location          = useLocation()
 
   /**
    * Callback to sign the user into the app. If the user is authenticated then
@@ -44,9 +45,14 @@ const PagesAuthSignIn = () => {
   }
 
   const renderErrors = () => {
-    return error ? (
-      <Alert variant='danger'>{error.message}</Alert>
-    ) : null
+    //* console.log(`[DEBUG] Trying to access the location= `, location.state)
+    if(location.state) {
+      return <Alert variant='warning'>{location.state}</Alert>
+    }
+    else if(error) {
+      return <Alert variant='danger'>{error.message}</Alert>
+    }
+    return null
   }
 
   /**

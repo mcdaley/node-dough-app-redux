@@ -4,20 +4,19 @@
 import React, { useState, useEffect }   from 'react'
 import { useSelector, useDispatch }     from 'react-redux'
 import { 
+  Alert,
+  Button,
+  Col,
   Container, 
   Row,
-  Col,
-  Button, 
 }                                       from 'react-bootstrap'
 import { useParams, useHistory }        from 'react-router-dom'
-import { Link }                         from 'react-router-dom'
 
 import AccountSummary                   from '../../components/account/Summary'
 import TransactionGrid                  from '../../components/transaction/Grid'
 import TransactionForm                  from '../../components/transaction/Form'
 import { runningBalance }               from '../../utils/transactions-helper'
 import { actions }                      from '../../ducks/transactions'
-import { actions as accountActions }    from '../../ducks/accounts'
 
 /**
  * 
@@ -31,7 +30,7 @@ const PagesAccountsShow = () => {
   const dispatch     = useDispatch()
   const accounts     = useSelector(state => state.accounts.byId)
   const transactions = useSelector(state => state.transactions.byId)
-  const errors       = useSelector(state => state.transactions.error)
+  const error        = useSelector(state => state.transactions.byId.error)
  
   /**
    * Fetch Account and Transactions when the page loads.
@@ -146,6 +145,22 @@ const PagesAccountsShow = () => {
     return transactionList
   }
 
+  const renderErrors = () => {
+    if(error) {
+      if(error.code === 401) {
+        history.push('/login', 'Please log in')      // Unauthorized request, user logged out.
+      }
+      else {
+        return (
+          <Alert variant='danger'>
+            {error.code}: {error.message}
+          </Alert>
+        )
+      }
+    }
+   return null
+  }
+
 
   /**
    * Render the PagesAccountsShow screen
@@ -160,6 +175,11 @@ const PagesAccountsShow = () => {
       <Row>
         <Col>
           {renderTransactionForm()}
+        </Col>
+      </Row>
+      <Row>
+        <Col>
+          {renderErrors()} 
         </Col>
       </Row>
       <Row>
