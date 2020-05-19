@@ -2,20 +2,23 @@
 // src/client/pages/auth/SignOut.js
 //-----------------------------------------------------------------------------
 import React, { useEffect }   from 'react'
+import { useDispatch }        from 'react-redux'
 import { 
   Container, 
   Row,
   Col,
 }                             from 'react-bootstrap'
 
-import AuthAPI                from '../../api/auth-api'
+import { actions }            from '../../ducks/users'
 
 /**
  * Log the user out.
  */
 const PagesAuthSignOut = () => {
+  const dispatch  = useDispatch()
+
   useEffect( () => {
-    AuthAPI.logout()
+    dispatch(actions.logout())
   }, [])
 
   return (

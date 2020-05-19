@@ -5,6 +5,7 @@ import { combineReducers }        from 'redux'
 
 import TransactionsAPI            from '../api/transactions-api'
 import AccountsAPI                from '../api/accounts-api'
+import { types as userTypes }     from './users'
 
 //
 // Transactions Action Types
@@ -16,6 +17,8 @@ export const types = {
   CREATE_TRANSACTION_ERROR:                 'CREATE_TRANSACTION_ERROR',
   UPDATE_TRANSACTION:                       'UPDATE_TRANSACTION',
   UPDATE_TRANSACTION_ERROR:                 'UPDATE_TRANSACTION_ERROR',
+  USER_LOGIN:                               userTypes.USER_LOGIN,
+  USER_LOGOUT:                              userTypes.USER_LOGOUT,
 }
 
 //
@@ -145,6 +148,14 @@ const transactionsById = (state = initialState, action) => {
       return {
         ...state,
         error: action.payload.error
+      }
+    case types.USER_LOGIN:
+      return {
+        ...initialState,
+      }
+    case types.USER_LOGOUT: 
+      return {
+        ...initialState, 
       }
     default:
       return state

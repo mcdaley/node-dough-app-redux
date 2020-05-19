@@ -22,7 +22,7 @@ Add user authentication to the react client.
 - Need to clear out redux store when a user logs out of the application.
   * Look into adding User duck w/ sign-in and sign-out actions?
   * How do I clear state when there is a 401 error while the user is
-    in the App?
+    in the App? Clear out the state when the user signs into the app.
 - Expired User creates a transaction is not redirected to the login page
   [x] * Add const [error, setError] = useState({state.transactions.byId.error})
   [x] * If the error.code = 401 then use logout user and redirect to /login

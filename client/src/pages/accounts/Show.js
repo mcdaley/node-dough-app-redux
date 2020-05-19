@@ -148,7 +148,7 @@ const PagesAccountsShow = () => {
   const renderErrors = () => {
     if(error) {
       if(error.code === 401) {
-        history.push('/login', 'Please log in')      // Unauthorized request, user logged out.
+        history.push('/login', {message: 'Please log in'})      // Unauthorized request, user logged out.
       }
       else {
         return (
@@ -158,7 +158,7 @@ const PagesAccountsShow = () => {
         )
       }
     }
-   return null
+    return null
   }
 
 
@@ -179,7 +179,7 @@ const PagesAccountsShow = () => {
       </Row>
       <Row>
         <Col>
-          {renderErrors()} 
+          {renderErrors()}
         </Col>
       </Row>
       <Row>

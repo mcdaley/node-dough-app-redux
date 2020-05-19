@@ -90,10 +90,12 @@ const AuthAPI = {
     return token
   },
   /**
-   * Log out the user by clearing the jwt and user from local storage.
+   * Log out the user by clearing the jwt and user from local storage. I do
+   * not need to log the user out of the server because I am using 
+   * sessionless authentication.
    */
   logout() {
-    console.log(`[debug] Sign user out of the app`)
+    //* console.log(`[debug] Sign user out of the app`)
     localStorage.remove('token')
     localStorage.remove('user')
   }
@@ -108,6 +110,8 @@ const AuthAPI = {
 const saveAuthorization = (jwt, user) => {
   localStorage.set('token', jwt)
   localStorage.set('user',  user)
+
+  return true
 }
 
 // Export the authAPI

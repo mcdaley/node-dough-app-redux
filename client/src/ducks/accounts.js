@@ -5,6 +5,7 @@ import { combineReducers }            from 'redux'
 
 import AccountsAPI                    from '../api/accounts-api'
 import { types as transactionTypes }  from './transactions'
+import { types as userTypes }         from './users'
 
 //
 // Account Action Types
@@ -18,7 +19,9 @@ export const types = {
   CREATE_ACCOUNT_ERROR:             'CREATE_ACCOUNT_ERROR',
   CREATE_TRANSACTION:               transactionTypes.CREATE_TRANSACTION,
   UPDATE_TRANSACTION:               transactionTypes.UPDATE_TRANSACTION,
-  FETCH_TRANSACTIONS_BY_ACCOUNT_ID: transactionTypes.FETCH_TRANSACTIONS_BY_ACCOUNT_ID
+  FETCH_TRANSACTIONS_BY_ACCOUNT_ID: transactionTypes.FETCH_TRANSACTIONS_BY_ACCOUNT_ID,
+  USER_LOGIN:                       userTypes.USER_LOGIN,
+  USER_LOGOUT:                      userTypes.USER_LOGOUT,
 }
 
 //
@@ -97,13 +100,6 @@ export const actions = {
 //
 // Account Reducer
 //
-///////////////////////////////////////////////////////////////////////////////
-// TODO: 04/30/2020
-// NEED TO HANDLE THE FOLLOWING ACTIONS:
-//  - FETCH_TRANSACTIONS_BY_ACCOUNT_ID
-//  - CREATE_TASK
-//  - DELETE_TASK
-///////////////////////////////////////////////////////////////////////////////
 let   initialState   = {}
 const accountsById  = (state = initialState, action) => {
   switch(action.type) {
@@ -164,6 +160,14 @@ const accountsById  = (state = initialState, action) => {
           ...action.payload.account,
           transactions: Object.keys(action.payload.transactions)
         }
+      }
+    case types.USER_LOGIN: 
+      return {
+        ...initialState,    // Reset state when user logs into the app.
+      }
+    case types.USER_LOGOUT: 
+      return {
+        ...initialState,    // Reset state when user logs out of the app.
       }
     default:
       return state

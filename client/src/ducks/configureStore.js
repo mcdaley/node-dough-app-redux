@@ -12,10 +12,12 @@ import { composeWithDevTools }      from 'redux-devtools-extension'
 
 import { reducer as accounts }      from './accounts'
 import { reducer as transactions }  from './transactions'
+import { reducer as user }          from './users'
 
 export const rootReducer = combineReducers({
   accounts,
   transactions,
+  user,
 })
 
 const configureStore = () => {
