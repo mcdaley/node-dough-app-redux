@@ -9,6 +9,7 @@ import { Provider }         from 'react-redux'
 import AppBar               from './components/ui/navbar/Navbar'
 import PrivateRoute         from './components/routes/Private'
 import PagesAuthSignIn      from './pages/auth/SignIn'
+import PagesAuthSignUp      from './pages/auth/SignUp'
 import PagesAuthSignOut     from './pages/auth/SignOut'
 import PagesAccountsIndex   from './pages/accounts/Index'
 import PagesAccountsShow    from './pages/accounts/Show'
@@ -41,6 +42,7 @@ function App() {
             <Route exact path='/about'    component={About} />
             <Route exact path='/login'    component={PagesAuthSignIn} />
             <Route exact path='/logout'   component={PagesAuthSignOut} />
+            <Route exact path='/register' component={PagesAuthSignUp} />
             <Route path="/"               component={Home} />
           </Switch>
         </Router>

@@ -21,6 +21,31 @@ export const types = {
 //
 export const actions = {
   /**
+   * Sign up the user for a new dough money account.
+   * @param {String} email 
+   * @param {String} password 
+   */
+  register(email, password) {
+    return async function(dispatch, getState) {
+      try {
+        const user = await AuthAPI.register(email, password)
+        console.log(`[info] Registered user w/ email=${email}`)
+
+        dispatch({
+          type:     types.USER_SIGNUP,
+          payload:  user,
+        })
+      }
+      catch(error) {
+        console.log(`[error] Failed to register user w/ email=${email}, error=`, error)
+        dispatch({
+          type:     types.USER_SIGNUP_ERROR,
+          payload:  {error}
+        })
+      }
+    }
+  },
+  /**
    * Log the user into the app. If the user is authenticated then returns the user,
    * otherwise it returns an error message.
    * @param   {String}   email 
@@ -62,6 +87,17 @@ export const actions = {
 const initialState = {}
 const user = (state = initialState, action) => {
   switch(action.type) {
+    case types.USER_SIGNUP:
+      return {
+        ...state,
+        ...action.payload.user,
+        error:  null,
+      }
+    case types.USER_SIGNUP_ERROR:
+      return {
+        ...state,
+        error:  action.payload.error,
+      }
     case types.USER_LOGIN:
       return {
         ...state,

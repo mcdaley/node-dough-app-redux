@@ -19,11 +19,12 @@ Add user authentication to the react client.
 - Provide flash message when user's session is expired.
 
 #### Bugs
-- Need to clear out redux store when a user logs out of the application.
-  * Look into adding User duck w/ sign-in and sign-out actions?
-  * How do I clear state when there is a 401 error while the user is
-    in the App? Clear out the state when the user signs into the app.
-- Expired User creates a transaction is not redirected to the login page
+[x] - Need to clear out redux store when a user logs out of the application.
+  [x] * Look into adding User duck w/ sign-in and sign-out actions?
+  [x] * How do I clear state when there is a 401 error while the user is
+        in the App? Fixed by clearing out local-storage and redux is reset when
+        the user logs back into the app.
+[x] - Expired User creates a transaction is not redirected to the login page
   [x] * Add const [error, setError] = useState({state.transactions.byId.error})
   [x] * If the error.code = 401 then use logout user and redirect to /login
 - If user deletes all of their transactions and then goes to view them then 

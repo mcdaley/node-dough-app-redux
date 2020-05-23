@@ -3,7 +3,6 @@
 //-----------------------------------------------------------------------------
 import axios          from 'axios'
 import localStorage   from 'local-storage'
-import Cookies        from 'js-cookie'
 
 /**
  * User authentication API
@@ -25,8 +24,10 @@ const AuthAPI = {
         //* console.log(`[debug] Registered user= `, result.data)
         resolve(result.data)
       }
-      catch(error) {
-        //* console.log(`[error] Failed to create account for email=[${email}], error= `, error)
+      catch(err) {
+        //* console.log(`[error] Failed to create account for email=[${email}], error= `, err)
+        const error = parseRegisterErrors(err)
+        
         reject(error)
       }
     })
@@ -99,7 +100,7 @@ const AuthAPI = {
     localStorage.remove('token')
     localStorage.remove('user')
   }
-}
+} // end of AuthAPI
 
 /**
  * Save the user and the jwt in localstorage so that it can be retrieved and
@@ -112,6 +113,29 @@ const saveAuthorization = (jwt, user) => {
   localStorage.set('user',  user)
 
   return true
+}
+
+/**
+ * Utility function to parse the errors returned from the sign-up api. The
+ * server api may return multiple sign-up errors, so I need to convert them
+ * to a single error w/ the format: {code: xxx, message: 'error message'}
+ * 
+ * @param   {Object} err 
+ * @returns {Object} Formatted error object.
+ */
+const parseRegisterErrors = (err) => {
+  let error = null
+  if(err.response && err.response.data.errors) {
+    let keys  = Object.keys(err.response.data.errors)
+    error     = err.response.data.errors[keys[0]]
+  }
+  else if(err.reponse) {
+    error = err.response.data.error
+  }
+  else {
+    error = err
+  }
+  return error
 }
 
 // Export the authAPI

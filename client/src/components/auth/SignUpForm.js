@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------------
-// client/src/components/auth/Form.js
+// client/src/components/auth/SignUpForm.js
 //-----------------------------------------------------------------------------
 import React                from 'react'
 import { Formik }           from 'formik'
@@ -22,6 +22,9 @@ const authValidationSchema = Yup.object({
     Yup.string()
       .max(128, 'Password muust be 128 characters or less')
       .required('Password is required'),
+  confirmPassword: 
+    Yup.string()
+      .oneOf([Yup.ref('password'), null], 'Passwords must match')
 })
 
 /**
@@ -29,13 +32,14 @@ const authValidationSchema = Yup.object({
  * 
  * @param {*} props 
  */
-const AuthForm = (props) => {
+const AuthSignUpForm = (props) => {
   return (
     <Container>
       <Formik
         initialValues = {{
-          email:    '',
-          password: '',
+          email:            '',
+          password:         '',
+          confirmPassword:  '',
         }}
         validationSchema = {authValidationSchema}
         onSubmit         = {(values, {setSubmitting, resetForm}) => {
@@ -58,7 +62,8 @@ const AuthForm = (props) => {
              values,
              touched,
              errors,
-             isSubmitting }) => (
+             isSubmitting,
+             resetForm }) => (
             <Form noValidate onSubmit={handleSubmit} data-testid='signin-form'>
               {/* Email */}
               <Form.Group controlId='email'>
@@ -95,16 +100,33 @@ const AuthForm = (props) => {
                 </Form.Control.Feedback>
               </Form.Group>
 
-              {/* SignIn and Cancel Buttons */}
+              {/* Confirm Password */}
+              <Form.Group controlId='confirmPassword'>
+                <Form.Label>Confirm Password</Form.Label>
+                <Form.Control 
+                  type        = 'password'
+                  placeholder = 'Confirm password'
+                  name        = 'confirmPassword'
+                  value       = {values.confirmPassword}
+                  onChange    = {handleChange}
+                  onBlur      = {handleBlur}
+                  isInvalid   = {touched.confirmPassword && !!errors.confirmPassword}
+                />
+                <Form.Control.Feedback type='invalid' data-testid='confirm-password-error'>
+                  {errors.confirmPassword ? errors.confirmPassword : null}
+                </Form.Control.Feedback>
+              </Form.Group>
+
+              {/* SignUp and Cancel Buttons */}
               <Button 
                 variant   = 'primary' 
                 type      = 'submit' 
                 style     = {{marginRight:'1.0rem'}}
                 disabled  = {isSubmitting}
               >
-                Sign In
+                Sign Up
               </Button>
-              <Button variant='secondary' onClick={props.onClose}>
+              <Button variant='secondary' onClick={resetForm}>
                 Cancel
               </Button>
             </Form>
@@ -116,4 +138,4 @@ const AuthForm = (props) => {
 }
 
 // Export the sign-in form
-export default AuthForm
+export default AuthSignUpForm

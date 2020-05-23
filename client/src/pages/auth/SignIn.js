@@ -9,9 +9,10 @@ import {
   Container, 
   Row,
 }                                   from 'react-bootstrap'
-import { useLocation, Redirect }  from 'react-router-dom'
+import { useLocation, Redirect }    from 'react-router-dom'
 
-import Form                         from '../../components/auth/Form'
+import SignInForm                   from '../../components/auth/SignInForm'
+import ErrorAlert                   from '../../components/ui/error/Alert'
 import AuthAPI                      from '../../api/auth-api'
 import { actions }                  from '../../ducks/users'
 
@@ -24,6 +25,8 @@ const PagesAuthSignIn = () => {
   const dispatch  = useDispatch()
   const user      = useSelector(state => state.user.user)
 
+  let   message   = ''
+
   /**
    * Callback to sign the user into the app. If the user is authenticated then
    * the user is redirected to their home page.
@@ -34,34 +37,34 @@ const PagesAuthSignIn = () => {
     console.log(`[debug] Sign in user w/ email=${email}, password=${password}`)
 
     dispatch(actions.login(email, password))
-    console.log(`[info] Success, Logged in user w/ email=${email} & password=${password}`);
+    console.log(`[info] Success, Logged in user w/ email=${email}`)
     
     return
   }
 
-  const renderErrors = () => {
-    let isError = false
-    let message = ''
-
+  /**
+   * Check to see if there was an error when the user attempted to login. If 
+   * there is an error return true, otherwise return false.
+   * @returns {Boolean} True if login error, otherwise false.
+   */
+  const isError = () => {
     if(location.state && location.state.message) {
-      isError = true
       message = location.state.message
+      return  true
     }
     else if(user.error && Object.keys(user.error).length > 0) {
-      isError = true
       message = user.error.message
+      return  true
     }
 
-    return isError ? (
-        <Alert variant='danger'>
-          {message}
-        </Alert>
-    ) : null
+    return false
   }
 
+
   /**
-   * Render the Sign-In form. If the user is authenticated then redirect
-   * the user to his home page, otherwise render the login page.
+   * Render the Sign-In form. If the user is authenticated after submitting
+   * the form then redirect the user to his home page, otherwise render the 
+   * login page w/ the error messages.
    */
   return AuthAPI.isAuthenticated() ? ( 
     <Redirect to='/accounts/list' />
@@ -74,12 +77,8 @@ const PagesAuthSignIn = () => {
       </Row>
       <Row>
         <Col>
-          {renderErrors()}
-        </Col>
-      </Row>
-      <Row>
-        <Col>
-          <Form onSubmit={handleSignIn} />
+          {isError() && <ErrorAlert message={message} />}
+          <SignInForm onSubmit={handleSignIn} />
         </Col>
       </Row>
     </Container>
