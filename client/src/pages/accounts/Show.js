@@ -78,34 +78,38 @@ const PagesAccountsShow = () => {
   }
 
   /**
-   * Render the account summary.
+   * Checks to see if the user's account has been fetched from the server. If
+   * the account has been fetched then it returns true, otherwise it returns
+   * false. Function is used to conditionally render the account summary 
+   * section of the page.
+   * 
+   * @returns {Boolean} True if account has been fetched, else false.
    */
-  const renderAccountSummary = () => {
-    if(Object.keys(accounts).length === 0 || accounts == null) return null
-    
-    const account = accounts[accountId]
-    return (
-      <AccountSummary
-        _id                 = {account._id}
-        name                = {account.name}
-        financialInstitute  = {account.financialInstitute}
-        balance             = {account.balance}
-      />
-    )
+  const isAccount = () => {
+    return (Object.keys(accounts).length === 0 || accounts == null) ? false : true
   }
 
   /**
-   * Render the form to create a new account transaction.
+   * Renders the account summary and the form to add to new transactions to an
+   * account. It can only be rendered if the account has been fetched from the
+   * server, so it must be conditionally rendered.
    */
-  const renderTransactionForm = () => {
-    if(Object.keys(accounts).length === 0 || accounts == null) return null
-
+  const renderAccountSummary = () => {
+    const account = accounts[accountId]
     return (
-      <TransactionForm
-        accountId = {accountId}
-        onSubmit  = {onCreateTransaction}
-      />
-    )
+      <>
+        <AccountSummary
+          _id                 = {account._id}
+          name                = {account.name}
+          financialInstitute  = {account.financialInstitute}
+          balance             = {account.balance}
+        />
+        <TransactionForm
+          accountId = {accountId}
+          onSubmit  = {onCreateTransaction}
+        />
+      </>
+    ) 
   }
 
   /**
@@ -150,20 +154,15 @@ const PagesAccountsShow = () => {
    * Render the PagesAccountsShow screen
    */
   return (
-    <Container fluid>      
-      <Row>
-        <Col>
-          {renderAccountSummary()}
-        </Col>
-      </Row>
-      <Row>
-        <Col>
-          {renderTransactionForm()}
-        </Col>
-      </Row>
+    <Container fluid>
       <Row>
         <Col>
           {error && <ErrorAlert error={error} />}
+        </Col>
+      </Row>      
+      <Row>
+        <Col>
+          {isAccount() && renderAccountSummary()}
         </Col>
       </Row>
       <Row>
