@@ -25,7 +25,7 @@ const PagesAuthSignIn = () => {
   const dispatch  = useDispatch()
   const user      = useSelector(state => state.user.user)
 
-  let   message   = ''
+  let   error     = false
 
   /**
    * Callback to sign the user into the app. If the user is authenticated then
@@ -49,11 +49,11 @@ const PagesAuthSignIn = () => {
    */
   const isError = () => {
     if(location.state && location.state.message) {
-      message = location.state.message
+      error = { code: 400, message: location.state.message }
       return  true
     }
     else if(user.error && Object.keys(user.error).length > 0) {
-      message = user.error.message
+      error = { code: 400, message: user.error.message }
       return  true
     }
 
@@ -77,7 +77,7 @@ const PagesAuthSignIn = () => {
       </Row>
       <Row>
         <Col>
-          {isError() && <ErrorAlert message={message} />}
+          {isError() && <ErrorAlert error={error} />}
           <SignInForm onSubmit={handleSignIn} />
         </Col>
       </Row>

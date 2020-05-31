@@ -12,6 +12,7 @@ import {
 
 import AccountList        from '../../components/account/List'
 import CreateAccountModal from '../../components/account/Modal'
+import ErrorAlert         from '../../components/ui/error/Alert'
 import { actions }        from '../../ducks/accounts'
 
 /**
@@ -33,13 +34,6 @@ function PagesAccountsIndex() {
 
   const dispatch  = useDispatch()
   
-  /////////////////////////////////////////////////////////////////////////////
-  // TODO: 05/15/2020
-  // NEED TO HANDLE THE 401 UNAUTHORIZED ERRORS, SHOULD REDIRECT THE USER
-  // TO THE /login PAGE W/ THE ERROR MESSAGE.
-  //  1.) NEED TO SET THE ERROR  FLAG AND REDIRECT THE USER
-  //  2.) NEED TO NOT TRY TO RENDER THE ACCOUNTS LIST.
-  /////////////////////////////////////////////////////////////////////////////
   /**
    * Fetch user's accounts when the page loads.
    */
@@ -57,9 +51,6 @@ function PagesAccountsIndex() {
   const [show, setShow] = useState(false)
   const showAddAccountModal = () => setShow(true)
   const hideAddAccountModal = () => setShow(false)
-
-  // Handle create account errors
-  //* const [errors, setErrors] = useState({})
 
   /**
    * Callback to create the account once the user has entered form fields.
@@ -86,29 +77,15 @@ function PagesAccountsIndex() {
   }
 
   /**
-   * Display a message if there was an error fetching the user's accounts
-   * or if there was an error creating a new account.
-   */
-  function displayError() {
-    if(error == null) { return null }
-
-    return (
-      <Alert variant='danger' style={{width:'100%'}}>
-        {error.message}
-      </Alert>
-    )
-  }
-
-  /**
    * Return an array of accounts when the page loads by converting the
    * accounts in the redux-store from an object w/ account Ids as keys
    * to an array of accounts. If the accounts have not been loaded 
    * then return an empty array.
    */
   const buildAccountList = () => {
-    if(accounts == null) {
-      return []
-    }
+    //* if(accounts == null) {
+    //*   return []
+    //* }
 
     const  accountsList = Object.keys(accounts).map( (accountId) => accounts[accountId])
     return accountsList
@@ -131,10 +108,8 @@ function PagesAccountsIndex() {
         <h1>Dough Money Redux - Accounts Page</h1>
       </Row>
       <Row>
-        {displayError()}
-      </Row>
-      <Row>
-        <AccountList accounts={buildAccountList()} />
+        { error    && <ErrorAlert  error={error} /> }
+        { accounts && <AccountList accounts={buildAccountList()} /> }
       </Row>
       <Row>
         <Button variant='primary' onClick={showAddAccountModal}>

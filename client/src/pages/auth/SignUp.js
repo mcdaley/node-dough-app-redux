@@ -60,7 +60,7 @@ const PagesAuthSignUp = () => {
       </Row>
       <Row>
         <Col>
-          {isError() &&  <ErrorAlert message={user.error.message} />}
+          {isError() &&  <ErrorAlert error={user.error} />}
         </Col>
       </Row>
       <Row>

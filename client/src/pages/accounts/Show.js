@@ -15,6 +15,7 @@ import { useParams, useHistory }        from 'react-router-dom'
 import AccountSummary                   from '../../components/account/Summary'
 import TransactionGrid                  from '../../components/transaction/Grid'
 import TransactionForm                  from '../../components/transaction/Form'
+import ErrorAlert                       from '../../components/ui/error/Alert'
 import { runningBalance }               from '../../utils/transactions-helper'
 import { actions }                      from '../../ducks/transactions'
 
@@ -145,23 +146,6 @@ const PagesAccountsShow = () => {
     return transactionList
   }
 
-  const renderErrors = () => {
-    if(error) {
-      if(error.code === 401) {
-        history.push('/login', {message: 'Please log in'})      // Unauthorized request, user logged out.
-      }
-      else {
-        return (
-          <Alert variant='danger'>
-            {error.code}: {error.message}
-          </Alert>
-        )
-      }
-    }
-    return null
-  }
-
-
   /**
    * Render the PagesAccountsShow screen
    */
@@ -179,7 +163,7 @@ const PagesAccountsShow = () => {
       </Row>
       <Row>
         <Col>
-          {renderErrors()}
+          {error && <ErrorAlert error={error} />}
         </Col>
       </Row>
       <Row>
