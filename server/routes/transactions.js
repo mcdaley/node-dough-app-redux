@@ -94,7 +94,10 @@ router.get('/v1/accounts/:accountId/transactions', authenticateJwt, async (req, 
       accountId:  accountId,
       userId:     user._id
     }).sort({ date: -1})
-    transactions     = runningBalance(account, transactions)
+
+    if(transactions.length > 0) {
+      transactions = runningBalance(account, transactions)
+    }
 
     logger.debug('Transactions w/ balance= [%o]', transactions)
 
