@@ -14,12 +14,12 @@ const AuthAPI = {
    * @param   {String}  password
    * @returns {Promise} New user if successful, otherwise the error
    */
-  register(email, password) {
+  register(email, password, username) {
     return new Promise( async (resolve, reject) => {
       const url = 'http://localhost:5000/api/v1/register'
 
       try {
-        let result = await axios.post(url, {email: email, password: password})
+        let result = await axios.post(url, {email: email, password: password, username: username})
 
         //* console.log(`[debug] Registered user= `, result.data)
         resolve(result.data)

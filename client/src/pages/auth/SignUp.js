@@ -22,8 +22,8 @@ const PagesAuthSignUp = () => {
    * Sign up the user for a new account.
    * @param {*} param0 
    */
-  const handleSubmit = async ({email, password, confirmPassword}) => {
-    dispatch(actions.register(email, password))
+  const handleSubmit = async ({email, username, password, confirmPassword}) => {
+    dispatch(actions.register(email, password, username))
     console.log(`[info] Success, Registered user w/ email=${email}`)
   }
 

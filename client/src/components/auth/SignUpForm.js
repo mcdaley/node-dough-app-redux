@@ -13,6 +13,9 @@ import {
 
 // Define authentication validation schema
 const authValidationSchema = Yup.object({
+  username:
+    Yup.string()
+      .max(32, 'Username must be 32 characters or less'),
   email: 
     Yup.string()
       .email('Must be a valid email')
@@ -37,6 +40,7 @@ const AuthSignUpForm = (props) => {
     <Container>
       <Formik
         initialValues = {{
+          username:         '',
           email:            '',
           password:         '',
           confirmPassword:  '',
@@ -80,6 +84,24 @@ const AuthSignUpForm = (props) => {
                 />
                 <Form.Control.Feedback type='invalid' data-testid='email-error'>
                   {errors.email ? errors.email : null}
+                </Form.Control.Feedback>
+              </Form.Group>
+
+              {/* Uername */}
+              <Form.Group controlId='username'>
+                <Form.Label>Username</Form.Label>
+                <Form.Control
+                  type        = 'text' 
+                  autoFocus   = {true}
+                  placeholder = 'Enter optional username'
+                  name        = 'username'
+                  onChange    = {handleChange}
+                  onBlur      = {handleBlur}
+                  value       = {values.username}
+                  isInvalid   = {touched.username && !!errors.username}
+                />
+                <Form.Control.Feedback type='invalid' data-testid='username-error'>
+                  {errors.username ? errors.username : null}
                 </Form.Control.Feedback>
               </Form.Group>
 

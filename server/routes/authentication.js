@@ -16,6 +16,7 @@ const router = express.Router()
  * POST /api/v1/register
  */
 router.post('/v1/register', async (req, res) => {
+  logger.debug('Register user, req.body= [%o]', req.body)
   const userParams = { username, email, password } = req.body
   logger.debug('Attempt to create user w/ email=[%s], password=[%s]', userParams.email, userParams.password)
 

@@ -1,21 +1,24 @@
 //-----------------------------------------------------------------------------
 // client/src/components/ui/navbar/Navbar.js
 //-----------------------------------------------------------------------------
-import React      from 'react'
-import Navbar     from 'react-bootstrap/Navbar'
-import Nav        from 'react-bootstrap/Nav'
+import React            from 'react'
+import { useSelector }  from 'react-redux'
+import Navbar           from 'react-bootstrap/Navbar'
+import Nav              from 'react-bootstrap/Nav'
+import NavDropdown      from 'react-bootstrap/NavDropdown'
 import { 
   useLocation,
   NavLink,
-}                 from 'react-router-dom'
+}                       from 'react-router-dom'
 
-import AuthAPI    from '../../../api/auth-api'
+import AuthAPI          from '../../../api/auth-api'
 
 /**
  * Component for the top navigation bar for the dough app. 
  */
 const AppBar = () => {
-  let location = useLocation()
+  let   location  = useLocation()
+  const user      = useSelector(state => state.user.user)
 
   /**
    * Render navigation links for unauthenticated users.
@@ -69,9 +72,9 @@ const AppBar = () => {
 
   const signOutLinks = () => (
     <Nav>
-      <NavLink to="/logout" className='nav-link' data-rb-event-key='/logout'>
-        Sign Out
-      </NavLink>
+      <NavDropdown title={user.username} id="basic-nav-dropdown" alignRight>
+        <NavDropdown.Item  className='dropdown-menu-left' href='/logout'>Sign Out</NavDropdown.Item>
+      </NavDropdown>
     </Nav>
   )
   
@@ -86,7 +89,7 @@ const AppBar = () => {
         <Nav className="mr-auto" activeKey={location.pathname}>
           {AuthAPI.isAuthenticated() ? renderAuthenticatedLinks() : renderUnauthenticatedLinks() }
         </Nav>
-        <Nav>
+        <Nav className='justify-content-end'>
           {renderAuthenticationLinks()}
         </Nav>
       </Navbar.Collapse>

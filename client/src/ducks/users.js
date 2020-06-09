@@ -25,10 +25,10 @@ export const actions = {
    * @param {String} email 
    * @param {String} password 
    */
-  register(email, password) {
+  register(email, password, username = '') {
     return async function(dispatch, getState) {
       try {
-        const user = await AuthAPI.register(email, password)
+        const user = await AuthAPI.register(email, password, username)
         console.log(`[info] Registered user w/ email=${email}`)
 
         dispatch({
