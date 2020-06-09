@@ -29,7 +29,7 @@ describe('User', () => {
       })
     })
 
-    it('Requies a password', () => {
+    it('Requires a password', () => {
       let user = new User()
 
       user.validate( (err) => {
@@ -58,7 +58,10 @@ describe('User', () => {
     })
 
     it('Saves valid user to DB', (done) => {
-      let user = new User({email: 'avp@bills.com', password: 'password123'})
+      let user = new User({
+        email:    'avp@bills.com', 
+        password: 'password123'
+      })
 
       user.save( function(err) {
         expect(err).to.not.exist
@@ -68,6 +71,7 @@ describe('User', () => {
 
     it('Saves valid user w/ fields to DB', (done) => {
       let user = new User({
+        username: 'marv',
         email:    'marv@bills.com', 
         phone:    '716-649-1475', 
         password: 'password123'

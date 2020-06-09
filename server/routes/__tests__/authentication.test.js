@@ -97,6 +97,7 @@ describe('Authentication API', () => {
           expect(res.body.user._id).to.be.a('string')
         })
         .end( (err, res) => {
+          console.log(`[error] Failed to register user, err= `, JSON.stringify(err, undefined, 2))
           if(err) { return done(err) }
           
           User
@@ -110,12 +111,28 @@ describe('Authentication API', () => {
           done()
         })
     })
+
+    it('Registers a user w/ a username', (done) => {
+      let user = {username: 'avp', email: 'avp@bills.com', password: 'foobar123'}
+
+      request(app)
+        .post('/api/v1/register')
+        .send(user)
+        .expect(201)
+        .expect( (res) => {
+          //* console.log(`[debug] POST register user= `, JSON.stringify(res.body, undefined, 2))
+          expect(res.body.user._id).to.be.a('string')
+          expect(res.body.user.email).to.equal(user.email)
+          expect(res.body.user.username).to.equal(user.username)
+        })
+        .end(done)
+    })
   })
 
   /**
    * POST /api/v1/login
    */
-  describe('POSY /api/v1/login', () => {
+  describe('POST /api/v1/login', () => {
     //-------------------------------------------------------------------------
     // TODO: 05/11/20
     // THIS TEST DOES NOT CALL THE LocalStrategy AND DOES NOT GENERATE THE

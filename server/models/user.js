@@ -17,6 +17,9 @@ const userSchema = new mongoose.Schema({
     },
     required:     [true, 'User email is required'],
   },
+  username: {
+    type:         String,
+  },
   phone: {
     type:         String,
     validate: {

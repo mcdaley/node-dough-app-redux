@@ -16,13 +16,14 @@ const router = express.Router()
  * POST /api/v1/register
  */
 router.post('/v1/register', async (req, res) => {
-  const { email, password } = req.body
-  logger.debug('Attempt to create user w/ email=[%s], password=[%s]', email, password)
+  const userParams = { username, email, password } = req.body
+  logger.debug('Attempt to create user w/ email=[%s], password=[%s]', userParams.email, userParams.password)
 
   try {
-    let userModel = new User({email: email, password: password})
+    const userModel = new User(userParams)
     await userModel.save()
-    let user      = { _id: userModel._id, email: userModel.email }
+
+    const user = { _id, email, username } = userModel 
     
     logger.info('Successfully created account for user= %o', user)
     res.status(201).send({user})
@@ -56,6 +57,7 @@ router.post('/v1/login', (req, res) => {
       const payload = {
         _id:      user._id.toHexString(),
         email:    user.email,
+        username: user.username || user.email,
         expires:  Date.now() + parseInt(process.env.JWT_EXPIRATION_MS),
       };
 
@@ -67,7 +69,7 @@ router.post('/v1/login', (req, res) => {
 
         // Generate a signed json web token and return it in the response
         const token = jwt.sign(JSON.stringify(payload), process.env.SECRET);
-        const data  = {_id: payload._id, email: payload.email, expires: payload.expires}
+        const data  = {_id, email, username, expires } = payload
 
         res.status(200).set({Authorization: `Bearer ${token}`}).send({user: data})
       })
